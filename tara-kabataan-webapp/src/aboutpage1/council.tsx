@@ -29,7 +29,7 @@ const resolveImage = (raw: string | null): string => {
 
   const [path, query] = raw.split("?");
   const hasOpt = path.includes("/tara-kabataan-optimized/");
-  const hasNon = path.includes("/tara-kabataan/");
+  const hasNon = path.includes("/tara-kabataan-optimized/");
 
   let full = hasOpt || hasNon ? `${API_BASE}${path}` : `${API_BASE}/tara-kabataan-optimized/${path.startsWith("/") ? path.slice(1) : path}`;
   if (query) full += `?${query}`;

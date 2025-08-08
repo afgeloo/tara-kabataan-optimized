@@ -19,7 +19,7 @@ const encodeFilename = (p: string) => {
   return encodeURIComponent(filename);
 };
 const toLogoUrl = (fullPath: string) =>
-  `${BASE}/tara-kabataan/tara-kabataan-webapp/uploads/partners-images/${encodeFilename(fullPath)}`;
+  `${BASE}/tara-kabataan-optimized/tara-kabataan-webapp/uploads/partners-images/${encodeFilename(fullPath)}`;
 
 const PartnerSec: React.FC = memo(() => {
   const [showQR, setShowQR] = useState(false);
@@ -39,7 +39,7 @@ const PartnerSec: React.FC = memo(() => {
     (async () => {
       try {
         const res = await fetch(
-          `${BASE}/tara-kabataan/tara-kabataan-backend/api/partners.php`,
+          `${BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/partners.php`,
           { signal: ctrl.signal }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

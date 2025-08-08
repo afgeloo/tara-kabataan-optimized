@@ -50,7 +50,7 @@ const EventsSec: React.FC = memo(() => {
     (async () => {
       try {
         const res = await fetch(
-          `${BASE_URL}/tara-kabataan/tara-kabataan-backend/api/events.php`,
+          `${BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/events.php`,
           { signal: ctrl.signal }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

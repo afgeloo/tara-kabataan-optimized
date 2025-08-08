@@ -87,7 +87,7 @@ const resolveMemberImage = (raw: string | null): string => {
 
   const [path, query] = raw.split("?");
   const hasOpt = path.includes("/tara-kabataan-optimized/");
-  const hasNon = path.includes("/tara-kabataan/");
+  const hasNon = path.includes("/tara-kabataan-optimized/");
 
   let normalized: string;
   if (hasOpt || hasNon) {
