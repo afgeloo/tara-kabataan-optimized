@@ -1,0 +1,63 @@
+@font-face {
+    font-family: 'helvetic';
+    src: url('../../assets/fonts/HelveticaNowText-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+@font-face {
+font-family: 'Bogart Trial';
+src: url('../../assets/fonts/Bogart-Extrabold-trial.ttf') format('truetype');
+font-weight: normal;
+font-style: normal;
+}
+
+.admin-container {
+  display: flex;
+  height: 100vh;
+  font-family: 'helvetic', sans-serif;
+  position: fixed;
+  background-color: #f8f4f6;
+  max-width: 120rem;
+  width:100%;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 40px;
+  user-select: none;
+  overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+  .admin-container {
+    position: relative;
+    height: 100vh;
+  }
+
+  .admin-content {
+    padding: 20px;
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    position: relative;
+    height: 100vh;
+  }
+
+  .admin-content {
+    padding: 15px;
+    margin-left: 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 10px;
+  }
+}

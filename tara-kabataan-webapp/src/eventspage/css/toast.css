@@ -1,0 +1,28 @@
+.custom-toast-container {
+    top: 80px !important; /* push it lower if needed */
+    right: 20px !important;
+  }
+  
+  /* Toast box styling */
+  .custom-toast {
+    background-color: #fff6f6;
+    color: black;
+    border-radius: 12px;
+    padding: 8px 14px;
+    min-width: 200px;
+    max-width: 200px;
+    max-height: 50px; /* 👈 LIMITS height */
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    overflow: hidden; /* Prevent content from spilling */
+    border-left: 5px solid #ff5a89;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+ /* Inner text spacing */
+.custom-toast-body {
+    color: black;
+    font-family: 'Helvetica Now', sans-serif;
+    padding: 0;
+  }
+  

@@ -1,0 +1,21 @@
+body{
+    background-color: #FFF6F6;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    max-width: 120rem;
+    width:100%;
+    overflow-x: hidden;
+    user-select: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+
+
+

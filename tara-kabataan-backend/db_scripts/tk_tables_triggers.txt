@@ -1,0 +1,367 @@
+-- TABLES
+CREATE TABLE tk_webapp.aboutus(
+    aboutus_id VARCHAR(150) PRIMARY KEY,
+    background TEXT,
+    overview TEXT,
+    core_kapwa TEXT,
+    core_kalinangan TEXT,
+    core_kaginhawaan TEXT,
+    mission TEXT,
+    vision TEXT,
+    council TEXT,
+    adv_kalusugan TEXT,
+    adv_kalikasan TEXT,
+    adv_karunungan TEXT,
+    adv_kultura TEXT,
+    adv_kasarian TEXT,
+    contact_no VARCHAR(20),
+    about_email VARCHAR(150),
+    facebook VARCHAR(255),
+    instagram VARCHAR(255),
+    address VARCHAR(255)
+);
+
+CREATE TABLE tk_webapp.roles (
+    role_id VARCHAR(150) PRIMARY KEY,
+    role_name VARCHAR(255),
+    role_description TEXT
+);
+
+CREATE TABLE tk_webapp.users (
+    user_id VARCHAR(150) PRIMARY KEY,
+    user_name VARCHAR(255),
+    user_email VARCHAR(255) UNIQUE,
+    user_contact VARCHAR(20),
+    password_hash VARCHAR(255),
+    role_id VARCHAR(150),
+    member_id VARCHAR(150),
+    FOREIGN KEY (role_id) REFERENCES roles(role_id),
+    FOREIGN KEY (member_id) REFERENCES members(member_id)
+);
+
+CREATE TABLE tk_webapp.blogs (
+    blog_id VARCHAR(150) PRIMARY KEY,
+    blog_image VARCHAR(255),
+    blog_category VARCHAR(255),
+    blog_title VARCHAR(255),
+    blog_author_id VARCHAR(150),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP NULL DEFAULT NULL,
+    blog_content TEXT,
+    blog_status ENUM('DRAFT', 'PUBLISHED', 'PINNED', 'ARCHIVED'),
+    FOREIGN KEY (blog_author_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE tk_webapp.blog_images (
+    blog_image_id VARCHAR(150) PRIMARY KEY,
+    blog_id VARCHAR(150),
+    image_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (blog_id) REFERENCES tk_webapp.blogs(blog_id) ON DELETE CASCADE
+);
+
+CREATE TABLE tk_webapp.events (
+    event_id VARCHAR(150) PRIMARY KEY, --
+    event_image VARCHAR(255),
+    event_category VARCHAR(255), --
+    event_title VARCHAR(255), --
+    event_date DATE, --
+    event_start_time TIME,
+    event_end_time TIME,
+    event_venue VARCHAR(255), -- 
+    event_content TEXT,
+    event_speakers TEXT,
+    event_going INT, --
+    event_status ENUM('UPCOMING', 'ONGOING', 'CANCELLED', 'COMPLETED'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP NULL DEFAULT NULL
+);
+
+CREATE TABLE tk_webapp.partnerships (
+    partner_id VARCHAR(150) PRIMARY KEY,
+    partner_image VARCHAR(255),
+    partner_name VARCHAR(255),
+    partner_dec TEXT,
+    partner_contact_email VARCHAR(255),
+    partner_phone_number VARCHAR(50)
+);
+
+CREATE TABLE tk_webapp.audit_logs (
+    log_id VARCHAR(150) PRIMARY KEY,
+    user_id VARCHAR(150),
+    action VARCHAR(255),
+    timestamp TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE tk_webapp.chatbot_faqs (
+    faq_id VARCHAR(150) PRIMARY KEY,
+    question VARCHAR(255),
+    answer TEXT
+);
+
+CREATE TABLE tk_webapp.members (
+    member_id VARCHAR(150) PRIMARY KEY,
+    member_name VARCHAR(255),
+    member_image VARCHAR(255),
+    role_id VARCHAR(150), 
+    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+);
+
+CREATE TABLE tk_webapp.admin_otp (
+    otp_id VARCHAR(150) PRIMARY KEY,
+    email VARCHAR(255),
+    otp VARCHAR(10) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    FOREIGN KEY (email) REFERENCES tk_webapp.users(user_email) ON DELETE CASCADE
+);
+
+-- Counter tables for all custom Base62 ID generators
+CREATE TABLE tk_webapp.aboutus_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.role_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.user_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.blog_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.blog_image_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.event_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.partnership_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.audit_log_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.chatbot_faq_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.member_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+CREATE TABLE tk_webapp.admin_otp_id_counter (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+-- FUNCTIONS
+DELIMITER $$
+
+CREATE FUNCTION int_to_base36(n INT) RETURNS VARCHAR(10)
+DETERMINISTIC
+BEGIN
+    DECLARE chars VARCHAR(36) DEFAULT '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'; -- ONLY 0-9, A-Z
+    DECLARE base INT DEFAULT 36;
+    DECLARE result VARCHAR(10) DEFAULT '';
+    DECLARE remainder INT;
+
+    IF n = 0 THEN
+        RETURN '000000';
+    END IF;
+
+    WHILE n > 0 DO
+        SET remainder = MOD(n, base);
+        SET result = CONCAT(SUBSTRING(chars, remainder + 1, 1), result);
+        SET n = FLOOR(n / base);
+    END WHILE;
+
+    -- Pad to 6 characters
+    RETURN LPAD(result, 6, '0');
+END$$
+
+DELIMITER ;
+
+-- TRIGGERS
+-- ABOUTUS TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_aboutus
+BEFORE INSERT ON tk_webapp.aboutus
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.aboutus_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.aboutus_id IS NULL OR NEW.aboutus_id = '' THEN
+        SET NEW.aboutus_id = CONCAT('roles-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- ROLES TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_roles
+BEFORE INSERT ON tk_webapp.roles
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.role_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.role_id IS NULL OR NEW.role_id = '' THEN
+        SET NEW.role_id = CONCAT('roles-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- USERS TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_users
+BEFORE INSERT ON tk_webapp.users
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.user_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.user_id IS NULL OR NEW.user_id = '' THEN
+        SET NEW.user_id = CONCAT('users-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- BLOGS TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_blogs
+BEFORE INSERT ON tk_webapp.blogs
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.blog_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.blog_id IS NULL OR NEW.blog_id = '' THEN
+        SET NEW.blog_id = CONCAT('blogs-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- BLOGS IMAGES TRIGGER
+DELIMITER $$
+
+CREATE TRIGGER before_insert_blog_images
+BEFORE INSERT ON tk_webapp.blog_images
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    
+    INSERT INTO tk_webapp.blog_image_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    
+    IF NEW.blog_image_id IS NULL OR NEW.blog_image_id = '' THEN
+        SET NEW.blog_image_id = CONCAT('blogimg-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- EVENTS TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_events
+BEFORE INSERT ON tk_webapp.events
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.event_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.event_id IS NULL OR NEW.event_id = '' THEN
+        SET NEW.event_id = CONCAT('events-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- PARTNERSHIPS TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_partnerships
+BEFORE INSERT ON tk_webapp.partnerships
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.partnership_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.partner_id IS NULL OR NEW.partner_id = '' THEN
+        SET NEW.partner_id = CONCAT('partner-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- CHATBOT FAQS TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_chatbot_faqs
+BEFORE INSERT ON tk_webapp.chatbot_faqs
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.chatbot_faq_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.faq_id IS NULL OR NEW.faq_id = '' THEN
+        SET NEW.faq_id = CONCAT('faq-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- MEMBERS TRIGGER
+DELIMITER $$
+CREATE TRIGGER before_insert_members
+BEFORE INSERT ON tk_webapp.members
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.member_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.member_id IS NULL OR NEW.member_id = '' THEN
+        SET NEW.member_id = CONCAT('member-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+-- Trigger for admin_otp (optional, only if using otp_id as PK)
+DELIMITER $$
+CREATE TRIGGER before_insert_admin_otp
+BEFORE INSERT ON tk_webapp.admin_otp
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    DECLARE base62_id VARCHAR(6);
+    INSERT INTO tk_webapp.admin_otp_id_counter VALUES (NULL);
+    SET next_id = LAST_INSERT_ID();
+    SET base62_id = int_to_base36(next_id);
+    IF NEW.otp_id IS NULL OR NEW.otp_id = '' THEN
+        SET NEW.otp_id = CONCAT('otp-', YEAR(CURRENT_DATE), '-', base62_id);
+    END IF;
+END$$
+DELIMITER ;
+
+
+

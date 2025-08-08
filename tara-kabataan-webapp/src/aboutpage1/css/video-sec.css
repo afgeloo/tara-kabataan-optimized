@@ -1,0 +1,87 @@
+@font-face {
+  font-family: 'Bogart Trial';
+  src: url('../../assets/fonts/Bogart-Extrabold-trial.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'helvetic';
+  src: url('../../assets/fonts/HelveticaNowText-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.about-video-sec {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px 50px 20px;
+  text-align: center;
+}
+
+
+.about-video-description {
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  width: 60%;
+  margin-bottom: 30px; 
+  text-align: center; 
+}
+
+.about-video-description h1 {
+  font-family: 'Bogart Trial', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: black;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.about-video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(135deg, #FE93B4, #58B6E5); 
+  border-radius: 20px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 950px;
+}
+
+.custom-video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;  
+  border-radius: 15px;  
+  overflow: hidden;
+  box-shadow: 0px 10px 25px rgba(255, 59, 106, 0.3), 0px 10px 25px rgba(106, 125, 255, 0.3);
+}
+
+.custom-video-frame iframe {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+@media screen and (max-width: 1024px) {
+  .about-video-description h1 {
+    font-size: 28px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .about-video-description h1 {
+    font-size: 15px;
+    text-align: center;
+    margin-top: -10px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .about-video-description h1 {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}

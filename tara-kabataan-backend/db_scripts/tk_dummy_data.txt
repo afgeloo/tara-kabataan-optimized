@@ -1,0 +1,60 @@
+INSERT INTO tk_webapp.aboutus (
+    background, overview, core_kapwa, core_kalinangan, core_kaginhawaan, 
+    mission, vision, council, adv_kalusugan, adv_kalikasan, adv_karunungan, 
+    adv_kultura, adv_kasarian, contact_no, about_email, facebook, instagram, address
+) VALUES (
+    'Ang Tara Kabataan (TK) ay naitatag noong Hulyo 3, 2022, pagkatapos ng 2022 national elections. Sa tulong ng DAKILA at Partido Manggagawa, nabuo ang pormasyon na binubuo ng mga boluntaryo mula sa national campaign sa Maynila. Mula rito, nagpasya ang mga kabataan na hindi lang kandidato ang susuportahan kundi mga pangmatagalang adbokasiya. Layunin din nilang bumuo ng malalalim na ugnayan sa iba’t ibang organisasyon at komunidad. Nagsimula ang TK sa boluntaryong pagtulong sa mga relief operations tuwing may sakuna at Brigada Eskwela sa mga pampublikong paaralan. Sa kasalukuyan, mas malawak na ang sakop nito, na may ugnayan sa maraming komunidad sa Maynila at sa ibang lungsod. May limang pangunahing adbokasiya ang TK: karunungan, kasarian, kalikasan, kalusugan, at kultura. Sa lahat ng gawain, nakasentro ang TK sa tao at karapatang pantao, kasama ang mga kabataan sa pagtataguyod ng kaginhawaan para sa lahat.',
+    'Ang Tara Kabataan (TK) ay isang organisasyon ng mga kabataan sa Maynila na itinatag para isulong ang kaginhawaan ng bawat kabataan at Manilenyo. Pinapahalagahan ng samahan ang pakikipagkapwa ng mga Pilipino na nakasandig sa ating karapatan at pagkakapantay-pantay. Naniniwala ang TK sa kakayahan ng bawat kabataan, sa loob at labas ng paaralan, na siyang higit na dapat mabigyan ng oportunidad na malinang at mapaunlad. Mula rito, mas makikilala ng kabataan ang kaniyang sarili at matatanaw ang kaniyang mahalagang papel sa komunidad, lipunan, at bayan. Mula sa sarili tungo sa bayan ang siyang hinihikayat ng Tara Kabataan sa kaniyang kapwa.',
+    'Pagpapalaganap ng pagkakapantay-pantay at tunay na koneksyon sa pamamagitan ng pakikiisa sa mga tao.\n\nIsinasabuhay ito ng TK sa pamamagitan ng pagtutulungan at bayanihan sa mga komunidad, lalo na sa pagbibigay suporta sa mga nangangailangan. Pinapahalagahan nila ang pakikinig at pag-intindi sa iba''t ibang perspektibo upang mapalakas ang pagkakaisa.',
+    'Pagyakap sa maingat na proseso ng pag-unawa at pagmumuni-muni.\n\nBilang organisasyon, binibigyang-halaga ng TK ang patuloy na pag-aaral ng sarili at lipunan mula sa sariling karanasan at sa mga kasamang komunidad. Ginagamit ang mga natutunan upang mas mapabuti ang mga programa at adbokasiya.',
+    'Pagsusumikap na makamit ang pag-unlad at kagalingang panlahat.\n\nTinitiyak ng TK na ang kanilang mga gawain ay may positibong epekto sa komunidad, mula sa maliit na tulong hanggang sa paglikha ng mga programang tumutugon sa pangmatagalang pangangailangan. Layunin na makapagbigay ng konkretong pagbabago na nakakapagpagaan ng buhay ng mga tao.',
+    'Layunin ng Tara Kabataan ang pagpapatibay ng lakas at tinig ng mga kabataan, sa loob at labas ng paaralan, upang makilala nila ang kanilang sarili at ang kanilang taglay na kakayahan at talento na siyang magsisilbing instrumento upang makatulong sa kanilang sarili, kapwa, komunidad, at bayan.',
+    'Pangarap ng Tara Kabataan ang pagkakaroon ng isang lungsod at bayan na makakabataan kung saan sa malayang paglinang ng sarili at ng kapwa, abot-kamay ang kaginhawaan para sa lahat.',
+    'Ang TK Council ang pangunahing namamahala sa mga gawaing administratibo ng organisasyon at nagsisiguro sa maayos na kalagayan ng mga miyembro. Sila ang nangangasiwa sa pagpaplano, pagsasagawa, at pagsusubaybay ng mga proyekto upang matiyak na natutupad ang layunin at adbokasiya ng Tara Kabataan. Bukod dito, binibigyan nila ng pansin ang kapakanan ng mga miyembro sa pamamagitan ng pagbibigay ng suporta at mga programa na nagpapalakas ng kanilang kakayahan at samahan bilang isang komunidad.',
+    'Itinataguyod ang abot-kamay at makataong serbisyong pangkalusugan para sa lahat sa pamamagitan ng paglaban sa pribatisasyon ng healthcare, pagtugon sa mga salik panlipunan na nakakaapekto sa kalusugan, at pagsasaayos sa kakulangan ng health workers at pasilidad.',
+    'Nangunguna sa panawagan para sa katarungang pangklima at pangangalaga sa kalikasan sa pamamagitan ng makatarungang paglipat sa sustenableng pamumuhay, paghahanda sa sakuna, at pagprotekta sa mga komunidad laban sa mapaminsalang proyekto tulad ng reclamation.',
+    'Isinusulong ang kabuuang pagkatuto at mapagpalayang edukasyon sa pamamagitan ng mga programang nakabatay sa laro, pagpapalalim ng kamalayang panlipunan, at pagtataguyod ng mabuting pamamahala.',
+    'Pinapalakas ang pambansang identidad at malikhaing kaisipan habang nilalabanan ang historikal na distorsyon sa pamamagitan ng sining bilang sandata ng paglaban at adbokasiya.',
+    'Pinapahalagahan ang pagkakapantay-pantay ng kasarian at inklusibong lipunan sa pamamagitan ng pagsusulong ng mga polisiya tulad ng SOGIESC Bill, Divorce Bill, at pagtatanggol sa karapatan ng kababaihan.',
+    '+639123456789',
+    'tarakabataan@gmail.com',
+    'https://www.facebook.com/TaraKabataanMNL',
+    'https://www.instagram.com/tarakabataan',
+    '2077 Smith St., Malate, Manila'
+);
+
+INSERT INTO tk_webapp.roles (role_name, role_description) VALUES
+('President', 'Oversees the entire organization, makes executive decisions, and ensures alignment with the vision and mission.'),
+('Partnerships', 'Establishes and maintains relationships with external organizations and stakeholders.'),
+('Research & Advocacy', 'Leads research efforts and drives advocacy campaigns based on data and community needs.'),
+('Finance', 'Manages organizational budgets, donations, and financial reporting.'),
+('Secretary', 'Handles official documentation, meeting minutes, schedules, and organizational correspondence.'),
+('Online Engagement', 'Manages social media presence and engages with the online community.'),
+('Programs & Events', 'Plans and coordinates events, workshops, and organizational activities.'),
+('Documentation', 'Captures and archives photos, videos, and records of all organizational activities.'),
+('Creatives', 'Designs visual content, branding materials, and multimedia outputs for the organization.'),
+('Internals', 'Ensures internal coordination, member welfare, and team-building initiatives.');
+
+INSERT INTO tk_webapp.members (member_name, member_image, role_id) VALUES
+('Ferdinand Sanchez II', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000001', 'roles-2025-000001'),
+('Marion Nava', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000002', 'roles-2025-000002'),
+('Joshua Barbo', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000003', 'roles-2025-000003'),
+('Mildred Collado', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000004', 'roles-2025-000004'),
+('Eunice Santiago', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000005', 'roles-2025-000005'),
+('Isaac Hernandez', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000006', 'roles-2025-000006'),
+('Raf Ranin', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000007', 'roles-2025-000007'),
+('Chester Carreon', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000008', 'roles-2025-000008'),
+('Aaron Sumampong', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000009', 'roles-2025-000009'),
+('Enrico Villegas', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-00000A', 'roles-2025-00000A');
+
+INSERT INTO tk_webapp.users (user_name, user_image, user_email, password_hash, role_id) VALUES
+('Ferdinand Sanchez II', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000001', 'ferdinance@tkwebapp.com', SHA2('ferdinandpass', 256), 'roles-2025-000001'),
+('Marion Navarro', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000002', 'marion@tkwebapp.com', SHA2('marionpass', 256), 'roles-2025-000002'),
+('Joshua Barbo', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000003', 'joshua@tkwebapp.com', SHA2('joshuapass', 256), 'roles-2025-000003'),
+('Mildred Collado', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000004', 'mildred@tkwebapp.com', SHA2('mildredpass', 256), 'roles-2025-000004'),
+('Eunice Santiago', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000005', 'eunice@tkwebapp.com', SHA2('eunicepass', 256), 'roles-2025-000005'),
+('Isaac Hernandez', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000006', 'isaac@tkwebapp.com', SHA2('isaacpass', 256), 'roles-2025-000006'),
+('Raf Ranin', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000007', 'raf@tkwebapp.com', SHA2('rafpass', 256), 'roles-2025-000007'),
+('Chester Carreon', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000008', 'chester@tkwebapp.com', SHA2('chesterpass', 256), 'roles-2025-000008'),
+('Aaron Sumampong', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-000009', 'aaron@tkwebapp.com', SHA2('aaronpass', 256), 'roles-2025-000009'),
+('Enrico Villegas', '/tara-kabataan/tara-kabataan-webapp/uploads/members-images/member-2025-00000A', 'enrico@tkwebapp.com', SHA2('enricopass', 256), 'roles-2025-00000A');

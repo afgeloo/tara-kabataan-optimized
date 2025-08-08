@@ -1,0 +1,245 @@
+.past-events-container {
+  padding-left: 150px; 
+  padding-right: 150px; 
+  max-width: 100%; /* Ensures full width */
+}
+
+.past-events-header {
+  display: flex;
+  flex-direction: column; /* Stack header and divider vertically */
+  justify-content: flex-start; /* Align title to the left */
+  margin-bottom: 16px;
+}
+
+.past-events-title {
+  font-family: 'Bogart Trial', sans-serif;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  margin-top: 50px;
+}
+
+.custom-divider-pastevents {
+  border-top: 2px solid #3c1212;
+  width: 100%;
+  margin: 16px;
+  margin-bottom: 30px;
+  align-self: center; /* Center the divider */
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between elements */
+  margin-bottom: 5px; /* Space below search bar */
+  justify-content: flex-start; /* Align search bar to the left */
+  margin-top: 40px;
+  margin-right: 150px;
+
+}
+
+.search-icon-eventspage {
+  width: 30px;
+  height: 30px;
+}
+
+.search-input-eventspage {
+  width: 200px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  color: black;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-dropdown {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  color: black;
+  font-size: 14px;
+  outline: none;
+}
+
+.past-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px; /* Add vertical space between cards */
+  align-items: center; /* Center the events list */
+  max-height: 710px; /* Limit height to show only 3 events */
+  overflow-y: auto; /* Add vertical scrollbar */
+  overflow-x: hidden; /* Disable horizontal scroll */
+}
+
+.past-events-list::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.past-events-list::-webkit-scrollbar-track {
+  background: transparent; /* Transparent background */
+}
+
+.past-events-list::-webkit-scrollbar-thumb {
+  background: #ccc; /* Color of the scrollbar */
+  border-radius: 10px; /* Rounded scrollbar */
+}
+
+.past-events-box {
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.past-event-item {
+  display: flex;
+  gap: 190px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.past-event-date {
+  text-align: left;
+  width: 170px;
+
+ 
+}
+
+.past-event-date-day {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.past-event-date-weekday {
+  font-size: 17px;
+  color: gray;
+  margin-top: 3px;
+}
+
+.past-event-details {
+  border-left: 2px dashed #7A7676;
+  padding-left: 150px;
+  width: 1000px; /* Adjust width to utilize space */
+  position: relative;
+  
+}
+
+.past-event-details::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -5px;
+  width: 8px;
+  height: 8px;
+  background-color: #7A7676;
+  border-radius: 50%;
+}
+
+.past-event-card {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  max-width: 650px; /* Limit the width of the card */
+  display: flex;
+  justify-content: space-between;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.past-event-card:hover {
+  box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.2);
+  transform: scale(1.01); /* Slightly enlarges the card */
+}
+
+.past-event-card-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.past-event-card-text {
+  flex: 1;
+}
+
+.past-event-time {
+  font-size: 14px;
+  color: gray;
+  margin-bottom: 5px;
+}
+
+.past-event-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.past-event-category {
+  font-size: 12px;
+  font-weight: bold;
+  color: #FF5A89; /* Pinkish red like in the image */
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.past-event-location,
+.past-event-guests {
+  font-size: 14px;
+  color: gray;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.past-event-image {
+  width: 180px; /* Square dimensions */
+  height: 180px; /* Square dimensions */
+  object-fit: cover;
+  border-radius: 10px; /* Rounded corners */
+}
+
+.past-event-status {
+  margin-top: 8px;
+}
+
+.past-event-status-button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+.see-more-button {
+  background: #f04f88; /* Pink */
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: 2px solid #f04f88; /* Border to match background */
+  border-radius: 20px;
+  cursor: pointer;
+  display: block;
+  width: 150px;
+  text-align: center;
+  margin: 20px auto;
+  font-weight: bold;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+
+}
+
+/* When Clicking "See Less" (White Background, Pink Text) */
+.see-more-button.see-less {
+  background: white;
+  color: #f04f88; /* Pink text */
+  border: 2px solid #f04f88; /* Keeps border visible */
+}
+
+/* Click Animation */
+.see-more-button:active {
+  transform: scale(0.95);
+}
+
+
+
+
