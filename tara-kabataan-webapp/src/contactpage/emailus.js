@@ -2,6 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import "./css/emailus.css";
+import sendEmailBtnImg from "../assets/contactpage/send-email-btn.png";
 const EmailUs = () => {
     const form = useRef(null);
     const [email, setEmail] = useState("");
@@ -79,6 +80,6 @@ const EmailUs = () => {
                                             if (!/^[0-9A-Za-z]*$/.test(e.key)) {
                                                 e.preventDefault();
                                             }
-                                        } }), contactError && _jsx("p", { className: "error-message", children: contactError }), _jsx("label", { children: "Message" }), _jsx("textarea", { name: "message", required: true, placeholder: "Write your message here" }), _jsxs("button", { type: "submit", disabled: !!emailError || !!contactError, children: [_jsx("img", { src: "./src/assets/contactpage/send-email-btn.png", alt: "Send Email Icon" }), "Send Email"] })] })] })] }), _jsx("hr", { className: "emailus-line" })] }));
+                                        } }), contactError && _jsx("p", { className: "error-message", children: contactError }), _jsx("label", { children: "Message" }), _jsx("textarea", { name: "message", required: true, placeholder: "Write your message here" }), _jsxs("button", { type: "submit", disabled: !!emailError || !!contactError, children: [_jsx("img", { src: sendEmailBtnImg, alt: "Send Email Icon" }), "Send Email"] })] })] })] }), _jsx("hr", { className: "emailus-line" })] }));
 };
 export default EmailUs;

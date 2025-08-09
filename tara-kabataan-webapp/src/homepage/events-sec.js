@@ -3,6 +3,7 @@ import "./css/events-sec.css";
 import EventsCarousel from "./events-carousel";
 import { Link } from "react-router-dom";
 import { memo, useEffect, useMemo, useState } from "react";
+import calendarImg from "../assets/homepage/calendar.png";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // safer join for `${BASE_URL}${path}` even if one has/hasn't a slash
 const joinUrl = (base, path) => {
@@ -66,6 +67,6 @@ const EventsSec = memo(() => {
     }, [dateFmt]);
     if (slides.length === 0)
         return null;
-    return (_jsx("div", { className: "events-sec", children: _jsx("div", { className: "events-sec-content", children: _jsxs("div", { className: "carousel-container", children: [_jsx("h1", { className: "events-header", children: "EVENTS" }), slides.length > 0 && (_jsx(EventsCarousel, { slides: slides, autoSlide: true, autoSlideInterval: 5000 })), _jsx("div", { className: "events-sec-nav", children: _jsxs(Link, { to: "/Events", className: "nav-events", children: [_jsx("img", { src: "./src/assets/homepage/calendar.png", alt: "Calendar Icon" }), "SEE MORE"] }) })] }) }) }));
+    return (_jsx("div", { className: "events-sec", children: _jsx("div", { className: "events-sec-content", children: _jsxs("div", { className: "carousel-container", children: [_jsx("h1", { className: "events-header", children: "EVENTS" }), slides.length > 0 && (_jsx(EventsCarousel, { slides: slides, autoSlide: true, autoSlideInterval: 5000 })), _jsx("div", { className: "events-sec-nav", children: _jsxs(Link, { to: "/Events", className: "nav-events", children: [_jsx("img", { src: calendarImg, alt: "Calendar Icon" }), "SEE MORE"] }) })] }) }) }));
 });
 export default EventsSec;
