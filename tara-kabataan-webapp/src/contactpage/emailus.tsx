@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import "./css/emailus.css"; 
+import sendEmailBtnImg from "../assets/contactpage/send-email-btn.png";
 
 const EmailUs = () => {
   const form = useRef(null);
@@ -151,7 +152,7 @@ const EmailUs = () => {
           <textarea name="message" required placeholder="Write your message here" />
 
           <button type="submit" disabled={!!emailError || !!contactError}>
-            <img src="./src/assets/contactpage/send-email-btn.png" alt="Send Email Icon" />
+            <img src={sendEmailBtnImg} alt="Send Email Icon" />
             Send Email
             </button>
 

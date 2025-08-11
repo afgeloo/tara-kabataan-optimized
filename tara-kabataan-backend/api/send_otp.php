@@ -1,4 +1,17 @@
 <?php
+
+$origin = 'http://tara-kabataan-webapp.s3-website-ap-southeast-2.amazonaws.com';
+header("Access-Control-Allow-Origin: $origin");
+header("Vary: Origin");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Content-Type: application/json");
+
+// Handle OPTIONS preflight early
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204); // No Content
+    exit;
+}
 require __DIR__ . '/../vendor/autoload.php';
 include '../config/db.php'; // use $conn from your db.php
 

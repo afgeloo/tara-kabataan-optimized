@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { ChevronLeft, ChevronRight } from "react-feather";
 import "./css/events-carousel.css";
+import locPinImg from "../assets/homepage/loc-pin.png";
 
 interface Slide {
   image: string;
@@ -187,7 +188,7 @@ const EventsCarousel: React.FC<CarouselProps> = memo(
                   <h2 className="description-title">{slide.title}</h2>
                   <p className="description-date">{slide.date}</p>
                   <div className="description-location">
-                    <img src="./src/assets/homepage/loc-pin.png" alt="Location Pin" />
+                    <img src={locPinImg} alt="Location Pin" />
                     <p className="description-location-pin">{slide.location}</p>
                   </div>
                 </div>

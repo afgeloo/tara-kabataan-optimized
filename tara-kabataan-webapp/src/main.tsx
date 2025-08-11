@@ -34,16 +34,16 @@ const router = createBrowserRouter(
       ),
       children: [
         { index: true, element: <HomePage /> },
-        { path: "about", element: <AboutPage /> },
-        { path: "contact", element: <ContactPage /> },
-        { path: "events", element: <EventsPage /> },
-        { path: "events/:id", element: <EventDetails /> },
-        { path: "blogs", element: <BlogsPage /> },
-        { path: "blog/:id", element: <SingleBlog /> },
+        { path: "About", element: <AboutPage /> },
+        { path: "Contact", element: <ContactPage /> },
+        { path: "Events", element: <EventsPage /> },
+        { path: "Events/:id", element: <EventDetails /> },
+        { path: "Blogs", element: <BlogsPage /> },
+        { path: "Blog/:id", element: <SingleBlog /> },
       ],
     },
     {
-      path: "/admin-login",
+      path: "/Admin-login",
       element: (
         <Suspense fallback={<Fallback />}>
           <AdminLogin />
@@ -51,7 +51,7 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: "/admin",
+      path: "/Admin",
       element: (
         <Suspense fallback={<Fallback />}>
           <RequireAuth />
@@ -66,10 +66,10 @@ const router = createBrowserRouter(
             </Suspense>
           ),
           children: [
-            { path: "blogs", element: <AdminBlogs /> },
-            { path: "events", element: <AdminEvents /> },
-            { path: "settings", element: <AdminSettings /> },
-            { index: true, element: <Navigate to="blogs" replace /> },
+            { path: "Blogs", element: <AdminBlogs /> },
+            { path: "Events", element: <AdminEvents /> },
+            { path: "Settings", element: <AdminSettings /> },
+            { index: true, element: <Navigate to="Blogs" replace /> },
           ],
         },
       ],

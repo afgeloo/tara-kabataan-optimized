@@ -7,6 +7,10 @@
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "resolveJsonModule": true,
-    "strict": false
-  }
+    "strict": false,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "types": ["vite/client", "node", "react", "react-dom"]
+  },
+  "include": ["src"]
 }

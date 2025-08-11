@@ -2,6 +2,7 @@ import "./css/events-sec.css";
 import EventsCarousel from "./events-carousel";
 import { Link } from "react-router-dom";
 import React, { memo, useEffect, useMemo, useState } from "react";
+import calendarImg from "../assets/homepage/calendar.png";
 
 interface EventAPI {
   event_id: string;
@@ -105,7 +106,7 @@ const EventsSec: React.FC = memo(() => {
           )}
           <div className="events-sec-nav">
             <Link to="/Events" className="nav-events">
-              <img src="./src/assets/homepage/calendar.png" alt="Calendar Icon" />
+              <img src={calendarImg} alt="Calendar Icon" />
               SEE MORE
             </Link>
           </div>

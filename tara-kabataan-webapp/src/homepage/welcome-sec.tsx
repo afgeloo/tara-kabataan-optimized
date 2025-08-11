@@ -2,6 +2,14 @@ import React, { useEffect, useMemo, useRef, useState, memo } from "react";
 import Marquee from "react-fast-marquee";
 import "./css/welcome-sec.css";
 import { Link } from "react-router-dom";
+import flowersImg from "../assets/homepage/flowers.png";
+import welcomeImg from "../assets/homepage/welcome.png";
+import cowGifImg from "../assets/homepage/tk-cow-walking.gif";
+import welcome1Img from "../assets/homepage/welcome1.png";
+import topCloudImg from "../assets/homepage/top-cloud.png";
+import logoLabelImg from "../assets/homepage/tk-logo-label.png";
+import bulbImg from "../assets/homepage/bulb.png";
+import botCloudImg from "../assets/homepage/bot-cloud.png";
 
 const BASE = import.meta.env.VITE_API_BASE_URL as string;
 
@@ -99,7 +107,7 @@ function WelcomeSec() {
             {flowers.map((_, i) => (
               <img
                 key={`f1-${i}`}
-                src="./src/assets/homepage/flowers.png"
+                src={flowersImg}
                 alt="Flower"
                 loading="lazy"
                 decoding="async"
@@ -117,7 +125,7 @@ function WelcomeSec() {
             {flowers.map((_, i) => (
               <img
                 key={`f2-${i}`}
-                src="./src/assets/homepage/flowers.png"
+                src={flowersImg}
                 alt="Flower"
                 loading="lazy"
                 decoding="async"
@@ -131,7 +139,7 @@ function WelcomeSec() {
 
       <div className="welcome1">
         <img
-          src="./src/assets/homepage/welcome.png"
+          src={welcomeImg}
           alt="Welcome"
           decoding="async"
           draggable={false}
@@ -141,7 +149,7 @@ function WelcomeSec() {
       <div className="cow">
         <div className="cow-shadow" />
         <img
-          src="./src/assets/homepage/tk-cow-walking.gif"
+          src={cowGifImg}
           alt="Cow"
           decoding="async"
           draggable={false}
@@ -150,7 +158,7 @@ function WelcomeSec() {
 
       <div className="welcome3">
         <img
-          src="./src/assets/homepage/welcome1.png"
+          src={welcome1Img}
           alt="Welcome 1"
           decoding="async"
           draggable={false}
@@ -159,7 +167,7 @@ function WelcomeSec() {
 
       <div className="clouds-content-container">
         <img
-          src="./src/assets/homepage/top-cloud.png"
+          src={topCloudImg}
           className="top-cloud"
           alt="Top Cloud"
           loading="lazy"
@@ -176,7 +184,7 @@ function WelcomeSec() {
             </div>
             <div className="tk-logo">
               <img
-                src="./src/assets/homepage/tk-logo-label.png"
+                src={logoLabelImg}
                 alt="Tara Kabataan"
                 loading="lazy"
                 decoding="async"
@@ -186,7 +194,7 @@ function WelcomeSec() {
             <div className="know-more">
               <Link to="/About" className="nav-know-more">
                 <img
-                  src="./src/assets/homepage/bulb.png"
+                  src={bulbImg}
                   alt="Know More"
                   loading="lazy"
                   decoding="async"
@@ -201,7 +209,7 @@ function WelcomeSec() {
         </div>
 
         <img
-          src="./src/assets/homepage/bot-cloud.png"
+          src={botCloudImg}
           className="bot-cloud"
           alt="Bottom Cloud"
           loading="lazy"

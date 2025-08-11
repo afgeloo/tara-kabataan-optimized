@@ -1,6 +1,10 @@
 import "./css/getintouch.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import telephoneImg from "../assets/contactpage/telephone.png";
+import emailImg from "../assets/contactpage/email.png";
+import facebookImg from "../assets/contactpage/facebook.png";
+import instagramImg from "../assets/contactpage/instagram.png";
 
 function GetInTouch() {
   const navigate = useNavigate();
@@ -45,7 +49,7 @@ function GetInTouch() {
           <div className="contact-telephone">
             <a href={`tel:${contactNo}`} target="_blank" rel="noopener noreferrer">
               <div className="contact-telephone-icon">
-                <img src="./src/assets/contactpage/telephone.png" alt="Telephone Icon" draggable="false" />
+                <img src={telephoneImg} alt="Telephone Icon" draggable="false" />
               </div>
             </a>
             <div className="contact-telephone-details">
@@ -60,7 +64,7 @@ function GetInTouch() {
               style={{ cursor: "pointer" }}
             >
               <div className="contact-email-icon">
-                <img src="./src/assets/contactpage/email.png" alt="Email Icon" draggable="false" />
+                <img src={emailImg} alt="Email Icon" draggable="false" />
               </div>
             </div>
             <div
@@ -78,7 +82,7 @@ function GetInTouch() {
           <div className="contact-telephone">
             <a href={facebookLink} target="_blank" rel="noopener noreferrer">
               <div className="contact-telephone-icon">
-                <img src="./src/assets/contactpage/facebook.png" alt="Facebook Icon" draggable="false" />
+                <img src={facebookImg} alt="Facebook Icon" draggable="false" />
               </div>
             </a>
             <div className="contact-telephone-details">
@@ -90,7 +94,7 @@ function GetInTouch() {
           <div className="contact-email">
             <a href={instagramLink} target="_blank" rel="noopener noreferrer">
               <div className="contact-email-icon">
-                <img src="./src/assets/contactpage/instagram.png" alt="Instagram Icon" draggable="false" />
+                <img src={instagramImg} alt="Instagram Icon" draggable="false" />
               </div>
             </a>
             <div className="contact-email-details">
