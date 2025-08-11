@@ -7,12 +7,26 @@ $input = json_decode(file_get_contents("php://input"), true);
 $question = $input['message'] ?? '';
 $sessionId = $input['session_id'] ?? session_id(); // Client should send session_id
 
-$mysqli = new mysqli("localhost", "root", "", "tk_webapp");
+$host = "tara-kabataan-rds.cdy2k86gkg9l.ap-southeast-2.rds.amazonaws.com";
+$port = 3306; 
+$user = "tkadmin";
+$pass = "tkwebapp2025";
+$db   = "tk_webapp";
 
-if ($mysqli->connect_error) {
-    echo json_encode(["reply" => "May problema sa koneksyon ng database."]);
+$mysqli = mysqli_init();
+mysqli_options($mysqli, MYSQLI_OPT_CONNECT_TIMEOUT, 5);
+
+if (!@mysqli_real_connect($mysqli, $host, $user, $pass, $db, $port)) {
+    http_response_code(500);
+    echo json_encode([
+        "reply" => "May problema sa koneksyon ng database.",
+        "code" => mysqli_connect_errno(),
+        "msg" => mysqli_connect_error()
+    ]);
     exit;
 }
+$mysqli->set_charset("utf8mb4");
+
 
 // Create conversation_history table if it doesn't exist
 $createTable = "CREATE TABLE IF NOT EXISTS conversation_history (

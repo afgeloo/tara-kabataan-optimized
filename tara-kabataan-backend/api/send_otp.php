@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204); // No Content
     exit;
 }
-
 require __DIR__ . '/../vendor/autoload.php';
 include '../config/db.php'; // use $conn from your db.php
 

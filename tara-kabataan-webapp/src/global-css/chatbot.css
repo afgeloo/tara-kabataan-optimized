@@ -244,7 +244,7 @@
     left: -45px; /* Adjusted position */
     width: 30px; /* Increased size */
     height: 30px; /* Increased size */
-    background-image: url(./src/assets/chatbot/CowIconChat.png); /* Updated cow icon path */
+    background-image: url(../assets/chatbot/CowIconChat.png); /* Updated cow icon path */
     background-size: cover;
 }
 
