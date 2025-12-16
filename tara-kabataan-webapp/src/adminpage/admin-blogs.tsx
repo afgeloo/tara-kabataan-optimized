@@ -363,9 +363,9 @@ const AdminBlogs = () => {
 
       let endpoint = "";
       if (cropMode === "new") {
-        endpoint = `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/add_new_blog_image.php`;
+        endpoint = `${API_BASE}/api/add_new_blog_image.php`;
       } else {
-        endpoint = `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_blog_image.php`;
+        endpoint = `${API_BASE}/api/upload_blog_image.php`;
         if (editableBlog?.blog_id) form.append("blog_id", editableBlog.blog_id);
       }
 
@@ -1384,7 +1384,7 @@ const AdminBlogs = () => {
                               const fd = new FormData();
                               fd.append("image", file);
                               try {
-                                const r = await fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_blog_image.php`, {
+                                const r = await fetch(`${API_BASE}/api/upload_blog_image.php`, {
                                   method: "POST",
                                   body: fd,
                                 });
@@ -1479,7 +1479,7 @@ const AdminBlogs = () => {
                               formData.append("image", file);
                               try {
                                 const res = await fetch(
-                                  `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_blog_image.php`,
+                                  `${API_BASE}/api/upload_blog_image.php`,
                                   { method: "POST", body: formData }
                                 );
                                 const data = await res.json();
@@ -1725,7 +1725,7 @@ const AdminBlogs = () => {
                             const fd = new FormData();
                             fd.append("image", file);
                             try {
-                              const r = await fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_blog_image.php`, {
+                              const r = await fetch(`${API_BASE}/api/upload_blog_image.php`, {
                                 method: "POST",
                                 body: fd,
                               });
@@ -1789,7 +1789,7 @@ const AdminBlogs = () => {
                             const fd = new FormData();
                             fd.append("image", file);
                             try {
-                              const r = await fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_blog_image.php`, {
+                              const r = await fetch(`${API_BASE}/api/upload_blog_image.php`, {
                                 method: "POST",
                                 body: fd,
                               });
