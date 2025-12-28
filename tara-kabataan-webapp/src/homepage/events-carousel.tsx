@@ -59,7 +59,7 @@ const EventsCarousel: React.FC<CarouselProps> = memo(
         intervalRef.current = window.setInterval(() => {
           if (!hoveringRef.current && document.visibilityState === "visible") {
             // use functional update to avoid stale curr
-            setCurr((c) => ((c + 1) % count));
+            setCurr((c) => (c + 1) % count);
           }
         }, autoSlideInterval);
       };
@@ -72,7 +72,8 @@ const EventsCarousel: React.FC<CarouselProps> = memo(
       };
 
       start();
-      const onVis = () => (document.visibilityState === "visible" ? start() : stop());
+      const onVis = () =>
+        document.visibilityState === "visible" ? start() : stop();
       document.addEventListener("visibilitychange", onVis);
 
       return () => {
@@ -116,7 +117,7 @@ const EventsCarousel: React.FC<CarouselProps> = memo(
         dx = e.touches[0].clientX - startX;
       };
       const onEnd = () => {
-        if (Math.abs(dx) > 40) (dx < 0 ? next() : prev());
+        if (Math.abs(dx) > 40) dx < 0 ? next() : prev();
       };
       el.addEventListener("touchstart", onStart, { passive: true });
       el.addEventListener("touchmove", onMove, { passive: true });
@@ -167,14 +168,19 @@ const EventsCarousel: React.FC<CarouselProps> = memo(
           className="flex"
           style={{
             transform: `translateX(-${curr * 100}%)`,
-            willChange: "transform",            // GPU-friendly
+            willChange: "transform", // GPU-friendly
             transition: "transform 380ms ease", // smooth but snappy
           }}
           tabIndex={0}
           aria-live="polite"
         >
           {slides.map((slide, index) => (
-            <div key={index} className="carousel-slide" aria-roledescription="slide" aria-label={`${index + 1} of ${count}`}>
+            <div
+              key={index}
+              className="carousel-slide"
+              aria-roledescription="slide"
+              aria-label={`${index + 1} of ${count}`}
+            >
               <img
                 src={slide.image}
                 alt={slide.title || `Slide ${index + 1}`}

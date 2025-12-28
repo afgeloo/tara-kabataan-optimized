@@ -1,4 +1,11 @@
-import { useEffect, useState, useRef, useCallback, useMemo, useLayoutEffect } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useLayoutEffect,
+} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../header";
 import Footer from "../footer";
@@ -22,7 +29,11 @@ interface Blog {
 /* ---------- stable constants/helpers ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const UPLOADS_BASE = `${API_BASE}/tara-kabataan-optimized/tara-kabataan-webapp/uploads/blogs-images`;
-const DATE_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
+const DATE_FMT = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 
 /** Robust resolver: handles absolute, protocol-relative, server-relative, and bare filenames */
 const getFullImageUrl = (path: string) => {
@@ -68,15 +79,20 @@ export default function SingleBlog() {
     setLoading(true);
     setNotFound(false);
 
-    fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/blogs.php?blog_id=${id}`, {
-      signal: ctrl.signal,
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-    })
+    fetch(
+      `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/blogs.php?blog_id=${id}`,
+      {
+        signal: ctrl.signal,
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data?.blog_id) {
-          setBlog((prev) => (prev?.blog_id === data.blog_id ? prev : (data as Blog)));
+          setBlog((prev) =>
+            prev?.blog_id === data.blog_id ? prev : (data as Blog)
+          );
         } else {
           setNotFound(true);
         }
@@ -94,16 +110,21 @@ export default function SingleBlog() {
     if (!id) return;
     const ctrl = new AbortController();
 
-    fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/get_blog_images.php?blog_id=${id}`, {
-      signal: ctrl.signal,
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-    })
+    fetch(
+      `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/get_blog_images.php?blog_id=${id}`,
+      {
+        signal: ctrl.signal,
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      }
+    )
       .then((res) => res.json())
       .then(({ success, images }) => {
         if (success && Array.isArray(images)) {
           const resolved = images.map((p: string) => getFullImageUrl(p));
-          setMoreImages((prev) => (arraysShallowEqual(prev, resolved) ? prev : resolved));
+          setMoreImages((prev) =>
+            arraysShallowEqual(prev, resolved) ? prev : resolved
+          );
         }
       })
       .catch(() => {
@@ -142,7 +163,8 @@ export default function SingleBlog() {
 
   /* ---------- memoized formatted content & date ---------- */
   const formattedContent = useMemo(
-    () => (blog ? blog.content.replace(/\n/g, "<br>").replace(/  /g, " &nbsp;") : ""),
+    () =>
+      blog ? blog.content.replace(/\n/g, "<br>").replace(/  /g, " &nbsp;") : "",
     [blog]
   );
 
@@ -152,14 +174,18 @@ export default function SingleBlog() {
   );
 
   /* ---------- precompute hero URL & stable openers ---------- */
-  const heroUrl = useMemo(() => (blog ? getFullImageUrl(blog.image_url) : ""), [blog?.image_url]);
+  const heroUrl = useMemo(
+    () => (blog ? getFullImageUrl(blog.image_url) : ""),
+    [blog?.image_url]
+  );
   const openHero = useCallback(() => setFullImageUrl(heroUrl), [heroUrl]);
   const openFull = useCallback((u: string) => setFullImageUrl(u), []);
 
   /* ---------- tiny derived slice ---------- */
   const previewImages = useMemo(() => moreImages.slice(0, 4), [moreImages]);
 
-  if (notFound) return <div className="single-blog-not-found">Blog does not exist.</div>;
+  if (notFound)
+    return <div className="single-blog-not-found">Blog does not exist.</div>;
   if (loading || !blog) return null;
 
   return (
@@ -169,7 +195,10 @@ export default function SingleBlog() {
         <button
           className="back-button"
           onClick={() => {
-            sessionStorage.setItem("singleBlogScrollY", window.scrollY.toString());
+            sessionStorage.setItem(
+              "singleBlogScrollY",
+              window.scrollY.toString()
+            );
             navigate(-1);
           }}
         >
@@ -203,7 +232,10 @@ export default function SingleBlog() {
                     onClick={() => openFull(img)}
                   />
                   {isLast && (
-                    <div className="blog-image-overlay" onClick={() => setShowAllImagesModal(true)}>
+                    <div
+                      className="blog-image-overlay"
+                      onClick={() => setShowAllImagesModal(true)}
+                    >
                       +{moreImages.length - 3}
                     </div>
                   )}
@@ -222,7 +254,11 @@ export default function SingleBlog() {
               <span>{formattedDate}</span>
             </div>
             <div className="single-blog-meta-item">
-              <img src={silverPencil} alt="Author" className="single-blog-icon" />
+              <img
+                src={silverPencil}
+                alt="Author"
+                className="single-blog-icon"
+              />
               <span>{blog.author}</span>
             </div>
             <button className="single-blog-copy-link" onClick={copyBlogLink}>
@@ -238,9 +274,15 @@ export default function SingleBlog() {
 
         {showAllImagesModal && (
           <div className="blog-gallery-modal">
-            <div className="blog-gallery-overlay" onClick={() => setShowAllImagesModal(false)} />
+            <div
+              className="blog-gallery-overlay"
+              onClick={() => setShowAllImagesModal(false)}
+            />
             <div className="blog-gallery-wrapper">
-              <button className="blog-gallery-close" onClick={() => setShowAllImagesModal(false)}>
+              <button
+                className="blog-gallery-close"
+                onClick={() => setShowAllImagesModal(false)}
+              >
                 ✕
               </button>
               <div className="blog-gallery-grid">
@@ -262,9 +304,19 @@ export default function SingleBlog() {
 
         {fullImageUrl && (
           <div className="blog-fullscreen-viewer">
-            <div className="blog-fullscreen-backdrop" onClick={() => setFullImageUrl(null)} />
-            <img src={fullImageUrl} alt="Fullscreen" className="blog-fullscreen-image" />
-            <button className="blog-fullscreen-exit" onClick={() => setFullImageUrl(null)}>
+            <div
+              className="blog-fullscreen-backdrop"
+              onClick={() => setFullImageUrl(null)}
+            />
+            <img
+              src={fullImageUrl}
+              alt="Fullscreen"
+              className="blog-fullscreen-image"
+            />
+            <button
+              className="blog-fullscreen-exit"
+              onClick={() => setFullImageUrl(null)}
+            >
               ✕
             </button>
           </div>
