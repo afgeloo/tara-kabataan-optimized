@@ -21,23 +21,20 @@ const DT_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long"
 const formatDate = (ts) => DT_FMT.format(new Date(ts));
 // Replace your existing getFullUrl with this:
 const getFullUrl = (raw = "") => {
-  if (!raw || !raw.trim()) return ""; // Or return your placeholderImg
-  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) return raw;
-
-  const [path, query] = raw.split("?");
+  if (!raw || !raw.trim()) return "";
   
-  // Logic to point to your specific S3 bucket
-  const s3Base = "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com";
-  
-  let normalized;
-  if (path.includes("/tara-kabataan-optimized/")) {
-    normalized = `${s3Base}${path}`;
-  } else {
-    const clean = path.startsWith("/") ? path.slice(1) : path;
-    normalized = `${s3Base}/tara-kabataan-optimized/${clean}`;
+  // If it's a blob from the cropper or already has http, don't change it
+  if (raw.startsWith("blob:") || raw.startsWith("http")) {
+    return raw;
   }
 
-  return query ? `${normalized}?${query}` : normalized;
+  const s3Base = "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com";
+  
+  // Remove leading slash if it exists
+  const cleanPath = raw.startsWith("/") ? raw.slice(1) : raw;
+
+  // Simply combine the S3 base with the path returned by PHP
+  return `${s3Base}/${cleanPath}`;
 };
 const AdminBlogs = () => {
     // ------------------------------------
