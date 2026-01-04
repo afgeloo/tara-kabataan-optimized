@@ -703,15 +703,27 @@ const AdminEvents = () => {
             setEditableEvent({ ...editableEvent, image_url: "" });
         }
     };
-    const getFullImageUrl = (url) => {
-        if (!url)
-            return "";
-        if (url.startsWith("http"))
-            return url;
-        if (url.includes("/tara-kabataan-optimized/")) {
-            return `${import.meta.env.VITE_API_BASE_URL}${url}`;
-        }
-        return `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan${url.startsWith("/") ? "" : "/"}${url}`;
+    // Replace your existing getFullImageUrl with this:
+    const getFullImageUrl = (raw = "") => {
+    if (!raw || !raw.trim()) return ""; 
+    if (raw.startsWith("http")) return raw;
+
+    const [path, query] = raw.split("?");
+    
+    // Hardcode your S3 bucket address
+    const s3Base = "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com";
+    
+    let normalized;
+    // Check if the path already contains the optimized folder name
+    if (path.includes("/tara-kabataan-optimized/")) {
+        normalized = `${s3Base}${path}`;
+    } else {
+        // Clean leading slash if it exists and add the folder path
+        const clean = path.startsWith("/") ? path.slice(1) : path;
+        normalized = `${s3Base}/tara-kabataan-optimized/${clean}`;
+    }
+
+    return query ? `${normalized}?${query}` : normalized;
     };
     const saveSelection = () => {
         const sel = window.getSelection();

@@ -454,25 +454,36 @@ const AdminSettings = () => {
         }
     }, []);
     const getFullImageUrl = (url) => {
-        if (!url)
-            return "";
-        if (url.startsWith("http"))
-            return url;
-        if (url.includes("/tara-kabataan-optimized/")) {
-            return `${import.meta.env.VITE_API_BASE_URL}${url}`;
+        if (!url) return "";
+        if (url.startsWith("http") || url.startsWith("blob:")) return url;
+
+        const s3Base = "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com";
+        const [path, query] = url.split("?");
+        
+        let normalized;
+        if (path.includes("/tara-kabataan-optimized/")) {
+            normalized = `${s3Base}${path}`;
+        } else {
+            const clean = path.startsWith("/") ? path.slice(1) : path;
+            normalized = `${s3Base}/tara-kabataan-optimized/${clean}`;
         }
-        return `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan${url.startsWith("/") ? "" : "/"}${url}`;
+        return query ? `${normalized}?${query}` : normalized;
     };
     const getFullImageUrlCouncil = (url) => {
-        if (!url || url.trim() === "")
-            return placeholderImg;
-        if (url.startsWith("http"))
-            return url;
+        if (!url || url.trim() === "") return placeholderImg;
+        if (url.startsWith("http") || url.startsWith("blob:")) return url;
+
+        const s3Base = "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com";
         const [path, query] = url.split("?");
-        const fullPath = path.includes("/tara-kabataan-optimized/")
-            ? `${import.meta.env.VITE_API_BASE_URL}${path}`
-            : `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/${path.startsWith("/") ? "" : "/"}${path}`;
-        return query ? `${fullPath}?${query}` : fullPath;
+        
+        let normalized;
+        if (path.includes("/tara-kabataan-optimized/")) {
+            normalized = `${s3Base}${path}`;
+        } else {
+            const clean = path.startsWith("/") ? path.slice(1) : path;
+            normalized = `${s3Base}/tara-kabataan-optimized/${clean}`;
+        }
+        return query ? `${normalized}?${query}` : normalized;
     };
     const handleSavePartnerUpdate = async () => {
         if (!editablePartner)

@@ -29,7 +29,7 @@ const getFullImageUrl = (path) => {
   if (!path) return "";
   if (/^https?:\/\//i.test(path) || path.startsWith("//")) return path; // already absolute
   if (path.startsWith("/"))
-    return `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com${path}`; // server-relative
+    return `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com${path}`; // server-relative
   return `${UPLOADS_BASE}/${path}`; // bare filename
 };
 function arraysShallowEqual(a, b) {

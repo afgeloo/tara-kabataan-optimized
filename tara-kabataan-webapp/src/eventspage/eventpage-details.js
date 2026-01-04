@@ -25,7 +25,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const getFullImageUrl = (path) => {
   if (!path) return "";
   if (/^https?:\/\//i.test(path) || path.startsWith("//")) return path;
-  return `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com/${path.replace(/^\/+/, "")}`;
+  return `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/${path.replace(/^\/+/, "")}`;
 };
 function EventDetails() {
   const { id } = useParams();

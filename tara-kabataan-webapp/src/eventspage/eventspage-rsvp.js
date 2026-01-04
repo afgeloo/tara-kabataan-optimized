@@ -32,7 +32,7 @@ const getFullImageUrl = (imageUrl) => {
   if (!imageUrl) return "";
   if (/^https?:\/\//i.test(imageUrl) || imageUrl.startsWith("//"))
     return imageUrl;
-  return `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
+  return `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
 };
 const formatDateRSVP = (dateString) => {
   const t = Date.parse(dateString);

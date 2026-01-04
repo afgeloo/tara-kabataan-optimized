@@ -73,10 +73,10 @@ const resolveMemberImage = (raw) => {
   const hasNon = path.includes("/tara-kabataan-optimized/");
   let normalized;
   if (hasOpt || hasNon) {
-    normalized = `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com${path}`;
+    normalized = `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com${path}`;
   } else {
     const clean = path.startsWith("/") ? path.slice(1) : path;
-    normalized = `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/${clean}`;
+    normalized = `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/${clean}`;
   }
   return query ? `${normalized}?${query}` : normalized;
 };

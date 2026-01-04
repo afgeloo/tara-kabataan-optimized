@@ -43,7 +43,7 @@ const DATE_FMT = new Intl.DateTimeFormat("en-US", {
 const getSafeImageUrl = (url) =>
   url
     ? url.startsWith("http") || url.startsWith("/")
-      ? `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com${url}`
+      ? `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com${url}`
       : url
     : "";
 /* ----------------- SUBCOMPONENTS (memoized) ----------------- */

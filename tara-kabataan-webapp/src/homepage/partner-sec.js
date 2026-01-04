@@ -15,7 +15,7 @@ const encodeFilename = (p) => {
   return encodeURIComponent(filename);
 };
 const toLogoUrl = (fullPath) =>
-  `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads/partners-images/${encodeFilename(fullPath)}`;
+  `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads/partners-images/${encodeFilename(fullPath)}`;
 const PartnerSec = memo(() => {
   const [showQR, setShowQR] = useState(false);
   const [partnerLogos, setPartnerLogos] = useState([]);

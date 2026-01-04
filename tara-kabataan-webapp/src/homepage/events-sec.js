@@ -45,7 +45,7 @@ const EventsSec = memo(() => {
             if (Number.isNaN(ts)) return null;
             const img = e.event_image
               ? joinUrl(
-                  "https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com/",
+                  "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/",
                   e.event_image
                 )
               : "";

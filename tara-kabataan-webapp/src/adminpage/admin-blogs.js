@@ -19,9 +19,26 @@ const ITEMS_PER_PAGE = 8;
 const MAX_PINNED = 3;
 const DT_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
 const formatDate = (ts) => DT_FMT.format(new Date(ts));
-const getFullUrl = (path = "") => /^https?:\/\//i.test(path) || path.startsWith("//")
-    ? path
-    : `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+// Replace your existing getFullUrl with this:
+const getFullUrl = (raw = "") => {
+  if (!raw || !raw.trim()) return ""; // Or return your placeholderImg
+  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) return raw;
+
+  const [path, query] = raw.split("?");
+  
+  // Logic to point to your specific S3 bucket
+  const s3Base = "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com";
+  
+  let normalized;
+  if (path.includes("/tara-kabataan-optimized/")) {
+    normalized = `${s3Base}${path}`;
+  } else {
+    const clean = path.startsWith("/") ? path.slice(1) : path;
+    normalized = `${s3Base}/tara-kabataan-optimized/${clean}`;
+  }
+
+  return query ? `${normalized}?${query}` : normalized;
+};
 const AdminBlogs = () => {
     // ------------------------------------
     // Core state

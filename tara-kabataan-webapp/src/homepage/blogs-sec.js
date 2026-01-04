@@ -17,7 +17,7 @@ const getSafeImageUrl = (url) => {
   // If API already returns absolute, use as-is
   if (/^https?:\/\//i.test(url)) return url;
   // If it's a server-relative path, prefix base URL
-  return `https://tara-kabataan-uploads.s3.ap-southeast-2.amazonaws.com${url}`;
+  return `https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com${url}`;
 };
 const stripToText = (html) => {
   if (!html) return "";
