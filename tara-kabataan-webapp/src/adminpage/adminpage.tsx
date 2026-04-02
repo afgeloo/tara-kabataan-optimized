@@ -27,8 +27,12 @@ const AdminPage: React.FC = () => {
             return;
           }
         }
+        localStorage.removeItem("admin-auth");
+        localStorage.removeItem("admin-user");
         setIsAuthenticated(false);
       } catch (err) {
+        localStorage.removeItem("admin-auth");
+        localStorage.removeItem("admin-user");
         setIsAuthenticated(false);
       }
     };
