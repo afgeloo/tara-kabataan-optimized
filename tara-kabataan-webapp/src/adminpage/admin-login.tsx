@@ -552,10 +552,14 @@ const AdminLogin: React.FC = () => {
                   const data = await res.json();
 
                   if (data.success) {
-                    // WE RELY ENTIRELY ON THE COOKIE NOW. NO TOKENS.
-                    localStorage.setItem("admin-user", JSON.stringify(data.user)); // Just for UI display names
+                    // 1. Give RequireAuth.tsx its frontend ticket!
+                    localStorage.setItem("admin-auth", "true");
+                    
+                    // 2. Save the UI display name/details
+                    localStorage.setItem("admin-user", JSON.stringify(data.user));
                     localStorage.removeItem("admin-user-temp");
                     
+                    // 3. Navigate into the dashboard
                     navigate("/admin", { replace: true });
                   } else {
                     const updatedAttempts = otpAttempts + 1;
