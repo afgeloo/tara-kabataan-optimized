@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { NavLink, Link, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaBars,
   FaRegNewspaper,
@@ -13,18 +13,37 @@ import logo from "../assets/header/tarakabataanlogo2.png";
 const AdminSidebar: React.FC = React.memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate(); // Added useNavigate for smoother React routing
   const isEventsPage = location.pathname.includes("events");
 
   const toggleSidebar = useCallback(() => setIsOpen((open) => !open), []);
 
   const handleLogout = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       e.preventDefault();
+      
+      try {
+        // 1. Trigger the Backend Kill Switch to destroy the secure cookie
+        await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/logout.php`,
+          {
+            method: "POST",
+            credentials: "include", // CRITICAL: Tells PHP exactly which cookie to shred
+          }
+        );
+      } catch (error) {
+        console.error("Backend logout failed, forcing local logout", error);
+      }
+
+      // 2. Shred the Frontend Tickets
       localStorage.removeItem("admin-auth");
+      localStorage.removeItem("admin-user");
+      
+      // 3. Close the sidebar and redirect safely
       setIsOpen(false);
-      window.location.href = "/admin-login";
+      navigate("/admin-login", { replace: true });
     },
-    []
+    [navigate]
   );
 
   const navLinks = [
