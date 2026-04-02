@@ -1,0 +1,191 @@
+@font-face {
+    font-family: 'Bogart Trial';
+    src: url('../../assets/fonts/Bogart-Extrabold-trial.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+  
+@font-face {
+    font-family: 'Helvetic';
+    src: url('../../assets/fonts/HelveticaNowText-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.getintouch-sec {
+    padding: 0;
+}
+
+.getintouch-content {
+    padding: 0 100px 50px 100px;
+    font-family: 'Helvetic', sans-serif;
+}
+
+.getintouch-header {
+    font-family: 'Bogart Trial', sans-serif;
+    text-align: center;
+    font-size: 70px;
+    font-weight: bold;
+}
+
+.getintouch-description {
+    font-family: 'Helvetic', sans-serif;
+    font-size: 24px;
+    margin: -20px auto;
+    text-align: center;
+    line-height: 2;
+    letter-spacing: 1px;
+    width: 800px;;
+}
+
+.getintouch-sub-sec{
+    justify-content: center;
+    display: flex;
+    gap: 300px;
+    font-family: 'Helvetic', sans-serif;
+    padding: 20px;
+}
+
+.contact-telephone, .contact-email, .contact-facebook, .contact-instagram {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+}
+
+.contact-telephone img, 
+.contact-email img{
+    margin-top: -20px;
+    width: 60px;
+    height: auto;
+    -webkit-user-drag: none;
+} 
+.contact-facebook img, 
+.contact-instagram img {
+    width: 40px;
+    height: 40px;
+    -webkit-user-drag: none;
+}
+
+.contact-telephone h1, .contact-email h1{
+    font-family: 'Helvetic', sans-serif;
+    font-size: 24px;
+}
+
+.contact-telephone p, .contact-email p{
+    font-family: 'Helvetic', sans-serif;
+    font-size: 18px;
+    margin-bottom: 40px;
+    color: #656565;
+}
+
+.getintouch-right h1{
+    font-family: 'Helvetic', sans-serif;
+    font-size: 24px;
+}
+
+.getintouch-right p{
+    font-family: 'Helvetic', sans-serif;
+    font-size: 18px;
+    color: #656565;
+}
+
+.contact-telephone-icon img,
+.contact-email-icon img {
+    transition: transform 0.3s ease;
+}
+
+.contact-telephone-icon:hover img,
+.contact-email-icon:hover img {
+    transform: scale(1.1);
+}
+
+.getintouch-map {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+  }
+  
+.getintouch-map iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+  @media (max-width: 1024px) {
+    .getintouch-content {
+      padding: 0 40px 30px 40px;
+    }
+  
+    .getintouch-header {
+      font-size: 50px;
+    }
+  
+    .getintouch-description {
+      font-size: 20px;
+      width: 100%;
+      padding: 0 10px;
+    }
+  
+    .getintouch-sub-sec {
+      gap: 100px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .getintouch-content {
+      padding: 0 20px 20px 20px;
+    }
+  
+    .getintouch-header {
+      font-size: 24px;
+    }
+  
+    .getintouch-description {
+        font-size: 10px;
+        line-height: 1.6;
+        letter-spacing: 0.5px;
+        width: 80%;
+        text-align: center;
+        margin: 0 auto 10px auto;
+      }
+      
+  
+    .getintouch-sub-sec {
+      gap: 40px;
+      align-items: center;
+      padding: 0 10px;
+    }
+  
+    .contact-telephone h1,
+    .contact-email h1,
+    .getintouch-right h1 {
+      font-size: 12px;
+    }
+  
+    .contact-telephone p,
+    .contact-email p,
+    .getintouch-right p {
+      font-size: 10px;
+      margin-bottom: 20px;
+    }
+  
+    .contact-telephone img,
+    .contact-email img {
+      width: 30px;
+      margin-top: -10px;
+    }
+  
+    .contact-facebook img,
+    .contact-instagram img {
+      width: 32px;
+      height: 32px;
+    }
+  
+    .getintouch-map iframe {
+      height: 300px;
+    }
+  }
+  

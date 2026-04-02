@@ -1,0 +1,190 @@
+.council-sec {
+    padding: 0;
+    max-width: 100%;
+    margin-top: 100px;
+}
+
+.council-ribbon {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    overflow: hidden; 
+}
+
+.council-ribbon img {
+    width: 90%;
+    height: auto;
+    object-fit: cover; 
+}
+
+.council-sec-content {
+    padding: 0px 100px 50px 100px;
+    margin-top: 80px;
+}
+
+.council-header {
+    font-family: 'Bogart Trial', sans-serif;
+    text-align: start;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.council-description {
+    font-family: 'Helvetic', sans-serif;
+    font-size: 20px;
+    text-align: justify;
+    line-height: 2;
+    letter-spacing: 1px;
+}
+
+.council-president-grid {
+    margin-top: -60px;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: -60px;
+}
+
+.council-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    justify-content: center;
+    padding: 80px;
+    margin-bottom: 20px;
+}
+
+.council-card {
+    background: transparent;
+    border-radius: 20px;
+    position: relative;
+    width: 400px;
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    margin: auto;
+}
+
+.council-inner-card-1-president {
+    width: 100%;
+    height: 70%;
+    background: linear-gradient(to right, #FE93B4, #58B6E5);
+    border-radius: 20px;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: end; 
+}
+
+.council-inner-card-1-members {
+    width: 100%;
+    height: 70%;
+    background: #FE93B4;
+    border-radius: 20px;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: end; 
+}
+
+.council-inner-card-2 {
+    width: 100%;
+    height: 95%;
+    background: white;
+    border-radius: 18px;
+    position: absolute;
+    bottom: 0; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: end;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.council-member-image {
+    width: 150px; 
+    height: 150px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    position: relative; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+    top: -70px;
+    -webkit-user-drag: none;
+}
+
+.council-member-image img {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 50%;
+    -webkit-user-drag: none;
+}
+
+.council-member-name {
+    font-family: 'Bogart Trial', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: -50px;
+}
+
+.council-member-role {
+    font-family: 'Helvetic', sans-serif;
+    font-size: 16px;
+    color: #666;
+    margin-top: -10px;
+}
+
+@media (max-width: 900px) {
+    .council-grid {
+        grid-template-columns: repeat(2, 1fr); 
+    }
+}
+
+@media (max-width: 600px) {
+    .council-grid {
+        grid-template-columns: repeat(1, 1fr); 
+    }
+}
+
+@media screen and (max-width: 768px) {
+    
+
+    .council-sec {
+        margin-top: 10px;
+    }
+
+    .council-sec-content {
+        padding: 0 40px;
+        margin-top: 30px;
+    }
+
+    .council-header {
+        font-size: 24px;
+    }
+
+    .council-description {
+        font-size: 10px;
+        margin-bottom: 70px;
+    }
+
+    .council-card {
+        background: transparent;
+        border-radius: 20px;
+        position: relative;
+        width: 300px;
+        height: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+        margin: auto;
+    }
+
+}

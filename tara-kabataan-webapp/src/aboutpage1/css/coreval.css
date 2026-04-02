@@ -1,0 +1,180 @@
+
+.slider-container,
+.card {
+  background: transparent !important;
+  box-shadow: none !important; 
+}
+
+.coreval-sec {
+    max-width: 100%;
+    overflow: hidden;
+    gap: 5px;
+    padding: 0;
+}
+
+.coreval-sec-content{
+    margin-bottom: 50px;
+}
+
+.coreval-header{
+    padding: 0px 100px 0 100px;
+    font-family: 'Bogart Trial', sans-serif;
+    text-align: start;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.coreval-outer-bg {
+    background-color: rgba(137, 43, 226, 0);
+    min-height: 500px;
+    position: relative; 
+    overflow: hidden;
+}
+
+.coreval-inner-bg {
+    background: linear-gradient(to bottom, #FF3B6A, #FE93B4);
+    min-height: 400px;
+    position: absolute;
+    bottom: 0; 
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+
+.coreval-cow img {
+    max-width: 530px; 
+    height: auto; 
+    position: absolute;
+    bottom: 0; 
+    margin-left: 100px;
+}
+
+.coreval-inner-bg img {
+    width: 900px;
+    max-height: 530px; 
+    position: absolute;
+    margin-left: 600px;
+    margin-right: 60px;
+}
+
+.corevalues-cards {
+    position: relative;
+    width: 100%;
+    max-width: 650px;
+    margin-left: 750px;
+    margin-top: 50px;
+    background-color: #ffffff;
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.slider-container {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+}
+
+.card {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    min-height: 300px;
+    padding: 30px;
+    padding-top: 10px;
+    overflow: hidden;
+}
+
+.card h1 {
+    font-size: 28px;
+    color: #FE93B4;
+    margin-bottom: 15px;
+    font-weight: bold;
+    font-family: 'Bogart Trial', sans-serif;
+}
+
+.card p {
+    font-size: 16px;
+    font-family: 'Helvetic', sans-serif;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+.pagination-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 1;
+    padding-bottom: 20px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #0F82CA;
+    background-color: transparent;
+    cursor: pointer;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+
+.dot.active {
+    background-color: #0F82CA;
+    transform: scale(1.1);
+}
+
+@media screen and (max-width: 768px) {
+
+    .coreval-cow {
+        display: none;
+    }
+
+    .corevalues-cards {
+        position: relative;
+        margin: 50px auto 0;
+        width: 80%;
+        justify-self: center;
+        margin-top: 10px;
+    }
+
+    .coreval-header{
+        padding: 0px 40px;
+        font-family: 'Bogart Trial', sans-serif;
+        font-size: 20px;
+    }
+
+    .card {
+        min-height: 200px;
+    }
+    
+    .card h1 {
+        font-size: 16px;
+        color: #FE93B4;
+    }
+    
+    .card p {
+        font-size: 10px;
+    }
+
+    .coreval-outer-bg {
+        min-height: 250px;
+        height: auto;
+        padding-bottom: 20px;
+    }
+
+    .coreval-inner-bg {
+        min-height: 200px;
+        height: auto;
+    }
+    
+}
+
+

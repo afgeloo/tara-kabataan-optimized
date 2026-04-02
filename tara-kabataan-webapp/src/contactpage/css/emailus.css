@@ -1,0 +1,317 @@
+@font-face {
+    font-family: 'Bogart Trial';
+    src: url('../../assets/fonts/Bogart-Extrabold-trial.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+  
+@font-face {
+    font-family: 'Helvetic';
+    src: url('../../assets/fonts/HelveticaNowText-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.emailus-sec {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.emailus-content {
+    padding: 0px 100px 50px 100px;
+    margin-top: 80px;
+}
+
+.emailus-header {
+    font-family: 'Bogart Trial', sans-serif;
+    text-align: start;
+    font-size: 70px;
+    font-weight: bold;
+}
+
+.emailus-description {
+    font-family: 'Helvetic', sans-serif;
+    font-size: 24px;
+    margin: 0 auto;
+    text-align: justify;
+    line-height: 2;
+    letter-spacing: 1px;
+}
+
+
+.emailus-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%; 
+    padding: 50px; 
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+    height: auto;
+    font-size: 16px;
+    padding: 40px;
+    background: #FFFFFF;
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(177, 171, 171, 0.3);
+    margin: auto;
+}
+
+.contact-form label {
+    font-family: 'Helvetic', sans-serif;
+    font-weight: bold;
+    margin-top: 0.1rem;
+    color: #050505;
+}
+
+.contact-form input,
+.contact-form textarea {
+    font-family: 'Helvetic', sans-serif;
+    width: calc(105% - 24px);
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    margin-top: 8px;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #ff7eb3;
+    transform: scale(1.02);
+}
+
+.contact-form textarea {
+    resize: none;
+    height: 150px;
+}
+
+.contact-form button[type="submit"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 2rem;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+}
+
+.contact-form button[type="submit"]:hover {
+    background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(255, 120, 150, 0.3);
+}
+
+.contact-form button[type="submit"] img {
+    width: 24px;
+    height: 24px;
+}
+
+
+.notification-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-family: 'Helvetic', sans-serif;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+.notification-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification-message.success {
+    background-color: #FF5A89;
+}
+
+.notification-message.error {
+    background-color: #F44336;
+}
+
+.error-message {
+    font-family: 'Helvetic', sans-serif;
+    color: #FF5A89;
+    font-size: 14px;
+}
+
+.send-email-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    cursor: pointer;
+    gap: 10px;
+}
+
+.send-email-btn:hover {
+    background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(255, 120, 150, 0.3);
+}
+
+.send-email-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.emailus-line {
+    border: none;
+    height: 1px;
+    background-color: #BFBFBF;
+    margin-top: 10px;
+    margin-bottom: 50px;
+    width: 90%; 
+    
+  }
+
+@media (max-width: 1024px) {
+  .emailus-sec {
+    flex-direction: column;
+    padding: 10px;
+    align-items: center;
+    margin-top: -30px;
+  }
+
+  .emailus-content {
+    padding: 20px;
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  .emailus-header {
+    text-align: center;
+    font-size: 50px;
+  }
+
+  .emailus-description {
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
+  .emailus-form {
+    width: 80%;
+    padding: 10px;
+    justify-self: center;
+  }
+
+  .contact-form {
+    width: 80%;
+    padding: 20px;
+  }
+
+  .contact-form button[type="submit"] {
+    padding: 10px;
+  }
+
+  .contact-form button[type="submit"] img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .notification-message {
+    bottom: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    padding: 10px 15px;
+  }
+
+}
+
+@media (max-width: 768px) {
+  .emailus-sec {
+    flex-direction: column;
+    padding: 10px;
+    align-items: center;
+  }
+
+  .emailus-content {
+    text-align: center;
+  }
+
+  .emailus-header {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .emailus-description {
+    font-size: 10px;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
+  .emailus-form {
+    width: 100%;
+    justify-self: center;
+  }
+
+  .contact-form button[type="submit"] {
+    font-size: 10px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .contact-form button[type="submit"] img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .notification-message {
+    bottom: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  .contact-form label {
+      font-size: 12px;
+      margin-top: 0.1rem;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+      font-size: 10px;
+  }
+}
