@@ -544,6 +544,7 @@ const AdminLogin: React.FC = () => {
                     {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
+                      credentials: "include",
                       body: JSON.stringify({ email, otp, password }),
                     }
                   );
@@ -551,17 +552,10 @@ const AdminLogin: React.FC = () => {
                   const data = await res.json();
 
                   if (data.success) {
-                    // 1. SAVE THE TOKEN! This matches what AdminPage.tsx is looking for.
-                    localStorage.setItem("admin_token", data.token); 
-                    
-                    // 2. Save any other necessary user data
-                    localStorage.setItem("admin-auth", "true");
-                    localStorage.setItem("admin-user", JSON.stringify(data.user));
-                    
-                    // 3. Clean up the temporary user data you set during step 1 of login
+                    // WE RELY ENTIRELY ON THE COOKIE NOW. NO TOKENS.
+                    localStorage.setItem("admin-user", JSON.stringify(data.user)); // Just for UI display names
                     localStorage.removeItem("admin-user-temp");
                     
-                    // 4. Now navigate to admin!
                     navigate("/admin", { replace: true });
                   } else {
                     const updatedAttempts = otpAttempts + 1;

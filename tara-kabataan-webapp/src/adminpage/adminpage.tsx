@@ -11,22 +11,12 @@ const AdminPage: React.FC = () => {
 
   useEffect(() => {
     const verifySession = async () => {
-      const token = localStorage.getItem("admin_token");
-
-      if (!token) {
-        setIsAuthenticated(false);
-        return;
-      }
-
       try {
         const res = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_session.php`,
           {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Session-Token": token, // SEND THE VIP PASS TO PHP!
-            },
+            credentials: "include", // CRITICAL: Sends the invisible cookie to PHP
           }
         );
 
