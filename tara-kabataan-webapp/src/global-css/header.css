@@ -1,0 +1,320 @@
+.header {
+  background-color: #ffffff;
+  box-shadow: 0px 1px 15.3px rgba(0, 0, 0, 0.11);
+  height: 100px;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  z-index: 5000;
+  justify-content: space-between;
+}
+
+.logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  margin-left: 20px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  align-items: center; 
+  gap: 12px;
+  padding: 0 30px;      
+  margin: 0;
+  height: 100%;         
+  text-transform: uppercase;
+}
+
+.nav-button {
+  background-color: transparent;
+  border: none;
+  font-family: "Helvetica Now Text -Bold", Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff5a89;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease-in-out;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  text-decoration: none;
+}
+
+.nav-button::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #ff3b6a, #fe93b4);
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+.nav-button:hover {
+  color: #d94772;
+}
+
+.nav-button:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.nav-join {
+  background: linear-gradient(135deg, #ff5a89, #ff94b2);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: "Helvetica Now Text -Bold", Helvetica, sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  position: relative;
+}
+
+.nav-join:hover {
+  background: linear-gradient(135deg, #d94772, #ff7fa0);
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 12px rgba(255, 90, 137, 0.2);
+}
+
+@media screen and (max-width: 768px) {
+
+  .header {
+    background-color: #ffffff;
+    box-shadow: 0px 1px 15.3px rgba(0, 0, 0, 0.11);
+    height: 80px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    z-index: 5000;
+    justify-content: space-between;
+    
+  }
+  
+  .logo {
+    height: 100px;
+    width: 8rem;
+    object-fit: contain;
+    margin-left: 10px;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center; 
+    gap: 1px;
+    padding: 0 10px;      
+    margin: 0;
+  }
+  
+  .nav-button {
+    background-color: transparent;
+    border: none;
+    font-family: "Helvetica Now Text -Bold", Helvetica, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: #ff5a89;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease-in-out;
+    text-transform: uppercase;
+    padding: 14px;
+    text-decoration: none;
+    }
+  
+  .nav-button::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #ff3b6a, #fe93b4);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .nav-button:hover {
+    color: #d94772;
+  }
+  
+  .nav-button:hover::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+  
+  .nav-join {
+    background: linear-gradient(135deg, #ff5a89, #ff94b2);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 15px;
+    font-size: 8px;
+    font-weight: 700;
+    margin-left: 10px;
+    font-family: "Helvetica Now Text -Bold", Helvetica, sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    position: relative;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+  }
+  
+  .nav-join:hover {
+    background: linear-gradient(135deg, #d94772, #ff7fa0);
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 12px rgba(255, 90, 137, 0.2);
+  }
+
+}
+
+.burger {
+  display: none;
+  position: relative;
+  width: 28px;
+  height: 24px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  cursor: pointer;
+  z-index: 9999;
+  margin-right: 20px;
+}
+
+.bar {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background-color: #ff5a89;
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+.bar:nth-child(1) {
+  top: 0;
+}
+
+.bar:nth-child(2) {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.bar:nth-child(3) {
+  bottom: 0;
+}
+
+.bar.open:nth-child(1) {
+  transform: rotate(45deg);
+  top: 50%;
+}
+
+.bar.open:nth-child(2) {
+  opacity: 0;
+}
+
+.bar.open:nth-child(3) {
+  transform: rotate(-45deg);
+  bottom: auto;
+  top: 50%;
+}
+
+.nav-links.mobile {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  height: 100%;
+  width: 280px;
+  background-color: #fff;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.1);
+  padding: 100px 30px 40px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  transition: right 0.35s ease;
+  z-index: 5000;
+  overflow-y: auto;
+}
+
+.nav-links.mobile.active {
+  right: 0;
+}
+
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .burger {
+    display: flex;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-links li {
+    margin: 12px 0;
+  }
+
+  .nav-join {
+    font-size: 14px;
+    padding: 12px 26px;
+  }
+
+  .nav-button {
+    font-size: 16px;
+    padding: 10px 0;
+  }
+}
+
+.nav-links.desktop {
+  display: flex !important;
+  position: static !important;
+  flex-direction: row !important;
+  height: 100%;
+  padding: 0 30px;
+  background: transparent;
+  gap: 12px;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.nav-links.mobile {
+  display: none;
+}
+
+.nav-links.mobile.active {
+  display: flex;
+}

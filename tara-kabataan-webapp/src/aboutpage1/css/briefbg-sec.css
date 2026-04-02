@@ -1,0 +1,116 @@
+@font-face {
+    font-family: 'Bogart Trial';
+    src: url('../../assets/fonts/Bogart-Extrabold-trial.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'helvetic';
+    src: url('../../assets/fonts/HelveticaNowText-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+.briefbg-sec {
+    padding: 10px;
+    width: 100%;
+    gap: 5px;
+    padding: 0;
+    margin-top: 100px;
+}
+
+.briefbg-sec-content{
+    padding: 0px 100px 50px 100px;
+    margin-top: 80px;
+}
+
+.briefbg-carousel-bg {
+    padding: 0;
+    margin-top: 50px;
+    min-width: 120rem;
+    max-width: 120rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+    z-index: -1;
+    position: absolute;
+}
+
+.briefbg-carousel-bg img {
+    width: 100%;
+    height: auto;
+    object-fit: cover; 
+    padding: 0;
+    margin: 0;
+}
+
+.briefbg-header{
+    font-family: 'Bogart Trial', sans-serif;
+    text-align: start;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.briefbg-description{
+    font-family: 'Helvetic', sans-serif;
+    font-size: 20px;
+    margin: 0 auto;
+    text-align: justify;
+    line-height: 2;
+    letter-spacing: 1px;
+}
+
+.briefbg-line {
+    border: none;
+    height: 1px;
+    background-color: #BFBFBF;
+    margin-bottom: 50px;
+    width: 90%; 
+  }
+
+  @media screen and (max-width: 1200px) {
+    .briefbg-sec-content {
+      padding: 0 50px 40px 50px;
+    }
+  
+    .briefbg-header {
+      font-size: 26px;
+    }
+  
+    .briefbg-description {
+      font-size: 10px;
+    }
+  
+    .briefbg-carousel-bg {
+      min-width: 100%;
+      max-width: 100%;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .briefbg-sec {
+      margin-top: 50px;
+    }
+  
+    .briefbg-sec-content {
+      margin-top: 30px;
+    }
+  
+    .briefbg-header {
+      font-size: 20px;
+      text-align: center;
+    }
+  
+    .briefbg-description {
+      font-size: 10px;
+    }
+  
+    .briefbg-carousel-bg {
+      min-width: 100%;
+      max-width: 100%;
+    }
+  
+  }
+  

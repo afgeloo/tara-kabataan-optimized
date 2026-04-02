@@ -1,0 +1,293 @@
+@font-face {
+    font-family: 'Bogart Trial';
+    src: url('../../assets/fonts/Bogart-Extrabold-trial.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'helvetic';
+    src: url('../../assets/fonts/HelveticaNowText-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+
+  @font-face {
+    font-family: 'Bogart Trial';
+    src: url('../assets/fonts/Bogart-Extrabold-trial.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+.advocacies-line {
+  border: none;
+  height: 1px;
+  background-color: #BFBFBF;
+  margin-bottom: 50px;
+  width: 90%; 
+}
+  
+.advocacies-header {
+    font-family: 'Bogart Trial', sans-serif;
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 50px;
+    color: Black;
+    justify-self: center;
+}
+
+.advocacies-slider {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0 50px;
+  scrollbar-width: none; 
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.advocacies-slider::-webkit-scrollbar {
+  height: 8px;
+}
+
+.advocacies-slider::-webkit-scrollbar-thumb {
+  background: #ccc; 
+  border-radius: 10px;
+}
+
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(157, 42, 42, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.advocacy-card {
+  border-radius: 15px; 
+  padding: 20px;
+  width: 350px; 
+  color: white;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; 
+  gap: 10px; 
+  margin: 10px;
+  align-content: justify;
+  align-items: center;
+}
+
+.advocacy-card {
+  transition: all 0.3s ease-in-out; 
+  transform: scale(1); 
+}
+
+.advocacy-card.kalusugan {
+  background-color: white;
+  color: #FF7474;
+  border: 3px solid #FF7474;
+}
+
+.advocacy-card.kalikasan {
+  background-color: white;
+  color: #42BF81;
+  border: 3px solid #42BF81;
+}
+
+.advocacy-card.karunungan {
+  background-color: white;
+  color: #74B0FF;
+  border: 3px solid #74B0FF;
+}
+
+.advocacy-card.kasarian {
+  background-color: white;
+  color: #FF51D9;
+  border: 3px solid #FF51D9;
+}
+
+.advocacy-card.kultura {
+  background-color: white;
+  color: #D2C42B;
+  border: 3px solid #D2C42B;
+}
+
+.lead-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  background-color: #f5f5f5; 
+  margin-top: 10px;
+}
+
+.advocacy-icon-container {
+  position: relative;
+  width: 70px; 
+  height: 70px;
+  display: flex;
+  align-items: center; 
+  padding: 10px;
+  justify-content: center; 
+}
+
+.advocacy-icon-container .hover-icon {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.advocacy-icon-container .default-icon {
+  position: absolute;
+  width: 70px; 
+  height: 70px;
+  object-fit: contain;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 1;
+}
+
+.advocacy-category {
+  font-family: 'Bogart Trial', sans-serif;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0;
+  color: Black;
+}
+
+.advocacy-title {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 5px;
+  text-align: justify;
+  font-family: 'helvetic';
+  color: Black;
+}
+
+.advocacy-lead{
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 5px;
+  text-align: justify;
+  font-family: 'helvetic';
+  color: Black;
+}
+
+.advocacies-slider::-webkit-scrollbar {
+  height: 8px;
+}
+
+
+.lead-container {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-items: center;
+  margin-bottom: 10px;
+}
+
+.lead-item {
+  flex: 0 0 80px;    
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+}
+
+.lead-photo {
+  width: 80px;        
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  -webkit-user-drag: none;
+}
+.advocacy-leads {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+  justify-items: center;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 600px) {
+  .advocacy-leads {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.advocacy-lead-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lead-photo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.advocacy-lead {
+  margin-top: 8px;
+  font-family: 'helvetic';
+  font-size: 14px;
+  text-align: center;
+}
+
+.advocacy-leads > .advocacy-lead-container:only-child {
+  grid-column: 1 / -1;
+}
+
+@media screen and (max-width: 768px) {
+  .advocacies-header {
+    font-size: 24px;
+    margin: 0 120px;
+  }
+
+  .advocacy-leads {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .advocacy-category {
+    font-size: 14px;
+  }
+
+  .advocacy-title {
+    font-size: 10px;
+  }
+
+  .advocacy-lead{
+    font-size: 10px;
+  }
+
+  .advocacy-icon-container .hover-icon {
+    width: 50px; 
+    height: 50px;
+  }
+
+  .advocacy-icon-container .default-icon {
+    width: 50px; 
+    height: 50px;
+  }
+
+  .advocacy-icon-container {
+    width: 50px; 
+    height: 50px;
+  }
+}
