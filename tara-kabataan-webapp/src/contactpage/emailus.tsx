@@ -13,38 +13,51 @@ const EmailUs = () => {
 
   const allowedDomains = ["gmail.com", "yahoo.com", "outlook.com"];
 
-  const validateEmail = (email) => {
-    if (email.toLowerCase() === "anonymous") {
+  // Helper: Converts empty, whitespace, or any case of "anonymous" to "Anonymous"
+  const normalizeValue = (val) => {
+    if (!val || val.trim() === "" || val.trim().toLowerCase() === "anonymous") {
+      return "Anonymous";
+    }
+    return val.trim();
+  };
+
+  const validateEmail = (val) => {
+    // 1. Allow blank (will be treated as Anonymous)
+    if (!val || val.trim() === "") {
       setEmailError("");
       return true;
     }
-    
-    const emailParts = email.split("@");
+    // 2. Allow any case variation of "anonymous"
+    if (val.trim().toLowerCase() === "anonymous") {
+      setEmailError("");
+      return true;
+    }
+    // 3. If they typed something else, it must be a valid email format
+    const emailParts = val.split("@");
     if (emailParts.length !== 2 || !allowedDomains.includes(emailParts[1].toLowerCase())) {
-      setEmailError("Enter a valid email address or type 'Anonymous'");
+      setEmailError("Enter a valid email or leave blank for 'Anonymous'");
       return false;
     }
-    
     setEmailError("");
     return true;
   };
 
-  const validateContact = (contact) => {
-    if (contact.toLowerCase() === "anonymous") {
+  const validateContact = (val) => {
+    // 1. Allow blank
+    if (!val || val.trim() === "") {
       setContactError("");
       return true;
     }
-    
-    if (!/^\d+$/.test(contact)) {
-      setContactError("Enter a valid phone number or type 'Anonymous'");
+    // 2. Allow "anonymous"
+    if (val.trim().toLowerCase() === "anonymous") {
+      setContactError("");
+      return true;
+    }
+    // 3. Must be numeric if provided
+    if (!/^\d+$/.test(val)) {
+      setContactError("Enter a valid phone number or leave blank");
       return false;
     }
-    
-    if (parseInt(contact, 10) <= 0) {
-      setContactError("Enter a valid phone number or type 'Anonymous'");
-      return false;
-    }
-    
     setContactError("");
     return true;
   };
@@ -55,111 +68,110 @@ const EmailUs = () => {
   };
 
   const handleContactChange = (e) => {
-    const value = e.target.value;
-    setContact(value);
-    validateContact(value);
+    setContact(e.target.value);
+    validateContact(e.target.value);
   };
 
   const sendEmail = (e) => {
     e.preventDefault();
-
     if (!form.current) return;
 
+    // Final validation check before sending
     const isEmailValid = validateEmail(email);
     const isContactValid = validateContact(contact);
-
     if (!isEmailValid || !isContactValid) return;
 
     const SERVICE_ID = import.meta.env.VITE_SERVICE_ID;
     const TEMPLATE_ID = import.meta.env.VITE_TEMPLATE_ID;
     const PUBLIC_KEY = import.meta.env.VITE_PUBLIC_KEY;
 
+    // Extract raw values from the form
+    const formData = new FormData(form.current);
+    
+    // Create the cleaned-up data object
+    const templateParams = {
+      user_name: normalizeValue(formData.get("user_name")),
+      user_email: normalizeValue(email),
+      user_contact: normalizeValue(contact),
+      message: formData.get("message"), // This is required by the HTML attribute
+    };
+
     emailjs
-      .sendForm(
-        SERVICE_ID,
-        TEMPLATE_ID,
-        form.current,
-        PUBLIC_KEY
-      )
+      .send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
       .then(
-        (result) => {
-          console.log(result.text);
-          console.log("Message sent");
+        () => {
           setNotification("Your message has been sent successfully!"); 
           setTimeout(() => setNotification(""), 5000); 
-
           setEmail("");
           setContact("");
           form.current.reset();
         },
         (error) => {
-          console.log(error.text);
+          console.error("EmailJS Error:", error);
           setNotification("Failed to send message. Please try again.");
-          setTimeout(() => setNotification(""), 5000);
         }
       );
   };
 
   return (
     <div className="emailus-content-sec">
-        <div className="emailus-sec">
-      <div className="emailus-content">
-        <h1 className="emailus-header">Email Us</h1>
-        <p className="emailus-description">
-        Got any questions for Tara Kabataan? 💌 Whether you’re looking to partner, volunteer, support a cause, or simply someone who needs a little help or a kind conversation — we’re here for you.
-        Our inbox is always open for stories, suggestions, or souls in need of solidarity. 
-        </p>
-      </div>
-      <div className="emailus-form">
-      {notification && (
-        <p className={`notification-message ${notification.includes("successfully") ? "success" : "error"} show`}>
-            {notification}
-        </p>
-        )}
+      <div className="emailus-sec">
+        <div className="emailus-content">
+          <h1 className="emailus-header">Email Us</h1>
+          <p className="emailus-description">
+            Got any questions? Whether you’re looking to partner or just need a kind conversation — we’re here for you.
+          </p>
+        </div>
+        <div className="emailus-form">
+          {notification && (
+            <p className={`notification-message ${notification.includes("successfully") ? "success" : "error"} show`}>
+                {notification}
+            </p>
+          )}
 
-        <form ref={form} onSubmit={sendEmail} className="contact-form">
-          <label>Name</label>
-          <input type="text" name="user_name" required placeholder="Enter your name or 'Anonymous'" />
-
-          <label>Email</label>
-          <input 
-            type="text"  
-            name="user_email" 
-            required 
-            placeholder="Enter your email or 'Anonymous'"
-            value={email}
-            onChange={handleEmailChange}
+          <form ref={form} onSubmit={sendEmail} className="contact-form">
+            <label>Name</label>
+            <input 
+              type="text" 
+              name="user_name" 
+              placeholder="Name or 'Anonymous' (Optional)" 
             />
-          {emailError && <p className="error-message">{emailError}</p>}
 
-          <label>Contact No.</label>
-          <input 
-            type="tel" 
-            name="user_contact" 
-            required 
-            placeholder="Enter your contact number or 'Anonymous'" 
-            value={contact}
-            onChange={handleContactChange}
-            onKeyPress={(e) => {
-                if (!/^[0-9A-Za-z]*$/.test(e.key)) {
-                e.preventDefault();
-                }
-            }}
-          />
-          {contactError && <p className="error-message">{contactError}</p>}
+            <label>Email</label>
+            <input 
+              type="text"  
+              name="user_email" 
+              placeholder="Email or 'Anonymous' (Optional)"
+              value={email}
+              onChange={handleEmailChange}
+            />
+            {emailError && <p className="error-message">{emailError}</p>}
 
-          <label>Message</label>
-          <textarea name="message" required placeholder="Write your message here" />
+            <label>Contact No.</label>
+            <input 
+              type="tel" 
+              name="user_contact" 
+              placeholder="Contact No. or 'Anonymous' (Optional)" 
+              value={contact}
+              onChange={handleContactChange}
+            />
+            {contactError && <p className="error-message">{contactError}</p>}
 
-          <button type="submit" disabled={!!emailError || !!contactError}>
-            <img src={sendEmailBtnImg} alt="Send Email Icon" />
-            Send Email
+            <label>Message</label>
+            <textarea 
+              name="message" 
+              required 
+              placeholder="Write your message here (Required)" 
+            />
+
+            <button type="submit" disabled={!!emailError || !!contactError}>
+              <img src={sendEmailBtnImg} alt="Send Email Icon" />
+              Send Email
             </button>
-
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
-    <hr className="emailus-line" />
+      <hr className="emailus-line" />
     </div>
   );
 };
