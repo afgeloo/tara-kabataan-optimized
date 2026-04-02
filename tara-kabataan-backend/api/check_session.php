@@ -1,8 +1,18 @@
 <?php
-// DYNAMIC HEADERS (MUST allow the X-Session-Token header!)
+// 1. MUST MATCH THE LOGIN COOKIE SETTINGS
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', 1);
+ini_set('session.cookie_samesite', 'None');
+ini_set('session.cookie_domain', '.tarakabataan.org'); // <-- ADD THIS LINE!
+
+// 2. START SESSION (PHP automatically reads the cookie here)
+session_start();
+
+// 3. DYNAMIC HEADERS
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 header("Access-Control-Allow-Origin: $origin");
-header("Access-Control-Allow-Headers: Content-Type, X-Session-Token"); // <-- Critical addition
+header("Access-Control-Allow-Credentials: true"); // CRITICAL for cookies
+header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Content-Type: application/json");
 
@@ -11,15 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// LOOK FOR THE TOKEN IN THE HEADERS THAT REACT SENDS
-$token = isset($_SERVER['HTTP_X_SESSION_TOKEN']) ? $_SERVER['HTTP_X_SESSION_TOKEN'] : '';
-
-if ($token) {
-    session_id($token); // Tell PHP exactly which user session to load
-}
-session_start();
-
-// CHECK IF THEY ARE LOGGED IN
+// 4. CHECK IF THEY ARE LOGGED IN
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
     echo json_encode([
         "authenticated" => true,

@@ -4,17 +4,23 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// --- 2. SECURITY HEADERS (Only One Set!) ---
-$origin = 'http://tara-kabataan-webapp.s3-website-ap-southeast-2.amazonaws.com';
+// This detects if the request is coming from your Vercel dev link or your real domain
+$allowed_origins = [
+    "https://tarakabataan.org",
+    "https://www.tarakabataan.org",
+    "https://tara-kabataan-optimized.vercel.app"
+];
 
-// Allow specific origin or fallback to * (safer for production to use specific)
-header("Access-Control-Allow-Origin: $origin");
+if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
+    header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
+}
+
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Content-Type: application/json; charset=UTF-8");
 
-// Handle Preflight Options
+// Handle Preflight Options (Crucial for Vercel/Chrome)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
