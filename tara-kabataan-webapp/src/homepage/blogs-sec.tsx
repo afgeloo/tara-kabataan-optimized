@@ -26,12 +26,22 @@ const PREVIEW_CHARS = 140;
 
 // -- Utils -------------------------------------------------------------------
 
-const getSafeImageUrl = (url?: string) => {
+const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
-  // If API already returns absolute, use as-is
-  if (/^https?:\/\//i.test(url)) return url;
-  // If it's a server-relative path, prefix base URL
-  return `${import.meta.env.VITE_API_BASE_URL}${url}`;
+
+  // 1. If it already has the full S3 URL (like your partnerships), just use it!
+  if (url.startsWith("http") || url.startsWith("//")) {
+    return url;
+  }
+
+  // 2. The Correct Base URL (with ap-southeast-2 and the full folder path)
+  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
+  // 3. Remove leading slash from the database string if it exists (so we don't get double slashes)
+  const cleanPath = url.startsWith("/") ? url.substring(1) : url;
+
+  // 4. Combine them cleanly
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
 
 const stripToText = (html?: string) => {

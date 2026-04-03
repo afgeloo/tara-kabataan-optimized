@@ -28,19 +28,34 @@ interface Blog {
 
 /* ---------- stable constants/helpers ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-const UPLOADS_BASE = `${API_BASE}/tara-kabataan-optimized/tara-kabataan-webapp/uploads/blogs-images`;
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 const DATE_FMT = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   month: "long",
   day: "numeric",
 });
 
-/** Robust resolver: handles absolute, protocol-relative, server-relative, and bare filenames */
-const getFullImageUrl = (path: string) => {
-  if (!path) return "";
-  if (/^https?:\/\//i.test(path) || path.startsWith("//")) return path; // already absolute
-  if (path.startsWith("/")) return `${API_BASE}${path}`; // server-relative
-  return `${UPLOADS_BASE}/${path}`; // bare filename
+/** Robust resolver: uses S3 base URL and cleans up paths */
+const getSafeImageUrl = (url?: string | null) => {
+  if (!url) return "";
+
+  // 1. If it already has the full S3 URL (like your partnerships), just use it!
+  if (url.startsWith("http") || url.startsWith("//")) {
+    return url;
+  }
+
+  // 2. Clean up the path to prevent double folders
+  let cleanPath = url
+    .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
+    .replace("blogs-images/blogs-images/", "blogs-images/"); // Fixes double folder bug
+
+  // 3. Remove leading slash if it exists
+  if (cleanPath.startsWith("/")) {
+    cleanPath = cleanPath.substring(1);
+  }
+
+  // 4. Combine them cleanly
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
 
 function arraysShallowEqual(a: string[], b: string[]) {
@@ -121,7 +136,7 @@ export default function SingleBlog() {
       .then((res) => res.json())
       .then(({ success, images }) => {
         if (success && Array.isArray(images)) {
-          const resolved = images.map((p: string) => getFullImageUrl(p));
+          const resolved = images.map((p: string) => getSafeImageUrl(p));
           setMoreImages((prev) =>
             arraysShallowEqual(prev, resolved) ? prev : resolved
           );
@@ -175,7 +190,7 @@ export default function SingleBlog() {
 
   /* ---------- precompute hero URL & stable openers ---------- */
   const heroUrl = useMemo(
-    () => (blog ? getFullImageUrl(blog.image_url) : ""),
+    () => (blog ? getSafeImageUrl(blog.image_url) : ""),
     [blog?.image_url]
   );
   const openHero = useCallback(() => setFullImageUrl(heroUrl), [heroUrl]);
