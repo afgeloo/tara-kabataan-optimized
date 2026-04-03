@@ -15,6 +15,8 @@ type AboutPayload = { council?: string | null; [k: string]: unknown };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
 const BLACKLISTED_ROLES = ["Kalusugan", "Kalikasan", "Karunungan", "Kultura", "Kasarian"];
 
 // ---- tiny in-tab cache to avoid refetches per mount ----
@@ -25,14 +27,32 @@ const TTL = 5 * 60 * 1000;
 
 const resolveImage = (raw: string | null): string => {
   if (!raw || !raw.trim()) return placeholderImg;
-  if (raw.startsWith("http")) return raw;
+  
+  // 1. If it is already a full S3 link, return as-is
+  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) {
+    return raw;
+  }
 
+  // 2. Separate the path from the cache-busting query (e.g., ?t=123)
   const [path, query] = raw.split("?");
-  const hasOpt = path.includes("/tara-kabataan-optimized/");
-  const hasNon = path.includes("/tara-kabataan-optimized/");
+  let cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
-  let full = hasOpt || hasNon ? `${API_BASE}${path}` : `${API_BASE}/tara-kabataan-optimized/${path.startsWith("/") ? path.slice(1) : path}`;
+  // 3. Strip out the old redundant folders if they exist in the DB record
+  if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
+  } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
+  }
+
+  // 4. If it's just a raw filename, make sure it goes into the members-images folder
+  if (!cleanPath.includes("/")) {
+    cleanPath = `members-images/${cleanPath}`;
+  }
+
+  // 5. Combine perfectly
+  let full = `${IMAGE_BASE}/${cleanPath}`;
   if (query) full += `?${query}`;
+  
   return full;
 };
 

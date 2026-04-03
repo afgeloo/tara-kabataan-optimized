@@ -608,12 +608,30 @@ const AdminSettings = () => {
     // 1. Handle local preview images (Blob URLs)
     if (url.startsWith("blob:")) return url;
 
-    // 2. Handle absolute S3 links and protocol-relative links
+    // 2. Handle absolute S3 links
     if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
 
-    // 3. Clean the path and prepend S3 Bucket
-    const cleanPath = url.startsWith("/") ? url.substring(1) : url;
-    return `${IMAGE_BASE}/${cleanPath}`;
+    // 3. Separate the path from the cache-busting query (e.g., ?t=123)
+    const [path, query] = url.split("?");
+    let cleanPath = path.startsWith("/") ? path.substring(1) : path;
+
+    // 4. Strip out the old redundant folders
+    if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
+      cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
+    } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
+      cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
+    }
+
+    // 5. If it's just a raw filename without a folder, prepend it
+    if (!cleanPath.includes("/")) {
+      cleanPath = `members-images/${cleanPath}`;
+    }
+
+    // 6. Combine perfectly
+    let full = `${IMAGE_BASE}/${cleanPath}`;
+    if (query) full += `?${query}`;
+    
+    return full;
   };
 
   const handleSavePartnerUpdate = async () => {

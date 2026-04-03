@@ -13,24 +13,32 @@ type PartnersResponse = { partners?: PartnerApi[] } | PartnerApi[] | unknown;
 
 const BASE = import.meta.env.VITE_API_BASE_URL as string;
 
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
 const encodeFilename = (p: string) => {
   const parts = p.split(/[/\\]/);
   const filename = parts[parts.length - 1] || "";
   return encodeURIComponent(filename);
 };
+// 2. UPDATE THIS: The universal S3 image router
 const toLogoUrl = (url: string) => {
   if (!url) return "";
   
-  // 1. If it is already an S3 link, do not touch it! Return as-is.
+  // A. If it is already a full S3 link, do not touch it! Return as-is.
   if (/^https?:\/\//i.test(url) || url.startsWith("//")) {
     return url;
   }
   
-  // 2. Fallback just in case you have older local images
-  if (url.includes("/tara-kabataan-optimized/")) {
-    return `${BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+  // B. Clean the path
+  let cleanPath = url.startsWith("/") ? url.substring(1) : url;
+
+  // C. LEGACY CHECK: If the old database only saved the raw filename (e.g. "logo.png")
+  // we need to inject the folder name so AWS S3 knows where to look.
+  if (!cleanPath.includes("/")) {
+    cleanPath = `partners-images/${cleanPath}`;
   }
-  return `${BASE}/tara-kabataan-optimized/tara-kabataan-webapp/uploads/partners-images/${url}`;
+  
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
 
 const PartnerSec: React.FC = memo(() => {
