@@ -20,6 +20,9 @@ import { ToastContainer } from "react-toastify";
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "./utils/cropImage";
 
+// Add this right above const AdminEvents = () => {
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
 const AdminEvents = () => {
   interface Event {
     event_id: string;
@@ -871,11 +874,15 @@ const AdminEvents = () => {
 
   const getFullImageUrl = (url: string | null) => {
     if (!url) return "";
-    if (url.startsWith("http")) return url;
-    if (url.includes("/tara-kabataan-optimized/")) {
-      return `${import.meta.env.VITE_API_BASE_URL}${url}`;
+    
+    // If it's a new image with a full https:// url, use it directly
+    if (/^https?:\/\//i.test(url) || url.startsWith("//")) {
+      return url;
     }
-    return `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan${url.startsWith("/") ? "" : "/"}${url}`;
+    
+    // If it's an old relative image, strip the slash and add the S3 bucket path
+    const cleanPath = url.startsWith("/") ? url.substring(1) : url;
+    return `${IMAGE_BASE}/${cleanPath}`;
   };
 
   const saveSelection = () => {
@@ -2159,8 +2166,7 @@ const AdminEvents = () => {
 
                                   const data = await res.json();
                                   if (data.success && data.image_url) {
-                                    const img = `<img src="${import.meta.env.VITE_API_BASE_URL}${data.image_url}" alt="event image" style="max-width:100%; margin: 10px 0; display:block;" />`;
-                                    const div = document.getElementById(
+                                  const img = `<img src="${getFullImageUrl(data.image_url)}" alt="event image" style="max-width:100%; margin: 10px 0; display:block;" />`;                                    const div = document.getElementById(
                                       "new-event-content-editor"
                                     );
                                     if (div) {
@@ -2717,7 +2723,7 @@ const AdminEvents = () => {
 
                               const data = await res.json();
                               if (data.success && data.image_url) {
-                                const img = `<img src="${import.meta.env.VITE_API_BASE_URL}${data.image_url}" alt="event image" style="max-width:100%; margin: 10px 0; display:block;" />`;
+                                const img = `<img src="${getFullImageUrl(data.image_url)}" alt="event image" style="max-width:100%; margin: 10px 0; display:block;" />`;
                                 const div = document.getElementById(
                                   "add-event-content-editor"
                                 );

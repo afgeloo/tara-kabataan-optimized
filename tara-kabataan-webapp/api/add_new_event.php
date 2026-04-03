@@ -1,8 +1,13 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 include 'db.php';
 
@@ -19,15 +24,24 @@ try {
         exit;
     }
 
+    // --- START ID GENERATOR ---
+    $conn->query("INSERT INTO tk_webapp.event_id_counter VALUES (NULL)");
+    $next_id = $conn->insert_id;
+    $base36_id = str_pad(strtoupper(base_convert($next_id, 10, 36)), 6, '0', STR_PAD_LEFT);
+    $year = date("Y");
+    $new_event_id = "events-{$year}-{$base36_id}";
+    // --- END ID GENERATOR ---
+
     $stmt = $conn->prepare("
         INSERT INTO tk_webapp.events (
-            event_title, event_category, event_date, event_start_time, event_end_time,
+            event_id, event_title, event_category, event_date, event_start_time, event_end_time,
             event_venue, event_status, event_speakers, event_content, event_image
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->bind_param(
-        "ssssssssss",
+        "sssssssssss",
+        $new_event_id, // INJECT THE NEW ID HERE!
         $data['title'],
         $data['category'],
         $data['event_date'],
@@ -41,8 +55,13 @@ try {
     );
 
     if ($stmt->execute()) {
-        $result = $conn->query("SELECT * FROM tk_webapp.events ORDER BY created_at DESC LIMIT 1");
+        // Fetch safely using the exact ID
+        $fetchStmt = $conn->prepare("SELECT * FROM tk_webapp.events WHERE event_id = ?");
+        $fetchStmt->bind_param("s", $new_event_id);
+        $fetchStmt->execute();
+        $result = $fetchStmt->get_result();
         $event = $result->fetch_assoc();
+        $fetchStmt->close();
 
         if ($event) {
             $formatted = [
