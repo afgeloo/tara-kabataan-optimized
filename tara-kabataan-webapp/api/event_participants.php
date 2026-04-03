@@ -42,6 +42,7 @@ $year = date("Y");
 $new_participant_id = "participant-{$year}-{$base36_id}";
 // --- END ID GENERATOR ---
 
+// 1. Insert the participant
 $sql = "INSERT INTO tk_webapp.participants (participant_id, event_id, name, email, contact, expectations) VALUES (?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 
@@ -59,6 +60,15 @@ if (!$stmt->execute()) {
   exit;
 }
 $stmt->close();
+
+// 2. INCREMENT THE EVENT GOING COUNT! (The magic fix)
+$updateSql = "UPDATE tk_webapp.events SET event_going = event_going + 1 WHERE event_id = ?";
+$updateStmt = $conn->prepare($updateSql);
+if ($updateStmt) {
+    $updateStmt->bind_param("s", $eventId);
+    $updateStmt->execute();
+    $updateStmt->close();
+}
 
 echo json_encode(["success" => true]);
 ?>

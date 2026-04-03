@@ -180,13 +180,19 @@ function EventDetails() {
             body: JSON.stringify({ event_id: id, ...formData }),
           }
         );
+        
         const json = await res.json().catch(() => ({}));
-        if (res.ok && (json as any)?.success) {
+        
+        if (res.ok && json.success) {
           toast.success("Registered successfully!");
           closeModal();
           setFormData({ name: "", email: "", contact: "", expectations: "" });
+          
+          // INSTANT UI FIX: Add +1 to the screen immediately so they don't have to refresh!
+          setEvent((prev) => prev ? { ...prev, event_going: prev.event_going + 1 } : prev);
+          
         } else {
-          toast.error((json as any)?.error || "Registration failed");
+          toast.error(json.error || "Registration failed");
         }
       } catch (err) {
         console.error("RSVP error:", err);

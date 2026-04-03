@@ -1969,3 +1969,36 @@
     gap: 5px;
   }
 }
+
+/* --- OTP HORIZONTAL LAYOUT FIX --- */
+.otp-verification {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.otp-inputs {
+  display: flex;
+  flex-direction: row; 
+  gap: 12px;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.otp-box {
+  width: 45px;
+  height: 50px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.otp-box:focus {
+  outline: none;
+  border-color: #4DB1E3; /* Matches your admin blue accent */
+  box-shadow: 0 0 5px rgba(77, 177, 227, 0.3);
+}
