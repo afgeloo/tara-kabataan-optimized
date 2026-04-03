@@ -360,15 +360,12 @@ const AdminBlogs = () => {
     const blob = await getCroppedImg(cropSrc, croppedArea);
     const form = new FormData();
     form.append("image", blob, "cropped.jpg");
-
-    // We use the LONG PATH because you said it works for Events
-    const LONG_PATH = "/api";
     
     let endpoint = "";
     if (cropMode === "new") {
-      endpoint = `${API_BASE}${LONG_PATH}/add_new_blog_image.php`;
+      endpoint = `${API_BASE}/add_new_blog_image.php`; 
     } else {
-      endpoint = `${API_BASE}${LONG_PATH}/upload_blog_image.php`;
+      endpoint = `${API_BASE}/upload_blog_image.php`;
       if (editableBlog?.blog_id) form.append("blog_id", editableBlog.blog_id);
     }
 
@@ -1484,7 +1481,7 @@ const AdminBlogs = () => {
                               formData.append("image", file);
                               try {
                                 const res = await fetch(
-                                  `${API_BASE}/api/upload_blog_image.php`,
+                                  `${API_BASE}/upload_blog_image.php`,
                                   { method: "POST", body: formData }
                                 );
                                 const data = await res.json();
@@ -1794,7 +1791,7 @@ const AdminBlogs = () => {
                             const fd = new FormData();
                             fd.append("image", file);
                             try {
-                              const r = await fetch(`${API_BASE}/api/upload_blog_image.php`, {
+                              const r = await fetch(`${API_BASE}/upload_blog_image.php`,{
                                 method: "POST",
                                 body: fd,
                               });
