@@ -57,51 +57,41 @@ const resolveImage = (raw: string | null): string => {
 };
 
 export default function Council() {
-  const [councilData, setCouncilData] = useState<Member[]>(_councilCache ?? []);
-  const [councilText, setCouncilText] = useState<string>(_aboutCache ?? "Loading...");
+  // PERSISTENT CACHE
+  const [councilData, setCouncilData] = useState<Member[]>(() => {
+    const cached = localStorage.getItem("tk_council_list");
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [councilText, setCouncilText] = useState<string>(() => {
+    return JSON.parse(localStorage.getItem("tk_council_desc") || '"Loading..."');
+  });
 
   useEffect(() => {
-    const now = Date.now();
-    const fresh = now - _cacheAt < TTL && _councilCache && _aboutCache;
-
-    if (fresh) return;
-
     const ctrl = new AbortController();
     const aboutUrl = `${API_BASE}/aboutus.php`;
     const councilUrl = `${API_BASE}/council.php`;
 
     Promise.all([
-      fetch(aboutUrl, { signal: ctrl.signal }).then((r) => (r.ok ? r.json() : Promise.reject(r))),
-      fetch(councilUrl, { signal: ctrl.signal }).then((r) => (r.ok ? r.json() : Promise.reject(r))),
+      fetch(aboutUrl, { signal: ctrl.signal }).then((r) => r.json()),
+      fetch(councilUrl, { signal: ctrl.signal }).then((r) => r.json()),
     ])
-      .then(([about, council]: [AboutPayload, Member[]]) => {
-        const text = (about?.council ?? "").toString().trim() || "No data.";
+      .then(([about, council]) => {
+        const text = about?.council?.trim() || "No data.";
         const blacklist = new Set(BLACKLISTED_ROLES.map((s) => s.toLowerCase()));
 
-        const normalized: Member[] = Array.isArray(council)
-          ? council
-              .map((m) => ({
+        const normalized = Array.isArray(council) ? council.map((m) => ({
                 ...m,
-                role_name: (m.role_name ?? "").trim(),
                 member_image: resolveImage(m.member_image),
-              }))
-              .filter((m) => !blacklist.has(m.role_name.toLowerCase()))
-          : [];
-
-        _aboutCache = text;
-        _councilCache = normalized;
-        _cacheAt = Date.now();
+              })).filter((m) => !blacklist.has(m.role_name.toLowerCase())) : [];
 
         setCouncilText(text);
         setCouncilData(normalized);
+        
+        // Save everything to disk
+        localStorage.setItem("tk_council_list", JSON.stringify(normalized));
+        localStorage.setItem("tk_council_desc", JSON.stringify(text));
       })
-      .catch((err) => {
-        if (err?.name !== "AbortError") {
-          console.error("Council fetch error:", err);
-          if (!_aboutCache) setCouncilText("Failed to load.");
-          if (!_councilCache) setCouncilData([]);
-        }
-      });
+      .catch((err) => err?.name !== "AbortError" && console.error(err));
 
     return () => ctrl.abort();
   }, []);

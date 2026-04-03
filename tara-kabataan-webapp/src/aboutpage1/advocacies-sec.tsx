@@ -117,52 +117,27 @@ const groupByRole = (list: Member[]) => {
 
 // ---------- component ----------
 const AboutAdvocacies = memo(function AboutAdvocacies() {
-  const [members, setMembers] = useState<Member[]>(
-    _ver === CACHE_VERSION ? _members ?? [] : []
-  );
+  // PERSISTENT CACHE
+  const [members, setMembers] = useState<Member[]>(() => {
+    const cached = localStorage.getItem("tk_advocacy_members");
+    return cached ? JSON.parse(cached) : [];
+  });
 
   useEffect(() => {
-    const now = Date.now();
-    const fresh = _ver === CACHE_VERSION && _members && now - _at < TTL;
-
-    if (fresh) return;
-
     const ctrl = new AbortController();
+    fetch(API_URL, { signal: ctrl.signal })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data?.members) return;
+        const resolved = data.members.map((m: Member) => ({
+          ...m,
+          member_image: getSafeMemberImage(m.member_image),
+        }));
 
-    setTimeout(() => {
-      fetch(API_URL, { signal: ctrl.signal }) 
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.json() as Promise<ApiPayload>;
-        })
-        .then((data) => {
-          const ok =
-            data &&
-            (data.success === true ||
-              data.success === 1 ||
-              data.success === "1" ||
-              data.success === "true");
-              
-          if (!ok || !Array.isArray(data.members)) return;
-
-          const resolved = data.members.map((m) => ({
-            ...m,
-            role_name: (m.role_name || "").trim(),
-            // Apply the new S3 image resolver here
-            member_image: getSafeMemberImage(m.member_image),
-          }));
-
-          _ver = CACHE_VERSION;
-          _members = resolved;
-          _at = Date.now();
-          setMembers(resolved);
-        })
-        .catch((err) => {
-          if (err?.name !== "AbortError") {
-            console.error("[AboutAdvocacies] fetch members failed:", err);
-          }
-        });
-    }, 0);
+        setMembers(resolved);
+        localStorage.setItem("tk_advocacy_members", JSON.stringify(resolved));
+      })
+      .catch((err) => err?.name !== "AbortError" && console.error(err));
 
     return () => ctrl.abort();
   }, []);

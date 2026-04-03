@@ -18,44 +18,22 @@ function normalize(text: unknown, fallback: string) {
 }
 
 function MissionVision() {
-  const [mission, setMission] = useState("Loading...");
-  const [vision, setVision] = useState("Loading...");
+  const [mission, setMission] = useState(() => JSON.parse(localStorage.getItem("tk_mission") || '"Loading..."'));
+  const [vision, setVision] = useState(() => JSON.parse(localStorage.getItem("tk_vision") || '"Loading..."'));
 
   useEffect(() => {
-    const now = Date.now();
-    if (_mvCache && now - _mvCacheAt < TTL) {
-      setMission(_mvCache.mission);
-      setVision(_mvCache.vision);
-      return;
-    }
-
     const ctrl = new AbortController();
-
-    fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/aboutus.php`,
-      { signal: ctrl.signal }
-    )
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<AboutPayload>;
-      })
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/aboutus.php`, { signal: ctrl.signal })
+      .then((res) => res.json())
       .then((data) => {
-        const m = normalize(data.mission, "No data.");
-        const v = normalize(data.vision, "No data.");
-        _mvCache = { mission: m, vision: v };
-        _mvCacheAt = Date.now();
-        // single state flush (helps avoid 2 paints)
+        const m = data.mission?.trim() || "No mission data.";
+        const v = data.vision?.trim() || "No vision data.";
         setMission(m);
         setVision(v);
+        localStorage.setItem("tk_mission", JSON.stringify(m));
+        localStorage.setItem("tk_vision", JSON.stringify(v));
       })
-      .catch((err) => {
-        if (err?.name !== "AbortError") {
-          console.error("Fetch error:", err);
-          setMission("Failed to load.");
-          setVision("Failed to load.");
-        }
-      });
-
+      .catch((err) => err?.name !== "AbortError" && console.error(err));
     return () => ctrl.abort();
   }, []);
 
@@ -63,22 +41,11 @@ function MissionVision() {
     <div className="mission-vision-sec">
       <div className="mission-sec-content">
         <h1 className="mission-header">Mission</h1>
-        <p
-          className="mission-description"
-          dangerouslySetInnerHTML={{
-            __html: mission.replace(/\n/g, "<br />"),
-          }}
-        />
+        <p className="mission-description" dangerouslySetInnerHTML={{ __html: mission.replace(/\n/g, "<br />") }} />
       </div>
-
       <div className="vision-sec-content">
         <h1 className="vision-header">Vision</h1>
-        <p
-          className="vision-description"
-          dangerouslySetInnerHTML={{
-            __html: vision.replace(/\n/g, "<br />"),
-          }}
-        />
+        <p className="vision-description" dangerouslySetInnerHTML={{ __html: vision.replace(/\n/g, "<br />") }} />
       </div>
     </div>
   );

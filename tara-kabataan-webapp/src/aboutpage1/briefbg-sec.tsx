@@ -27,63 +27,36 @@ const slides = [
 ];
 
 const BriefBg: React.FC = memo(() => {
-  const [background, setBackground] = useState<string>("Loading...");
+  // PERSISTENT CACHE: Pull from disk immediately
+  const [background, setBackground] = useState<string>(() => {
+    const cached = localStorage.getItem("tk_about_bg");
+    return cached ? JSON.parse(cached) : "Loading...";
+  });
 
   useEffect(() => {
-    const now = Date.now();
-    if (_bgCache && now - _bgCacheAt < BG_TTL) {
-      setBackground(_bgCache);
-      return;
-    }
-
     const ctrl = new AbortController();
-
-    fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/aboutus.php`,
-      { signal: ctrl.signal }
-    )
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<AboutPayload>;
-      })
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/aboutus.php`, { signal: ctrl.signal })
+      .then((res) => res.json())
       .then((data) => {
-        const text =
-          (typeof data.background === "string" && data.background.trim()) ||
-          "No background content found.";
-        _bgCache = text;
-        _bgCacheAt = Date.now();
+        const text = data.background?.trim() || "No background content found.";
         setBackground(text);
+        // Save to disk for next visit
+        localStorage.setItem("tk_about_bg", JSON.stringify(text));
       })
       .catch((err) => {
-        if (err?.name !== "AbortError") {
-          console.error("Error fetching background:", err);
-          setBackground("Failed to load background.");
-        }
+        if (err?.name !== "AbortError") console.error(err);
       });
-
     return () => ctrl.abort();
   }, []);
 
   return (
     <div className="briefbg-sec">
-      <div className="briefbg-carousel-bg">
-        <img
-          src={ribbon}
-          alt="Brief Background Carousel Background"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-
-      <div className="bg-carousel-container">
-        <BgCarousel slides={slides} autoSlide autoSlideInterval={5000} />
-      </div>
-
+      <div className="briefbg-carousel-bg"><img src={ribbon} alt="ribbon" loading="lazy" /></div>
+      <div className="bg-carousel-container"><BgCarousel slides={slides} autoSlide autoSlideInterval={5000} /></div>
       <div className="briefbg-sec-content">
         <h1 className="briefbg-header">Brief Background</h1>
         <p className="briefbg-description">{background}</p>
       </div>
-
       <hr className="briefbg-line" />
     </div>
   );
