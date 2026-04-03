@@ -98,7 +98,12 @@ if (count($fields) > 0) {
     $stmt->close();
 }
 
+// ==============================================================================
+// FIX: MANUALLY GENERATING ID FOR GALLERY IMAGES
+// ==============================================================================
 if (isset($data['more_images']) && is_array($data['more_images'])) {
+    
+    // 1. Delete old images
     $deleteStmt = $conn->prepare("DELETE FROM tk_webapp.blog_images WHERE blog_id = ?");
     $deleteStmt->bind_param("s", $blog_id);
     if (!$deleteStmt->execute()) {
@@ -110,9 +115,23 @@ if (isset($data['more_images']) && is_array($data['more_images'])) {
     }
     $deleteStmt->close();
 
-    $insertStmt = $conn->prepare("INSERT INTO tk_webapp.blog_images (blog_id, image_url) VALUES (?, ?)");
+    // 2. Insert new images with 3 variables (blog_image_id, blog_id, image_url)
+    $insertStmt = $conn->prepare("INSERT INTO tk_webapp.blog_images (blog_image_id, blog_id, image_url) VALUES (?, ?, ?)");
+    $year = date("Y");
+
     foreach ($data['more_images'] as $image_url) {
-        $insertStmt->bind_param("ss", $blog_id, $image_url);
+        
+        // A. Hit the counter table
+        $conn->query("INSERT INTO tk_webapp.blog_image_id_counter VALUES (NULL)");
+        $img_next_id = $conn->insert_id;
+        
+        // B. Generate the custom ID
+        $img_base36 = str_pad(strtoupper(base_convert($img_next_id, 10, 36)), 6, '0', STR_PAD_LEFT);
+        $new_blog_image_id = "blogimg-{$year}-{$img_base36}";
+
+        // C. Bind all 3 parameters and execute
+        $insertStmt->bind_param("sss", $new_blog_image_id, $blog_id, $image_url);
+        
         if (!$insertStmt->execute()) {
             http_response_code(500);
             echo json_encode(["error" => "Failed to insert new image", "image_url" => $image_url, "sql_error" => $insertStmt->error]);

@@ -40,3 +40,5 @@ uploads/
 api/uploads/
 *.sql
 api/*.sql
+.vercel
+.env*.local
