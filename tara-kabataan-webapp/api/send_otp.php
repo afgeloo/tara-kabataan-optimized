@@ -82,8 +82,8 @@ try {
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
     $mail->Username = 'fajmreyes@gmail.com'; 
-    $mail->Password = 'zkeq tdmk hxxl iftr'; 
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Use constant
+    $mail->Password = $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS'); 
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
     $mail->Port = 587;
 
     $mail->setFrom('fajmreyes@gmail.com', 'Tara Kabataan');
