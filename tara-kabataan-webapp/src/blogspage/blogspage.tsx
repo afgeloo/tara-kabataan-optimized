@@ -37,21 +37,24 @@ const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL ?? ""; // Add this new S3
 const CATEGORIES = ["ALL", "KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"] as const;
 const DATE_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-// Updated helper to stitch S3 paths perfectly
 const getSafeImageUrl = (url?: string | null) => {
-  if (!url) return ""; // Return empty string or a default placeholder image URL here
+  if (!url) return "";
 
-  // 1. If it's already a full URL (like an external link), return it as is
+  // 1. If it's already a full S3/External URL, use it
   if (url.startsWith("http") || url.startsWith("//")) {
     return url;
   }
 
-  // 2. Clean the database URL and stitch it to the S3 Bucket URL
-  // If the database has "blogs-images/123.jpg", this creates: 
-  // "https://your-bucket.s3.amazonaws.com/uploads/blogs-images/123.jpg"
-  const cleanUrl = url.startsWith("/") ? url.substring(1) : url;
+  // 2. CLEANING: Remove the old massive AWS path if it exists in the string
+  // This handles cases where the database hasn't been fully cleaned yet
+  let cleanPath = url.replace("/tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
   
-  return `${IMAGE_BASE}/${cleanUrl}`;
+  // 3. Remove leading slashes so we don't get double slashes in the final URL
+  cleanPath = cleanPath.startsWith("/") ? cleanPath.substring(1) : cleanPath;
+
+  // 4. Stitch it to your S3 Base
+  // This will result in: https://your-s3-bucket.com/uploads/blogs-images/filename.jpg
+  return `${import.meta.env.VITE_IMAGE_BASE_URL}/${cleanPath}`;
 };
 
 /* ----------------- SUBCOMPONENTS (memoized) ----------------- */
