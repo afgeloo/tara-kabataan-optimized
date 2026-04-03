@@ -40,31 +40,19 @@ const DATE_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "lon
 const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
 
-  // 1. If it already points to S3 or an external link, just use it
+  // 1. If it already has the full S3 URL (like your partnerships), just use it!
   if (url.startsWith("http") || url.startsWith("//")) {
     return url;
   }
 
-  // 2. Hardcode the fallback so it works even if Vercel Environment Variables are missing
-  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-1.amazonaws.com/uploads";
+  // 2. The Correct Base URL (with ap-southeast-2 and the full folder path)
+  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
-  // 3. The Aggressive Clean-up
-  // This Regex strips out ANY variation of the old local paths, including leading "/api/" or slashes
-  let cleanPath = url
-    .replace(/^(\/?api)?\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
-    .replace(/^(\/?api)?\/?tara-kabataan-webapp\/uploads\//, "")
-    .replace("blogs-images/blogs-images/", "blogs-images/") // Fixes accidental double folders
-    .replace("events-images/events-images/", "events-images/"); 
-  
-  // 4. Remove any rogue leading slash that might be left behind
-  if (cleanPath.startsWith("/")) {
-    cleanPath = cleanPath.substring(1);
-  }
+  // 3. Remove leading slash from the database string if it exists (so we don't get double slashes)
+  const cleanPath = url.startsWith("/") ? url.substring(1) : url;
 
-  // 5. Ensure correct base URL formatting (removes trailing slash from base if it exists)
-  const finalBase = IMAGE_BASE.endsWith("/") ? IMAGE_BASE.slice(0, -1) : IMAGE_BASE;
-
-  return `${finalBase}/${cleanPath}`;
+  // 4. Combine them cleanly
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
 
 /* ----------------- SUBCOMPONENTS (memoized) ----------------- */
