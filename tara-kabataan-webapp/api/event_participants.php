@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header("Content-Type: application/json");
 
 // adjust path as needed
-require_once '../config/db.php'; 
+require_once 'db.php'; 
 // $conn = new mysqli($host, $user, $pass, $db); // from your config
 
 // 1) Decode JSON

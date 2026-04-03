@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-include '../config/db.php';
+include 'db.php';
 
 $targetDir = "../../tara-kabataan-webapp/uploads/events-images/";
 if (!is_dir($targetDir)) {

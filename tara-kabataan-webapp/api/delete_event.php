@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require '../config/db.php';  // your mysqli $conn
+require 'db.php';  // your mysqli $conn
 
 // parse JSON body
 $body    = file_get_contents('php://input');

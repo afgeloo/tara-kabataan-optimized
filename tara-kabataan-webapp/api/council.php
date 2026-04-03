@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-include '../config/db.php';
+include 'db.php';
 
 function resolveImageByUserId($memberId) {
     $extensions = ['jpg', 'jpeg', 'png'];

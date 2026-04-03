@@ -4,7 +4,7 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
-include '../config/db.php'; // should define $conn
+include 'db.php'; // should define $conn
 
 $event_id = $_GET['event_id'] ?? '';
 if (!$event_id) {

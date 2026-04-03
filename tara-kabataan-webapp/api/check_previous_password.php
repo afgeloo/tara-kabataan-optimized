@@ -4,7 +4,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST");
 header("Content-Type: application/json");
 
-include '../config/db.php'; 
+include 'db.php'; 
 
 $data = json_decode(file_get_contents("php://input"), true);
 

@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-include '../config/db.php'; 
+include 'db.php'; 
 
 $response = [];
 

@@ -4,7 +4,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
 
-require_once '../config/db.php'; 
+require_once 'db.php'; 
 
 $data = json_decode(file_get_contents("php://input"), true);
 

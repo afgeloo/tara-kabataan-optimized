@@ -1,7 +1,7 @@
 <?php
 // send_reminders.php
 require __DIR__ . '/vendor/autoload.php'; // PHPMailer
-require __DIR__ . '../config/db.php';
+require __DIR__ . 'db.php';
 
 date_default_timezone_set('Asia/Manila');
 $now = time();

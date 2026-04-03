@@ -33,7 +33,7 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
     exit;
 }
 require __DIR__ . '/../vendor/autoload.php';
-include '../config/db.php'; 
+include 'db.php'; 
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

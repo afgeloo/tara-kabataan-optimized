@@ -7,7 +7,7 @@ ini_set('session.cookie_domain', '.tarakabataan.org'); // <-- ADD THIS LINE!
 
 session_start();
 
-include '../config/db.php'; 
+include 'db.php'; 
 
 // DYNAMIC CORS HEADERS
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';

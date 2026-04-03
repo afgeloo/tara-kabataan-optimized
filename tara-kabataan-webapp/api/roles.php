@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-include '../config/db.php';
+include 'db.php';
 
 $sql = "SELECT role_id, role_name FROM tk_webapp.roles ORDER BY role_name ASC";
 $result = $conn->query($sql);

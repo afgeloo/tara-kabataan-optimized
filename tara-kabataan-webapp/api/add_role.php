@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header("Content-Type: application/json");
 
-include '../config/db.php';
+include 'db.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 $role_name = trim($input['role_name'] ?? '');

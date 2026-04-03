@@ -4,7 +4,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-include '../config/db.php';  // expects $conn = new mysqli(...);
+include 'db.php';  // expects $conn = new mysqli(...);
 
 try {
     $data = json_decode(file_get_contents("php://input"), true);

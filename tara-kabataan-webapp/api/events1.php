@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-include '../config/db.php';
+include 'db.php';
 
 if (isset($_GET['event_id'])) {
     $event_id = $_GET['event_id'];

@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-include '../config/db.php';
+include 'db.php';
 
 $sql = "SELECT members.member_id, members.member_name, members.member_image, roles.role_name, roles.role_id
         FROM members

@@ -4,7 +4,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-include '../config/db.php';
+include 'db.php';
 
 $user_id = $_GET['user_id'] ?? '';
 
