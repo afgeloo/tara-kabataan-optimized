@@ -1,5 +1,6 @@
 <?php
-// Catch fatal errors silently so Vercel doesn't blank out
+ob_start(); // THE MAGIC SHIELD
+
 set_exception_handler(function (\Throwable $e) {
     http_response_code(500);
     echo json_encode(["authenticated" => false, "message" => "Server crash: " . $e->getMessage()]);
@@ -40,7 +41,6 @@ if (empty($session_token)) {
 }
 
 // --- VERIFY IN DATABASE ---
-// Make sure it matches tk_webapp.users exactly!
 $stmt = $conn->prepare("SELECT * FROM tk_webapp.users WHERE session_token = ?");
 if (!$stmt) {
     throw new Exception("Database prepare failed: " . $conn->error);
@@ -65,4 +65,4 @@ if ($result->num_rows === 1) {
     http_response_code(401);
     echo json_encode(["authenticated" => false, "message" => "Invalid or expired session."]);
 }
-?>
+// NO CLOSING PHP TAG BELOW THIS LINE!

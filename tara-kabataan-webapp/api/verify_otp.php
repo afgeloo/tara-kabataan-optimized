@@ -1,5 +1,6 @@
 <?php
-// Catch fatal errors gracefully so Vercel doesn't throw a blank 500 error
+ob_start(); // THE MAGIC SHIELD: Prevents whitespace from breaking the cookie
+
 set_exception_handler(function (\Throwable $e) {
     http_response_code(500);
     echo json_encode(["success" => false, "message" => "Server crash: " . $e->getMessage()]);
@@ -43,7 +44,6 @@ if (!$email || !$otp) {
 $emailEscaped = $conn->real_escape_string($email);
 
 try {
-  // --- VERIFY USER EXISTS ---
   $userQuery = "SELECT * FROM tk_webapp.users WHERE user_email = ?";  
   $stmt = $conn->prepare($userQuery);
   $stmt->bind_param("s", $emailEscaped);
@@ -57,7 +57,6 @@ try {
 
   $user = $userResult->fetch_assoc();
 
-  // --- FETCH OTP DATA ---
   $otpQuery = "SELECT otp, expires_at, attempts FROM tk_webapp.admin_otp WHERE email = ?";
   $stmt = $conn->prepare($otpQuery);
   $stmt->bind_param("s", $emailEscaped);
@@ -72,21 +71,18 @@ try {
   $row = $otpResult->fetch_assoc();
   $attempts = (int)$row['attempts'];
 
-  // 1. Check Expiration
   if (strtotime($row['expires_at']) < time()) {
     $conn->query("DELETE FROM tk_webapp.admin_otp WHERE email = '$emailEscaped'");
     echo json_encode(["success" => false, "message" => "OTP has expired. Please request a new one."]);
     exit;
   }
 
-  // 2. Safety Catch: Max attempts
   if ($attempts >= 3) {
     $conn->query("DELETE FROM tk_webapp.admin_otp WHERE email = '$emailEscaped'");
     echo json_encode(["success" => false, "message" => "Maximum attempts reached. Please request a new OTP."]);
     exit;
   }
 
-  // 3. CHECK IF THE OTP IS WRONG
   if ($row['otp'] !== $otp) {
     $new_attempts = $attempts + 1;
 
@@ -107,28 +103,25 @@ try {
     exit; 
   }
 
-  // --- 4. SUCCESS! OTP IS CORRECT ---
+  // --- SUCCESS! OTP IS CORRECT ---
   $deleteStmt = $conn->prepare("DELETE FROM tk_webapp.admin_otp WHERE email = ?");
   $deleteStmt->bind_param("s", $emailEscaped);
   $deleteStmt->execute();
 
-  // --- 5. SERVERLESS SESSION LOCKDOWN ---
-  
-  // A. Generate a secure random token
+  // --- SERVERLESS SESSION LOCKDOWN ---
   $session_token = bin2hex(random_bytes(32));
 
-  // B. Save this token to the user's database row
   $updateUserStmt = $conn->prepare("UPDATE tk_webapp.users SET session_token = ? WHERE user_email = ?");
   $updateUserStmt->bind_param("ss", $session_token, $emailEscaped);
   $updateUserStmt->execute();
 
-  // C. Give the token to the browser as a secure, HTTP-only Cookie
+  // Give the token to the browser as a secure, HTTP-only Cookie
   setcookie("admin_session_token", $session_token, [
-      'expires' => time() + 86400, // 24 hours
+      'expires' => time() + 86400, 
       'path' => '/',
-      'secure' => true,      // ONLY works over HTTPS
-      'httponly' => true,    // Javascript cannot steal it
-      'samesite' => 'None'   // CRITICAL for Vercel cross-origin requests
+      'secure' => true,      
+      'httponly' => true,    
+      'samesite' => 'None'   
   ]);
 
   echo json_encode([
@@ -149,4 +142,4 @@ try {
       "line" => $e->getLine()
   ]);
 }
-?>
+// NO CLOSING PHP TAG BELOW THIS LINE!
