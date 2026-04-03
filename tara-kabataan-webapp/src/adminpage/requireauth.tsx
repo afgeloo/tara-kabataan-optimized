@@ -11,6 +11,7 @@ const RequireAuth: React.FC = () => {
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/check_session.php`, {
           method: "GET",
           credentials: "include", // THIS IS THE MAGIC WORD! It forces React to send the cookie.
+          cache: "no-store",
           headers: {
             "Accept": "application/json",
           },

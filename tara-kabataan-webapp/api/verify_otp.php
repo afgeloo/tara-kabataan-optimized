@@ -115,13 +115,17 @@ try {
   $updateUserStmt->bind_param("ss", $session_token, $emailEscaped);
   $updateUserStmt->execute();
 
+  $host = $_SERVER['HTTP_HOST'] ?? '';
+  $cookie_domain = ($host === 'localhost' || $host === '127.0.0.1') ? '' : '.tarakabataan.org';
+
   // Give the token to the browser as a secure, HTTP-only Cookie
   setcookie("admin_session_token", $session_token, [
       'expires' => time() + 86400, 
       'path' => '/',
+      'domain' => $cookie_domain, // This is the magic key for cross-subdomain!
       'secure' => true,      
       'httponly' => true,    
-      'samesite' => 'None'   
+      'samesite' => 'Lax'    // Lax is the safest for same-domain API routing
   ]);
 
   echo json_encode([
