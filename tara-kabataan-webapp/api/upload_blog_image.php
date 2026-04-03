@@ -11,12 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// Use statements are best kept together
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 use Dotenv\Dotenv;
 
-// Load .env from one folder up
 if (file_exists(__DIR__ . '/../.env')) {
     $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
     $dotenv->load();
@@ -38,6 +36,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $imageName = uniqid() . "_gallery_" . basename($_FILES["image"]["name"]);
 
     try {
+        // Upload the actual file to AWS
         $result = $s3Client->putObject([
             'Bucket'      => $bucketName,
             'Key'         => $s3Folder . $imageName,
@@ -45,11 +44,12 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             'ContentType' => $_FILES['image']['type']
         ]);
 
-        $fullS3Url = "https://{$bucketName}.s3.ap-southeast-2.amazonaws.com/{$s3Folder}{$imageName}";
+        // FIX: Return the clean, relative path instead of the full AWS URL!
+        $relativePath = "blogs-images/" . $imageName;
 
         echo json_encode([
             "success"   => true,
-            "image_url" => $fullS3Url
+            "image_url" => $relativePath
         ]);
 
     } catch (AwsException $e) {
@@ -58,3 +58,4 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 } else {
     echo json_encode(["success" => false, "error" => "Upload failed. No file detected."]);
 }
+?>

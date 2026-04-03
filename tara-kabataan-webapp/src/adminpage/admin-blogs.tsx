@@ -36,6 +36,10 @@ interface Blog {
 type ViewMode = "table" | "grid";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+
+// 1. ADD THIS: Pull the S3 bucket URL just like the audience page does
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
 const CATEGORIES = ["All", "Kalusugan", "Kalikasan", "Karunungan", "Kultura", "Kasarian"] as const;
 const NEW_CATEGORIES = ["KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"] as const;
 const STATUS_FILTER = ["All", "Draft", "Published", "Pinned", "Archived"] as const;
@@ -48,10 +52,19 @@ const MAX_PINNED = 3;
 const DT_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
 const formatDate = (ts: string) => DT_FMT.format(new Date(ts));
 
-const getFullUrl = (path = "") =>
-  /^https?:\/\//i.test(path) || path.startsWith("//")
-    ? path
-    : `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+// 2. UPDATE THIS: Make the admin helper identical to the audience helper
+const getFullUrl = (path = "") => {
+  if (!path) return "";
+  
+  // If it's a new image with a full https:// url, use it directly
+  if (/^https?:\/\//i.test(path) || path.startsWith("//")) {
+    return path;
+  }
+  
+  // If it's an old relative image, strip the slash and add the S3 bucket path
+  const cleanPath = path.startsWith("/") ? path.substring(1) : path;
+  return `${IMAGE_BASE}/${cleanPath}`;
+};
 
 const AdminBlogs = () => {
   // ------------------------------------

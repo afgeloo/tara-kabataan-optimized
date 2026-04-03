@@ -20,7 +20,6 @@ use Aws\Exception\AwsException;
 use Dotenv\Dotenv;
 
 // 4. LOAD ENVIRONMENT VARIABLES
-// Check if the file exists to avoid a "Fatal Error" if .env is missing
 if (file_exists(__DIR__ . '/../.env')) {
     $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
     $dotenv->load();
@@ -44,6 +43,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $imageName = uniqid() . "_" . basename($_FILES["image"]["name"]);
 
     try {
+        // Upload the actual file to AWS
         $result = $s3Client->putObject([
             'Bucket'      => $bucketName,
             'Key'         => $s3Folder . $imageName,
@@ -51,12 +51,12 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             'ContentType' => $_FILES['image']['type']
         ]);
 
-        // GENERATE THE FULL HTTPS URL
-        $fullS3Url = "https://{$bucketName}.s3.ap-southeast-2.amazonaws.com/{$s3Folder}{$imageName}";
+        // FIX: Return the clean, relative path instead of the full AWS URL!
+        $relativePath = "blogs-images/" . $imageName;
 
         echo json_encode([
             "success"   => true,
-            "image_url" => $fullS3Url
+            "image_url" => $relativePath
         ]);
 
     } catch (AwsException $e) {
