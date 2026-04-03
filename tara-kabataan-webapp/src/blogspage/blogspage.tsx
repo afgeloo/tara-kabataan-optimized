@@ -37,30 +37,32 @@ const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL ?? ""; // Add this new S3
 const CATEGORIES = ["ALL", "KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"] as const;
 const DATE_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-// Replace your current getSafeImageUrl with this:
 const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
 
-  // 1. If it's already a full URL, return it
+  // 1. If it already points to S3 or an external link, just use it
   if (url.startsWith("http") || url.startsWith("//")) {
     return url;
   }
 
-  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL ?? "";
+  // 2. Hardcode the fallback so it works even if Vercel Environment Variables are missing
+  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-1.amazonaws.com/uploads";
 
-  // 2. The Great Clean-up
-  // We remove the old AWS path AND any duplicate "blogs-images/" folder prefixes
+  // 3. The Aggressive Clean-up
+  // This Regex strips out ANY variation of the old local paths, including leading "/api/" or slashes
   let cleanPath = url
-    .replace("/tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "")
-    .replace("blogs-images/blogs-images/", "blogs-images/"); // Fixes the double folder issue
+    .replace(/^(\/?api)?\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
+    .replace(/^(\/?api)?\/?tara-kabataan-webapp\/uploads\//, "")
+    .replace("blogs-images/blogs-images/", "blogs-images/") // Fixes accidental double folders
+    .replace("events-images/events-images/", "events-images/"); 
   
-  // 3. Remove leading slash
+  // 4. Remove any rogue leading slash that might be left behind
   if (cleanPath.startsWith("/")) {
     cleanPath = cleanPath.substring(1);
   }
 
-  // 4. Ensure we aren't doubling up the base URL if it's accidentally missing https
-  const finalBase = IMAGE_BASE.startsWith("http") ? IMAGE_BASE : `https://${IMAGE_BASE}`;
+  // 5. Ensure correct base URL formatting (removes trailing slash from base if it exists)
+  const finalBase = IMAGE_BASE.endsWith("/") ? IMAGE_BASE.slice(0, -1) : IMAGE_BASE;
 
   return `${finalBase}/${cleanPath}`;
 };
