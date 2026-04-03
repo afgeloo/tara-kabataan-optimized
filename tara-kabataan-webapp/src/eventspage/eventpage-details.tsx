@@ -189,7 +189,9 @@ function EventDetails() {
           setFormData({ name: "", email: "", contact: "", expectations: "" });
           
           // INSTANT UI FIX: Add +1 to the screen immediately so they don't have to refresh!
-          setEvent((prev) => prev ? { ...prev, event_going: prev.event_going + 1 } : prev);
+          setEvent((prev) => 
+            prev ? { ...prev, event_going: Number(prev.event_going || 0) + 1 } : prev
+          );
           
         } else {
           toast.error(json.error || "Registration failed");
