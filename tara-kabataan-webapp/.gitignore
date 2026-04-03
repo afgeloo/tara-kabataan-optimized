@@ -42,3 +42,4 @@ api/uploads/
 api/*.sql
 .vercel
 .env*.local
+vendor/
