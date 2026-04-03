@@ -1,38 +1,59 @@
 <?php
-// 1. MUST MATCH THE LOGIN COOKIE SETTINGS
-ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 1);
-ini_set('session.cookie_samesite', 'None');
-ini_set('session.cookie_domain', '.tarakabataan.org'); // <-- ADD THIS LINE!
+include 'db.php';
 
-// 2. START SESSION (PHP automatically reads the cookie here)
-session_start();
+// --- 1. DYNAMIC CORS HEADERS ---
+$allowed_origins = [
+    "https://tarakabataan.org",
+    "https://www.tarakabataan.org",
+    "https://tara-kabataan-optimized.vercel.app"
+];
 
-// 3. DYNAMIC HEADERS
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-header("Access-Control-Allow-Origin: $origin");
-header("Access-Control-Allow-Credentials: true"); // CRITICAL for cookies
-header("Access-Control-Allow-Headers: Content-Type");
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+}
+
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Content-Type: application/json");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Content-Type: application/json; charset=UTF-8");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// 4. CHECK IF THEY ARE LOGGED IN
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+// --- 2. GRAB THE COOKIE ---
+$session_token = $_COOKIE['admin_session_token'] ?? '';
+
+if (empty($session_token)) {
+    http_response_code(401);
+    echo json_encode(["authenticated" => false, "message" => "No session cookie found."]);
+    exit;
+}
+
+// --- 3. VERIFY TOKEN IN DATABASE ---
+// Adjust the column names below if your users table uses different names!
+$stmt = $conn->prepare("SELECT * FROM users WHERE session_token = ?");
+$stmt->bind_param("s", $session_token);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 1) {
+    $user = $result->fetch_assoc();
+    
+    // Success! Return the user details to React
     echo json_encode([
         "authenticated" => true,
         "user" => [
-            "user_id" => $_SESSION['admin_user_id'],
-            "user_name" => $_SESSION['admin_name'],
-            "user_email" => $_SESSION['admin_email']
+            "user_id" => $user['id'] ?? $user['user_id'], // Adjust based on your DB columns
+            "user_name" => $user['name'] ?? $user['first_name'],
+            "user_email" => $user['user_email']
         ]
     ]);
 } else {
-    http_response_code(401); 
-    echo json_encode(["authenticated" => false, "message" => "Unauthorized"]);
+    // Token is invalid or expired
+    http_response_code(401);
+    echo json_encode(["authenticated" => false, "message" => "Invalid or expired session."]);
 }
 ?>

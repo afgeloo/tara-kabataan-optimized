@@ -1,27 +1,36 @@
 <?php
-// 1. THE ULTIMATE COOKIE LOCKDOWN
-ini_set('session.cookie_httponly', 1); // Invisible to JavaScript
-ini_set('session.cookie_secure', 1);   // ONLY works over HTTPS
-ini_set('session.cookie_samesite', 'None'); // CRITICAL: Allows Vercel to receive the cookie
-ini_set('session.cookie_domain', '.tarakabataan.org'); // <-- ADD THIS LINE!
-
-session_start();
+// Catch fatal errors gracefully so Vercel doesn't throw a blank 500 error
+set_exception_handler(function (\Throwable $e) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "message" => "Server crash: " . $e->getMessage()]);
+    exit;
+});
 
 include 'db.php'; 
 
-// DYNAMIC CORS HEADERS
+// --- DYNAMIC CORS HEADERS ---
+$allowed_origins = [
+    "https://tarakabataan.org",
+    "https://www.tarakabataan.org",
+    "https://tara-kabataan-optimized.vercel.app"
+];
+
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-header("Access-Control-Allow-Origin: $origin");
-header("Access-Control-Allow-Credentials: true"); // Tells browser to save the cookie
-header("Access-Control-Allow-Headers: Content-Type");
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+}
+
+header("Access-Control-Allow-Credentials: true"); 
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=UTF-8");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
+// --- PARSE INPUT ---
 $data = json_decode(file_get_contents("php://input"), true);
 $email = trim($data['email'] ?? '');
 $otp   = trim($data['otp'] ?? '');
@@ -34,6 +43,7 @@ if (!$email || !$otp) {
 $emailEscaped = $conn->real_escape_string($email);
 
 try {
+  // --- VERIFY USER EXISTS ---
   $userQuery = "SELECT * FROM tk_webapp.users WHERE user_email = ?";  
   $stmt = $conn->prepare($userQuery);
   $stmt->bind_param("s", $emailEscaped);
@@ -47,7 +57,7 @@ try {
 
   $user = $userResult->fetch_assoc();
 
-  // --- ADDED ATTEMPTS TO THE QUERY ---
+  // --- FETCH OTP DATA ---
   $otpQuery = "SELECT otp, expires_at, attempts FROM tk_webapp.admin_otp WHERE email = ?";
   $stmt = $conn->prepare($otpQuery);
   $stmt->bind_param("s", $emailEscaped);
@@ -69,7 +79,7 @@ try {
     exit;
   }
 
-  // 2. Safety Catch: If they somehow got to 3+ attempts, reject instantly
+  // 2. Safety Catch: Max attempts
   if ($attempts >= 3) {
     $conn->query("DELETE FROM tk_webapp.admin_otp WHERE email = '$emailEscaped'");
     echo json_encode(["success" => false, "message" => "Maximum attempts reached. Please request a new OTP."]);
@@ -81,14 +91,12 @@ try {
     $new_attempts = $attempts + 1;
 
     if ($new_attempts >= 3) {
-      // They failed 3 times. DESTROY the OTP in the database.
       $deleteStmt = $conn->prepare("DELETE FROM tk_webapp.admin_otp WHERE email = ?");
       $deleteStmt->bind_param("s", $emailEscaped);
       $deleteStmt->execute();
       
       echo json_encode(["success" => false, "message" => "Too many incorrect attempts. OTP destroyed. Request a new one."]);
     } else {
-      // They failed, but still have tries left. UPDATE the database counter.
       $updateStmt = $conn->prepare("UPDATE tk_webapp.admin_otp SET attempts = ? WHERE email = ?");
       $updateStmt->bind_param("is", $new_attempts, $emailEscaped);
       $updateStmt->execute();
@@ -96,21 +104,33 @@ try {
       $tries_left = 3 - $new_attempts;
       echo json_encode(["success" => false, "message" => "Incorrect OTP. You have $tries_left attempt(s) left."]);
     }
-    exit; // STOP SCRIPT EXECUTION SO IT DOESN'T LOG THEM IN!
+    exit; 
   }
 
-  // 4. IF WE REACH HERE, THE OTP WAS CORRECT!
-  // Delete the successful OTP so it can't be reused
+  // --- 4. SUCCESS! OTP IS CORRECT ---
   $deleteStmt = $conn->prepare("DELETE FROM tk_webapp.admin_otp WHERE email = ?");
   $deleteStmt->bind_param("s", $emailEscaped);
   $deleteStmt->execute();
 
-  // THE SECURITY LOCKDOWN
-  session_regenerate_id(true); // Destroy the old session ID and create a fresh one
-  $_SESSION['admin_logged_in'] = true;
-  $_SESSION['admin_user_id']   = $user['user_id']; 
-  $_SESSION['admin_email']     = $user['user_email'];
-  $_SESSION['admin_name']      = $user['user_name']; 
+  // --- 5. SERVERLESS SESSION LOCKDOWN ---
+  
+  // A. Generate a secure random token
+  $session_token = bin2hex(random_bytes(32));
+
+  // B. Save this token to the user's database row
+  $updateUserStmt = $conn->prepare("UPDATE tk_webapp.users SET session_token = ? WHERE user_email = ?");
+  $updateUserStmt->bind_param("ss", $session_token, $emailEscaped);
+  $updateUserStmt->execute();
+
+  // C. Give the token to the browser as a secure, HTTP-only Cookie
+  setcookie("admin_session_token", $session_token, [
+      'expires' => time() + 86400, // 24 hours
+      'path' => '/',
+      'domain' => '.tarakabataan.org',
+      'secure' => true,      // ONLY works over HTTPS
+      'httponly' => true,    // Javascript cannot steal it
+      'samesite' => 'None'   // CRITICAL for Vercel cross-origin requests
+  ]);
 
   echo json_encode([
       "success" => true, 
@@ -122,7 +142,8 @@ try {
           "user_contact" => $user['user_contact'] ?? ''
       ]
   ]);
-} catch (Throwable $e) { // Changed to Throwable to catch fatal SQL crashes
+
+} catch (Throwable $e) { 
   echo json_encode([
       "success" => false, 
       "message" => "Server error: " . $e->getMessage(),
