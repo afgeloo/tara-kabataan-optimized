@@ -37,24 +37,32 @@ const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL ?? ""; // Add this new S3
 const CATEGORIES = ["ALL", "KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"] as const;
 const DATE_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
 
+// Replace your current getSafeImageUrl with this:
 const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
 
-  // 1. If it's already a full S3/External URL, use it
+  // 1. If it's already a full URL, return it
   if (url.startsWith("http") || url.startsWith("//")) {
     return url;
   }
 
-  // 2. CLEANING: Remove the old massive AWS path if it exists in the string
-  // This handles cases where the database hasn't been fully cleaned yet
-  let cleanPath = url.replace("/tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
-  
-  // 3. Remove leading slashes so we don't get double slashes in the final URL
-  cleanPath = cleanPath.startsWith("/") ? cleanPath.substring(1) : cleanPath;
+  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL ?? "";
 
-  // 4. Stitch it to your S3 Base
-  // This will result in: https://your-s3-bucket.com/uploads/blogs-images/filename.jpg
-  return `${import.meta.env.VITE_IMAGE_BASE_URL}/${cleanPath}`;
+  // 2. The Great Clean-up
+  // We remove the old AWS path AND any duplicate "blogs-images/" folder prefixes
+  let cleanPath = url
+    .replace("/tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "")
+    .replace("blogs-images/blogs-images/", "blogs-images/"); // Fixes the double folder issue
+  
+  // 3. Remove leading slash
+  if (cleanPath.startsWith("/")) {
+    cleanPath = cleanPath.substring(1);
+  }
+
+  // 4. Ensure we aren't doubling up the base URL if it's accidentally missing https
+  const finalBase = IMAGE_BASE.startsWith("http") ? IMAGE_BASE : `https://${IMAGE_BASE}`;
+
+  return `${finalBase}/${cleanPath}`;
 };
 
 /* ----------------- SUBCOMPONENTS (memoized) ----------------- */
