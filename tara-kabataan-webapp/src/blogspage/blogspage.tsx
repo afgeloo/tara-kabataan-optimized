@@ -33,27 +33,25 @@ type BlogView = Blog & { _dateText: string };
 
 // constants outside render
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL ?? ""; // Add this new S3 variable!
 const CATEGORIES = ["ALL", "KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"] as const;
 const DATE_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-// helper to prefix your BASE_URL
-// Find this helper near the top of your BlogsPage.tsx and replace it:
+// Updated helper to stitch S3 paths perfectly
 const getSafeImageUrl = (url?: string | null) => {
-  if (!url) return "";
+  if (!url) return ""; // Return empty string or a default placeholder image URL here
 
-  // 1. If it's already a full URL (S3), return it as is
+  // 1. If it's already a full URL (like an external link), return it as is
   if (url.startsWith("http") || url.startsWith("//")) {
     return url;
   }
 
-  // 2. If it's a server-relative path, add the API_BASE
-  if (url.startsWith("/")) {
-    return `${API_BASE}${url}`;
-  }
-
-  // 3. Fallback for bare filenames (if any old local files exist)
-  const UPLOADS_PATH = "/tara-kabataan-optimized/tara-kabataan-webapp/uploads/blogs-images";
-  return `${API_BASE}${UPLOADS_PATH}/${url}`;
+  // 2. Clean the database URL and stitch it to the S3 Bucket URL
+  // If the database has "blogs-images/123.jpg", this creates: 
+  // "https://your-bucket.s3.amazonaws.com/uploads/blogs-images/123.jpg"
+  const cleanUrl = url.startsWith("/") ? url.substring(1) : url;
+  
+  return `${IMAGE_BASE}/${cleanUrl}`;
 };
 
 /* ----------------- SUBCOMPONENTS (memoized) ----------------- */
