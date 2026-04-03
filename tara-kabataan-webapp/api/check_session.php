@@ -1,7 +1,14 @@
 <?php
+// Catch fatal errors silently so Vercel doesn't blank out
+set_exception_handler(function (\Throwable $e) {
+    http_response_code(500);
+    echo json_encode(["authenticated" => false, "message" => "Server crash: " . $e->getMessage()]);
+    exit;
+});
+
 include 'db.php';
 
-// --- 1. DYNAMIC CORS HEADERS ---
+// --- DYNAMIC CORS HEADERS ---
 $allowed_origins = [
     "https://tarakabataan.org",
     "https://www.tarakabataan.org",
@@ -23,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// --- 2. GRAB THE COOKIE ---
+// --- GRAB THE COOKIE ---
 $session_token = $_COOKIE['admin_session_token'] ?? '';
 
 if (empty($session_token)) {
@@ -32,9 +39,13 @@ if (empty($session_token)) {
     exit;
 }
 
-// --- 3. VERIFY TOKEN IN DATABASE ---
-// Adjust the column names below if your users table uses different names!
-$stmt = $conn->prepare("SELECT * FROM users WHERE session_token = ?");
+// --- VERIFY IN DATABASE ---
+// Make sure it matches tk_webapp.users exactly!
+$stmt = $conn->prepare("SELECT * FROM tk_webapp.users WHERE session_token = ?");
+if (!$stmt) {
+    throw new Exception("Database prepare failed: " . $conn->error);
+}
+
 $stmt->bind_param("s", $session_token);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -42,17 +53,15 @@ $result = $stmt->get_result();
 if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
     
-    // Success! Return the user details to React
     echo json_encode([
         "authenticated" => true,
         "user" => [
-            "user_id" => $user['id'] ?? $user['user_id'], // Adjust based on your DB columns
-            "user_name" => $user['name'] ?? $user['first_name'],
-            "user_email" => $user['user_email']
+            "user_id" => $user['user_id'] ?? '',
+            "user_name" => $user['user_name'] ?? '',
+            "user_email" => $user['user_email'] ?? ''
         ]
     ]);
 } else {
-    // Token is invalid or expired
     http_response_code(401);
     echo json_encode(["authenticated" => false, "message" => "Invalid or expired session."]);
 }

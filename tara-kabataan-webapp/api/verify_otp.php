@@ -126,7 +126,6 @@ try {
   setcookie("admin_session_token", $session_token, [
       'expires' => time() + 86400, // 24 hours
       'path' => '/',
-      'domain' => '.tarakabataan.org',
       'secure' => true,      // ONLY works over HTTPS
       'httponly' => true,    // Javascript cannot steal it
       'samesite' => 'None'   // CRITICAL for Vercel cross-origin requests
