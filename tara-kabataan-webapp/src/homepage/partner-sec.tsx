@@ -12,28 +12,23 @@ type PartnerApi = { partner_image?: string | null };
 type PartnersResponse = { partners?: PartnerApi[] } | PartnerApi[] | unknown;
 
 const BASE = import.meta.env.VITE_API_BASE_URL as string;
-
 const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
-const encodeFilename = (p: string) => {
-  const parts = p.split(/[/\\]/);
-  const filename = parts[parts.length - 1] || "";
-  return encodeURIComponent(filename);
-};
-// 2. UPDATE THIS: The universal S3 image router
+// Robust S3 Image Router
 const toLogoUrl = (url: string) => {
   if (!url) return "";
+  if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
   
-  // A. If it is already a full S3 link, do not touch it! Return as-is.
-  if (/^https?:\/\//i.test(url) || url.startsWith("//")) {
-    return url;
-  }
-  
-  // B. Clean the path
   let cleanPath = url.startsWith("/") ? url.substring(1) : url;
 
-  // C. LEGACY CHECK: If the old database only saved the raw filename (e.g. "logo.png")
-  // we need to inject the folder name so AWS S3 knows where to look.
+  // Strip legacy redundant folder prefixes
+  if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
+  } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
+  }
+
+  // Ensure it points to the partners-images folder if no folder is present
   if (!cleanPath.includes("/")) {
     cleanPath = `partners-images/${cleanPath}`;
   }
@@ -43,30 +38,28 @@ const toLogoUrl = (url: string) => {
 
 const PartnerSec: React.FC = memo(() => {
   const [showQR, setShowQR] = useState(false);
-  const [partnerLogos, setPartnerLogos] = useState<string[]>([]);
-  const mounted = useRef(true);
+  
+  // OPTIMIZATION: Instant Paint from localStorage
+  const [partnerLogos, setPartnerLogos] = useState<string[]>(() => {
+    const cached = localStorage.getItem("tk_homepage_partners");
+    return cached ? JSON.parse(cached) : [];
+  });
 
-  // Respect reduced motion (Marquee supports `play`)
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
-    mounted.current = true;
     const ctrl = new AbortController();
 
     (async () => {
       try {
-        const res = await fetch(
-          `${BASE}/partners.php`,
-          { signal: ctrl.signal }
-        );
+        const res = await fetch(`${BASE}/partners.php`, { signal: ctrl.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: PartnersResponse = await res.json();
 
-        const list =
-          Array.isArray((data as any)?.partners)
+        const list = Array.isArray((data as any)?.partners)
             ? (data as any).partners
             : Array.isArray(data)
             ? (data as any)
@@ -77,147 +70,33 @@ const PartnerSec: React.FC = memo(() => {
           .filter(Boolean)
           .map(toLogoUrl);
 
-        // Avoid useless re-render if identical
-        setPartnerLogos((prev) => {
-          if (prev.length === next.length && prev.every((v, i) => v === next[i])) return prev;
-          return next;
-        });
+        // Only update state and cache if the data has actually changed
+        const currentStr = JSON.stringify(partnerLogos);
+        const nextStr = JSON.stringify(next);
+
+        if (currentStr !== nextStr) {
+          setPartnerLogos(next);
+          localStorage.setItem("tk_homepage_partners", nextStr);
+        }
       } catch (err: any) {
         if (err?.name !== "AbortError") console.error("Error fetching partner logos:", err);
       }
     })();
 
-    return () => {
-      mounted.current = false;
-      ctrl.abort();
-    };
+    return () => ctrl.abort();
   }, []);
 
-  // Ensure continuous scroll even with few logos (dup once if < 6)
+  // Ensure continuous scroll even with few logos
   const displayedLogos = useMemo(() => {
     if (partnerLogos.length === 0) return [];
-    if (partnerLogos.length < 6) return [...partnerLogos, ...partnerLogos];
+    // Marquee looks better with at least 6-8 items to prevent gaps
+    if (partnerLogos.length < 8) return [...partnerLogos, ...partnerLogos, ...partnerLogos];
     return partnerLogos;
   }, [partnerLogos]);
 
-  if (displayedLogos.length === 0) {
-    // Nothing to show yet; keep DOM minimal
-    return (
-      <div className="partner-sec">
-        <h1 className="PastPartnership-Text">PAST PARTNERSHIPS</h1>
-        <hr className="Hr-under-pastpartnership" />
-        {/* rest of section still renders below */}
-        <div className="partner-member-container">
-          <div className="BePartnerMemberSection">
-            <h2 className="BePartnerMemberText">BE A PARTNER</h2>
-            <div className="BePartnerMemberSection-box">
-              <div className="circle-inside-be-a-partner-member">
-                <img src={partnerLogo} alt="Partner Logo" className="circle-image partner-image" />
-              </div>
-              <p className="text-inside-be-a-partner-member-container">
-                Partnering with Tara Kabataan means joining a dedicated movement focused on empowering the youth and fostering community development. Your collaboration will support initiatives that promote education, environmental stewardship, and active civic engagement among young individuals.
-              </p>
-              <Link to="/Contact" className="button-inside-be-a-partner-member">BECOME A PARTNER</Link>
-            </div>
-          </div>
-
-          <div className="BePartnerMemberSection">
-            <h2 className="BePartnerMemberText">BE A MEMBER</h2>
-            <div className="BePartnerMemberSection-box">
-              <div className="circle-inside-be-a-partner-member">
-                <img src={memberLogo} alt="Member Logo" className="circle-image member-image" />
-              </div>
-              <p className="text-inside-be-a-partner-member-container">
-                Joining Tara Kabataan as a member means becoming part of a passionate community of youth advocates and changemakers. You’ll have opportunities to engage in meaningful volunteer work and develop your leadership and advocacy skills through community-based activities.
-              </p>
-              <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSewrSWYnmn5lVqOTbSh9751x80e-IhIp_atvMFaDf3M0n6uVg/viewform"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "none" }}
-              >
-                <button className="button-inside-be-a-partner-member">BECOME A MEMBER</button>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <h2 className="support-tk-title">SUPPORT TARA KABATAAN</h2>
-        <div className="support-tk-container">
-          <div className="support-tk-content-format">
-            <div className="logo-inside-donate-now-placing">
-              <img src={tklogo} className="logo-inside-donate-now-sizing" alt="Support Logo" />
-            </div>
-            <div className="support-tk-text">
-              <p>
-                Your donation is more than just a contribution — it’s a commitment to youth empowerment and inclusive nation-building. Every peso you give fuels Tara Kabataan’s programs that uplift communities, advance human rights, and promote genuine civic engagement.
-                Whether it’s through in-kind support or financial assistance, your help goes directly to grassroots initiatives: from relief operations and educational drives to health missions and climate justice actions.
-              </p>
-            </div>
-          </div>
-          <button className="donate-now-section" onClick={() => setShowQR(true)}>
-            <img src={donateicon} alt="Donate Icon" className="logo-inside-donate-now" />
-            <span className="donate-now-text">DONATE NOW</span>
-          </button>
-        </div>
-
-        {showQR && (
-          <div className="qr-popup-overlay" onClick={() => setShowQR(false)} role="dialog" aria-modal="true">
-            <div className="qr-popup" onClick={(e) => e.stopPropagation()}>
-              <button className="close-qr-btn" onClick={() => setShowQR(false)} aria-label="Close">×</button>
-              <p>Open GCash, Maya, or any app with a built-in QR scanner to scan:</p>
-              <img src={tkdonate} alt="QR Code" className="qr-code-img" loading="lazy" decoding="async" />
-              <p>Or message us directly on Messenger:</p>
-              <a
-                href="https://www.facebook.com/messages/t/105536985395406"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="messenger-link"
-              >
-                Send a Message!
-              </a>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="partner-sec">
-      <h1 className="PastPartnership-Text">PAST PARTNERSHIPS</h1>
-      <br />
-      <div>
-        <Marquee
-          key={`partner-marquee-${displayedLogos.length}`} // stable remount only when data changes
-          speed={60}
-          pauseOnHover
-          loop={0}
-          gradient={false}
-          play={!prefersReducedMotion}
-        >
-          {displayedLogos.map((logo, index) => (
-            <div key={`${logo}-${index}`} style={{ padding: "0 20px" }}>
-              <img
-                src={logo}
-                className="past-partnerships-logo"
-                alt={`Partner ${index + 1}`}
-                loading="lazy"
-                decoding="async"
-                draggable={false}
-                onError={(e) => {
-                  const img = e.currentTarget;
-                  // Hide broken images without re-render
-                  img.style.display = "none";
-                }}
-              />
-            </div>
-          ))}
-        </Marquee>
-      </div>
-
-      <hr className="Hr-under-pastpartnership" />
-
+  // Content shared between both render states to keep code DRY
+  const renderSupportSection = () => (
+    <>
       <div className="partner-member-container">
         <div className="BePartnerMemberSection">
           <h2 className="BePartnerMemberText">BE A PARTNER</h2>
@@ -228,9 +107,7 @@ const PartnerSec: React.FC = memo(() => {
             <p className="text-inside-be-a-partner-member-container">
               Partnering with Tara Kabataan means joining a dedicated movement focused on empowering the youth and fostering community development. Your collaboration will support initiatives that promote education, environmental stewardship, and active civic engagement among young individuals.
             </p>
-            <Link to="/Contact" className="button-inside-be-a-partner-member">
-              BECOME A PARTNER
-            </Link>
+            <Link to="/Contact" className="button-inside-be-a-partner-member">BECOME A PARTNER</Link>
           </div>
         </div>
 
@@ -243,12 +120,7 @@ const PartnerSec: React.FC = memo(() => {
             <p className="text-inside-be-a-partner-member-container">
               Joining Tara Kabataan as a member means becoming part of a passionate community of youth advocates and changemakers. You’ll have opportunities to engage in meaningful volunteer work and develop your leadership and advocacy skills through community-based activities.
             </p>
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSewrSWYnmn5lVqOTbSh9751x80e-IhIp_atvMFaDf3M0n6uVg/viewform"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ textDecoration: "none" }}
-            >
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSewrSWYnmn5lVqOTbSh9751x80e-IhIp_atvMFaDf3M0n6uVg/viewform" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
               <button className="button-inside-be-a-partner-member">BECOME A MEMBER</button>
             </a>
           </div>
@@ -273,22 +145,56 @@ const PartnerSec: React.FC = memo(() => {
           <span className="donate-now-text">DONATE NOW</span>
         </button>
       </div>
+    </>
+  );
+
+  return (
+    <div className="partner-sec">
+      <h1 className="PastPartnership-Text">PAST PARTNERSHIPS</h1>
+      <br />
+      
+      {/* If we have logos (even from cache), show the marquee. Otherwise show nothing/hr */}
+      {displayedLogos.length > 0 ? (
+        <div>
+          <Marquee
+            key={`partner-marquee-${displayedLogos.length}`}
+            speed={60}
+            pauseOnHover
+            loop={0}
+            gradient={false}
+            play={!prefersReducedMotion}
+          >
+            {displayedLogos.map((logo, index) => (
+              <div key={`${logo}-${index}`} style={{ padding: "0 20px" }}>
+                <img
+                  src={logo}
+                  className="past-partnerships-logo"
+                  alt={`Partner ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
+              </div>
+            ))}
+          </Marquee>
+        </div>
+      ) : (
+        <div style={{ height: "100px" }} /> // Placeholder to prevent layout shift
+      )}
+
+      <hr className="Hr-under-pastpartnership" />
+
+      {renderSupportSection()}
 
       {showQR && (
         <div className="qr-popup-overlay" onClick={() => setShowQR(false)} role="dialog" aria-modal="true">
           <div className="qr-popup" onClick={(e) => e.stopPropagation()}>
             <button className="close-qr-btn" onClick={() => setShowQR(false)} aria-label="Close">×</button>
             <p>Open GCash, Maya, or any app with a built-in QR scanner to scan:</p>
-            <img src={tkdonate} alt="QR Code" className="qr-code-img" loading="lazy" decoding="async" />
+            <img src={tkdonate} alt="QR Code" className="qr-code-img" loading="lazy" />
             <p>Or message us directly on Messenger:</p>
-            <a
-              href="https://www.facebook.com/messages/t/105536985395406"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="messenger-link"
-            >
-              Send a Message!
-            </a>
+            <a href="https://www.facebook.com/messages/t/105536985395406" target="_blank" rel="noopener noreferrer" className="messenger-link">Send a Message!</a>
           </div>
         </div>
       )}

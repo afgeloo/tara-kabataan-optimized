@@ -1,4 +1,6 @@
 <?php
+// Add this to the top of your GET APIs:
+header("Cache-Control: max-age=0, s-maxage=60, stale-while-revalidate=86400");
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 

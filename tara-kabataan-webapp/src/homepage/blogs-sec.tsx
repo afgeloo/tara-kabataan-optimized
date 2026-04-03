@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, memo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import "./css/blogs-sec.css";
-
-// Prefer bundler-managed assets over raw ./src paths
 import BlogsBg from "../assets/homepage/blogs-bg.png";
 import BookIcon from "../assets/homepage/book.png";
 
@@ -16,228 +14,113 @@ type Blog = {
   created_at?: string;
 };
 
-// -- Config ------------------------------------------------------------------
-
 const API = `${import.meta.env.VITE_API_BASE_URL}/blogs.php`;
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 const MAX_ITEMS = 3;
-const CACHE_KEY = "blogsSec.cache.v1";
-const CACHE_TTL_MS = 60_000; // 1 min (tweak as you like)
-const PREVIEW_CHARS = 140;
 
-// -- Utils -------------------------------------------------------------------
-
+// BULLETPROOF S3 HELPER
 const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
+  if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
 
-  // 1. If it already has the full S3 URL (like your partnerships), just use it!
-  if (url.startsWith("http") || url.startsWith("//")) {
-    return url;
+  let cleanPath = url.startsWith("/") ? url.substring(1) : url;
+
+  if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
+  } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
   }
 
-  // 2. The Correct Base URL (with ap-southeast-2 and the full folder path)
-  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+  if (!cleanPath.includes("/")) {
+    cleanPath = `blogs-images/${cleanPath}`;
+  }
 
-  // 3. Remove leading slash from the database string if it exists (so we don't get double slashes)
-  const cleanPath = url.startsWith("/") ? url.substring(1) : url;
-
-  // 4. Combine them cleanly
-  return `${IMAGE_BASE}/${cleanPath}`;
+  const [pathPart, queryPart] = cleanPath.split("?");
+  let full = `${IMAGE_BASE}/${pathPart}`;
+  if (queryPart) full += `?${queryPart}`;
+  
+  return full;
 };
 
 const stripToText = (html?: string) => {
   if (!html) return "";
-  // Avoid regex for HTML; DOMParser is quick & safe in-browser
   const doc = new DOMParser().parseFromString(html, "text/html");
   return doc.body.textContent || "";
 };
 
-const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n).trimEnd() + "…" : s);
-
-// Sort newest first; tolerate missing dates
 const sortByCreatedDesc = (a: Blog, b: Blog) =>
   (new Date(b.created_at || 0).getTime() || 0) - (new Date(a.created_at || 0).getTime() || 0);
 
-// Tiny in-memory dedupe to avoid setState storms on identical payloads
-const stableStringify = (v: unknown) => {
-  try {
-    return JSON.stringify(v);
-  } catch {
-    return "";
-  }
-};
-
-// -- Blog Card ---------------------------------------------------------------
-
-type BlogCardProps = {
-  blog: Blog;
-};
-
-const BlogCard = memo<BlogCardProps>(({ blog }) => {
+// -- Blog Card Component --
+const BlogCard = memo<{ blog: Blog }>(({ blog }) => {
   const { blog_id, title, image_url, category, content } = blog;
   const [imgOk, setImgOk] = useState(true);
-
   const imgSrc = useMemo(() => getSafeImageUrl(image_url), [image_url]);
   const preview = useMemo(() => stripToText(content), [content]);
 
-  const onError = useCallback(() => setImgOk(false), []);
-
   return (
-    <Link
-      to={`/blog/${blog_id}`}
-      className="blog-box"
-      style={{ textDecoration: "none", color: "inherit" }}
-      aria-label={`Open blog: ${title}`}
-    >
+    <Link to={`/blog/${blog_id}`} className="blog-box" style={{ textDecoration: "none", color: "inherit" }}>
       <div className="blogs-image-container">
         {imgOk && imgSrc ? (
-          <img
-            src={imgSrc}
-            alt={title || `Blog ${blog_id}`}
-            loading="lazy"
-            decoding="async"
-            onError={onError}
-            // Prevent layout shift if you can size via CSS (recommended)
-          />
+          <img src={imgSrc} alt={title || `Blog ${blog_id}`} loading="lazy" onError={() => setImgOk(false)} />
         ) : (
-          <div className="no-image-fallback" aria-hidden="true">
-            No Image Available
-          </div>
+          <div className="no-image-fallback">No Image Available</div>
         )}
       </div>
-
-      <div className="blog-title">
-        <h1>{title}</h1>
-      </div>
-
-      <div className="blog-category">
-        <p>{category}</p>
-      </div>
-
+      <div className="blog-title"><h1>{title}</h1></div>
+      <div className="blog-category"><p>{category}</p></div>
       <div className="blog-description">{preview}</div>
     </Link>
   );
 });
 BlogCard.displayName = "BlogCard";
 
-// -- Skeleton (optional; keep super light) -----------------------------------
-
-const BlogCardSkeleton = () => (
-  <div className="blog-box skeleton">
-    <div className="blogs-image-container skeleton-block" />
-    <div className="blog-title skeleton-line" />
-    <div className="blog-category skeleton-line" />
-    <div className="blog-description skeleton-lines" />
-  </div>
-);
-
-// -- Main --------------------------------------------------------------------
 
 const BlogsSec: React.FC = () => {
-  const [blogs, setBlogs] = useState<Blog[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // ZERO LATENCY FIX: Pull from cache immediately
+  const [blogs, setBlogs] = useState<Blog[] | null>(() => {
+    const cachedRaw = localStorage.getItem("tk_homepage_blogs");
+    return cachedRaw ? JSON.parse(cachedRaw) : null;
+  });
+
   const abortRef = useRef<AbortController | null>(null);
-  const mountedRef = useRef(true);
 
-  // Load from cache immediately (for instant paint)
   useEffect(() => {
-    const cachedRaw = sessionStorage.getItem(CACHE_KEY);
-    if (cachedRaw) {
-      try {
-        const cached = JSON.parse(cachedRaw) as { ts: number; data: Blog[] };
-        if (Date.now() - cached.ts < CACHE_TTL_MS && Array.isArray(cached.data)) {
-          setBlogs(cached.data.slice(0, MAX_ITEMS));
-        }
-      } catch {}
-    }
-  }, []);
-
-  // Fetch with abort + background revalidate
-  useEffect(() => {
-    mountedRef.current = true;
-
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
 
-    const run = async () => {
+    const fetchBlogs = async () => {
       try {
-        setError(null);
         const res = await fetch(API, { signal: ac.signal, headers: { Accept: "application/json" } });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
 
         const allBlogs: Blog[] = Array.isArray(json?.blogs) ? json.blogs : [];
-        const sorted = allBlogs.sort(sortByCreatedDesc).slice(0, MAX_ITEMS);
+        
+        // Filter for Pinned, sort by date, limit to 3
+        const finalItems = allBlogs
+          .filter((b) => b.blog_status?.toUpperCase() === "PINNED")
+          .sort(sortByCreatedDesc)
+          .slice(0, MAX_ITEMS);
 
+        // Update Screen and Cache
+        setBlogs(finalItems);
+        localStorage.setItem("tk_homepage_blogs", JSON.stringify(finalItems));
 
-        // 1. Filter for only pinned blogs (Case-insensitive check)
-        const pinnedBlogs = allBlogs.filter(
-          (b) => b.blog_status?.toUpperCase() === "PINNED"
-        );
-
-        // 2. Sort those pinned blogs by date and limit to 3
-        const finalItems = pinnedBlogs.sort(sortByCreatedDesc).slice(0, MAX_ITEMS);
-
-        if (!mountedRef.current) return;
-
-        // 3. Update state with ONLY the pinned items
-        const newStr = stableStringify(finalItems);
-        const oldStr = stableStringify(blogs);
-        if (newStr !== oldStr) {
-          setBlogs(finalItems);
-        }
-
-        // stash to session cache
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: sorted }));
       } catch (e: unknown) {
         if ((e as any)?.name === "AbortError") return;
-        setError("Failed to fetch blogs.");
-        // If no cache painted yet, ensure we don't leave null forever
         if (blogs == null) setBlogs([]);
-        // eslint-disable-next-line no-console
         console.error("BlogsSec fetch error:", e);
       }
     };
 
-    run();
+    fetchBlogs();
+    return () => ac.abort();
+  }, []); 
 
-    return () => {
-      mountedRef.current = false;
-      ac.abort();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // one-shot; cache handles quick paints, this revalidates
-
-  // Nothing to show (after fetch/cached resolve)
-  if (error && (!blogs || blogs.length === 0)) return null;
-  if (blogs == null) {
-    // show super-light skeletons while first paint
-    return (
-      <div className="blogs-sec" aria-busy="true">
-        <div className="blogs-bg">
-          <img className="blogs-bg-tk" src={BlogsBg} alt="" aria-hidden="true" />
-          <div className="blogs-content">
-            <div className="blogs-container-sec">
-              <h1 className="blogs-header">BLOGS</h1>
-              <div className="blogs-container">
-                <BlogCardSkeleton />
-                <BlogCardSkeleton />
-                <BlogCardSkeleton />
-              </div>
-            </div>
-            <div className="blogs-sec-nav">
-              <Link to="/Blogs" className="nav-blogs" aria-disabled="true">
-                <img src={BookIcon} alt="" aria-hidden="true" />
-                READ MORE
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (blogs.length === 0) return null;
+  // Empty state handling
+  if (blogs === null || blogs.length === 0) return null;
 
   return (
     <div className="blogs-sec">
