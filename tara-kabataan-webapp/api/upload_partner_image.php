@@ -29,8 +29,8 @@ $s3Client = new S3Client([
     'region'      => 'ap-southeast-2',
     'version'     => 'latest',
     'credentials' => [
-        'key'    => getenv('AWS_ACCESS_KEY'), 
-        'secret' => getenv('AWS_SECRET_KEY'),
+        'key'    => getenv('TK_AWS_ACCESS_KEY'), 
+        'secret' => getenv('TK_AWS_SECRET_KEY'),
     ],
 ]);
 

@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require __DIR__ . '/../vendor/autoload.php';
+require 'vendor/autoload.php';
 
 // Use statements are best kept together
 use Aws\S3\S3Client;
@@ -26,8 +26,8 @@ $s3Client = new S3Client([
     'region'      => 'ap-southeast-2',
     'version'     => 'latest',
     'credentials' => [
-        'key'    => getenv('AWS_ACCESS_KEY'), 
-        'secret' => getenv('AWS_SECRET_KEY'),
+        'key'    => getenv('TK_AWS_ACCESS_KEY'), 
+        'secret' => getenv('TK_AWS_SECRET_KEY'),
     ],
 ]);
 
