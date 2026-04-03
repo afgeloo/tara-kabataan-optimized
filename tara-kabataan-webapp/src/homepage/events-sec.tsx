@@ -22,13 +22,28 @@ interface Slide {
 }
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
-// safer join for `${BASE_URL}${path}` even if one has/hasn't a slash
-const joinUrl = (base: string, path: string) => {
-  if (!path) return base;
-  const b = base.endsWith("/") ? base.slice(0, -1) : base;
-  const p = path.startsWith("/") ? path : `/${path}`;
-  return `${b}${p}`;
+const getSafeImageUrl = (url?: string | null) => {
+  if (!url) return "";
+
+  // 1. If it already has the full S3 URL, just use it!
+  if (url.startsWith("http") || url.startsWith("//")) {
+    return url;
+  }
+
+  // 2. Clean up the path (removes any lingering local paths and double folders)
+  let cleanPath = url
+    .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
+    .replace("events-images/events-images/", "events-images/");
+
+  // 3. Remove leading slash if it exists
+  if (cleanPath.startsWith("/")) {
+    cleanPath = cleanPath.substring(1);
+  }
+
+  // 4. Combine them cleanly
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
 
 const EventsSec: React.FC = memo(() => {
@@ -67,7 +82,10 @@ const EventsSec: React.FC = memo(() => {
           .map((e: EventAPI) => {
             const ts = Date.parse(e.event_date ?? "");
             if (Number.isNaN(ts)) return null;
-            const img = e.event_image ? joinUrl(BASE_URL, e.event_image) : "";
+            
+            // Use the new safe image function here!
+            const img = getSafeImageUrl(e.event_image);
+            
             return {
               ts,
               slide: {
