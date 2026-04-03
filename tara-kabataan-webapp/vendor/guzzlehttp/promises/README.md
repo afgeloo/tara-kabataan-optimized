@@ -455,7 +455,7 @@ resolved iteratively, allowing for "infinite" then chaining.
 
 ```php
 <?php
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use GuzzleHttp\Promise\Promise;
 
