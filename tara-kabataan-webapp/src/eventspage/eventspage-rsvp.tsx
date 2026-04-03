@@ -26,6 +26,8 @@ export interface Event {
 
 /* ---------- stable helpers/constants ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
 const DATE_FMT_FULL = new Intl.DateTimeFormat(undefined, {
   weekday: "long",
   year: "numeric",
@@ -34,10 +36,16 @@ const DATE_FMT_FULL = new Intl.DateTimeFormat(undefined, {
 });
 const MONTH_FMT = new Intl.DateTimeFormat(undefined, { month: "long" });
 
-const getFullImageUrl = (imageUrl: string) => {
-  if (!imageUrl) return "";
-  if (/^https?:\/\//i.test(imageUrl) || imageUrl.startsWith("//")) return imageUrl;
-  return `${API_BASE}${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
+const getSafeImageUrl = (url?: string | null) => {
+  if (!url) return "";
+  if (url.startsWith("http") || url.startsWith("//")) return url;
+
+  let cleanPath = url
+    .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
+    .replace("events-images/events-images/", "events-images/");
+
+  if (cleanPath.startsWith("/")) cleanPath = cleanPath.substring(1);
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
 
 const formatDateRSVP = (dateString: string) => {
@@ -219,7 +227,7 @@ function EventsPageRSVP() {
       (a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
     );
     return sorted.slice(0, 5).map((event) => ({
-      image: getFullImageUrl(event.event_image),
+      image: getSafeImageUrl(event.event_image),
       category: event.event_category,
       title: event.event_title,
       date: formatDateRSVP(event.event_date),
@@ -457,7 +465,7 @@ function EventsPageRSVP() {
                   style={{ cursor: "pointer" }}
                 >
                   <img
-                    src={getFullImageUrl(event.event_image)}
+                    src={getSafeImageUrl(event.event_image)}
                     alt={event.event_title || "No image available"}
                     className="event-image"
                     loading="lazy"

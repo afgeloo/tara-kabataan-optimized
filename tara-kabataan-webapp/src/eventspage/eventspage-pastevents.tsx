@@ -24,11 +24,20 @@ export interface Event {
 
 /* ---------- helpers ---------- */
 const API_BASE = import.meta.env?.VITE_API_BASE_URL ?? "";
-const getFullImageUrl = (url: string) => {
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
+const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
-  if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
-  return `${API_BASE}${url.startsWith("/") ? url : `/${url}`}`;
+  if (url.startsWith("http") || url.startsWith("//")) return url;
+
+  let cleanPath = url
+    .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
+    .replace("events-images/events-images/", "events-images/");
+
+  if (cleanPath.startsWith("/")) cleanPath = cleanPath.substring(1);
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
+
 const getMonthName = (dateStr: string) =>
   new Date(dateStr).toLocaleString("default", { month: "long" });
 const getYearStr = (dateStr: string) => String(new Date(dateStr).getFullYear());
@@ -212,7 +221,7 @@ export default function PastEvents() {
                     </div>
 
                     <img
-                      src={getFullImageUrl(event.event_image)}
+                      src={getSafeImageUrl(event.event_image)}
                       alt={event.event_title}
                       className="past-event-image"
                       loading="lazy"

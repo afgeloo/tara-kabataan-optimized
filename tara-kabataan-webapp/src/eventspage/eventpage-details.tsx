@@ -30,10 +30,18 @@ export interface Event {
 
 /* ---------- helpers ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-const getFullImageUrl = (path: string) => {
-  if (!path) return "";
-  if (/^https?:\/\//i.test(path) || path.startsWith("//")) return path;
-  return `${API_BASE}/${path.replace(/^\/+/, "")}`;
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
+const getSafeImageUrl = (url?: string | null) => {
+  if (!url) return "";
+  if (url.startsWith("http") || url.startsWith("//")) return url;
+
+  let cleanPath = url
+    .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
+    .replace("events-images/events-images/", "events-images/");
+
+  if (cleanPath.startsWith("/")) cleanPath = cleanPath.substring(1);
+  return `${IMAGE_BASE}/${cleanPath}`;
 };
 
 function EventDetails() {
@@ -191,7 +199,7 @@ function EventDetails() {
   );
 
   /* ---------- derived values ---------- */
-  const imageUrl = useMemo(() => (event ? getFullImageUrl(event.event_image) : ""), [event?.event_image]);
+  const imageUrl = useMemo(() => (event ? getSafeImageUrl(event.event_image) : ""), [event?.event_image]);
   const isPast = useMemo(() => {
     if (!event) return false;
     const t = Date.parse(event.event_date);
