@@ -1,4 +1,3 @@
-// src/components/AboutAdvocacies.tsx
 import React, { memo, useEffect, useMemo, useState } from "react";
 import "./css/advocacies-sec.css";
 
@@ -26,84 +25,87 @@ type ApiPayload = {
   members: Member[];
 };
 
-/* ---------- constants ---------- */
+/* ---------- Constants ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const API_URL = `${API_BASE}/members.php`;
 const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
-/** 
- * Robust resolver: uses S3 base URL and cleans up paths 
- * Specific to members-images folder structure
+/** * Robust S3 Resolver: 
+ * Strips legacy prefixes to prevent the "Double Folder" bug found in old DB records.
  */
-const getSafeMemberImage = (url?: string | null) => {
-  if (!url || !url.trim()) return placeholderImg;
-
-  // 1. If it's already an absolute URL, use it
-  if (url.startsWith("http") || url.startsWith("//")) {
-    return url;
+const resolveImage = (raw: string | null): string => {
+  if (!raw || !raw.trim()) return placeholderImg;
+  
+  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) {
+    return raw;
   }
 
-  // 2. Clean up the path (removes redundant server paths and fixes double folder bugs)
-  let cleanPath = url
-    .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
-    .replace("members-images/members-images/", "members-images/"); 
+  const [path, query] = raw.split("?");
+  let cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
-  // 3. Remove leading slash if exists
-  if (cleanPath.startsWith("/")) {
-    cleanPath = cleanPath.substring(1);
+  // Kill redundant folders causing broken S3 links
+  if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
+  } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
+    cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
   }
 
-  // 4. Combine with S3 base
-  return `${IMAGE_BASE}/${cleanPath}`;
+  // Ensure it points to the members-images folder if no folder is present
+  if (!cleanPath.includes("/")) {
+    cleanPath = `members-images/${cleanPath}`;
+  }
+
+  let full = `${IMAGE_BASE}/${cleanPath}`;
+  if (query) full += `?${query}`;
+  
+  return full;
 };
 
-// ---------- tiny cache ----------
-const CACHE_VERSION = 1;
-let _ver = 0;
-let _at = 0;
-let _members: Member[] | null = null;
-const TTL = 5 * 60 * 1000;
-
-// ---------- slides configuration ----------
+// ---------- Advocacy Slides Configuration ----------
 const slides = [
   {
     key: "Kalusugan",
     defaultImage: healthIconDefault,
     hoverImage: healthIconHover,
     category: "Kalusugan",
-    title: "Itinataguyod ang abot-kamay at makataong serbisyong pangkalusugan para sa lahat...",
+    title:
+      "Itinataguyod ang abot-kamay at makataong serbisyong pangkalusugan para sa lahat sa pamamagitan ng paglaban sa pribatisasyon ng healthcare, pagtugon sa mga salik panlipunan na nakakaapekto sa kalusugan, at pagsasaayos sa kakulangan ng health workers at pasilidad.",
   },
   {
     key: "Kalikasan",
     defaultImage: natureIconDefault,
     hoverImage: natureIconHover,
     category: "Kalikasan",
-    title: "Nangunguna sa panawagan para sa katarungang pangklima at pangangalaga sa kalikasan...",
+    title:
+      "Nangunguna sa panawagan para sa katarungang pangklima at pangangalaga sa kalikasan sa pamamagitan ng makatarungang paglipat sa sustenableng pamumuhay, paghahanda sa sakuna, at pagprotekta sa mga komunidad laban sa mapaminsalang proyekto tulad ng reclamation.",
   },
   {
     key: "Karunungan",
     defaultImage: bookIconDefault,
     hoverImage: bookIconHover,
     category: "Karunungan",
-    title: "Isinusulong ang kabuuang pagkatuto at mapagpalayang edukasyon...",
+    title:
+      "Isinusulong ang kabuuang pagkatuto at mapagpalayang edukasyon sa pamamagitan ng mga programang nakabatay sa laro, pagpapalalim ng kamalayang panlipunan, at pagtataguyod ng mabuting pamamahala.",
   },
   {
     key: "Kultura",
     defaultImage: kulturaIconDefault,
     hoverImage: kulturaIconHover,
     category: "Kultura",
-    title: "Pinapalakas ang pambansang identidad at malikhaing kaisipan...",
+    title:
+      "Pinapalakas ang pambansang identidad at malikhaing kaisipan habang nilalabanan ang historikal na distorsyon sa pamamagitan ng sining bilang sandata ng paglaban at adbokasiya.",
   },
   {
     key: "Kasarian",
     defaultImage: kasarianIconDefault,
     hoverImage: kasarianIconHover,
     category: "Kasarian",
-    title: "Pinapahalagahan ang pagkakapantay-pantay ng kasarian at inklusibong lipunan...",
+    title:
+      "Pinapahalagahan ang pagkakapantay-pantay ng kasarian at inklusibong lipunan sa pamamagitan ng pagsusulong ng mga polisiya tulad ng SOGIESC Bill, Divorce Bill, at pagtatanggol sa karapatan ng kababaihan.",
   },
 ] as const;
 
-// ---------- grouping logic ----------
+// ---------- Helper: Grouping ----------
 const groupByRole = (list: Member[]) => {
   const m = new Map<string, Member[]>();
   for (const it of list) {
@@ -115,9 +117,9 @@ const groupByRole = (list: Member[]) => {
   return m;
 };
 
-// ---------- component ----------
+// ---------- Component ----------
 const AboutAdvocacies = memo(function AboutAdvocacies() {
-  // PERSISTENT CACHE
+  // ZERO LATENCY: Pull from disk immediately
   const [members, setMembers] = useState<Member[]>(() => {
     const cached = localStorage.getItem("tk_advocacy_members");
     return cached ? JSON.parse(cached) : [];
@@ -125,19 +127,30 @@ const AboutAdvocacies = memo(function AboutAdvocacies() {
 
   useEffect(() => {
     const ctrl = new AbortController();
+
     fetch(API_URL, { signal: ctrl.signal })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json() as Promise<ApiPayload>;
+      })
       .then((data) => {
-        if (!data?.members) return;
-        const resolved = data.members.map((m: Member) => ({
+        if (!data || !Array.isArray(data.members)) return;
+
+        const resolved = data.members.map((m) => ({
           ...m,
-          member_image: getSafeMemberImage(m.member_image),
+          role_name: (m.role_name || "").trim(),
+          member_image: resolveImage(m.member_image),
         }));
 
         setMembers(resolved);
+        // Persist data for zero-latency loading on next visit
         localStorage.setItem("tk_advocacy_members", JSON.stringify(resolved));
       })
-      .catch((err) => err?.name !== "AbortError" && console.error(err));
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          console.error("[AboutAdvocacies] fetch members failed:", err);
+        }
+      });
 
     return () => ctrl.abort();
   }, []);
@@ -160,8 +173,20 @@ const AboutAdvocacies = memo(function AboutAdvocacies() {
               role="listitem"
             >
               <div className="advocacy-icon-container" aria-hidden="true">
-                <img src={slide.defaultImage} alt="" className="default-icon" loading="lazy" />
-                <img src={slide.hoverImage} alt="" className="hover-icon" loading="lazy" />
+                <img
+                  src={slide.defaultImage}
+                  alt=""
+                  className="default-icon"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <img
+                  src={slide.hoverImage}
+                  alt=""
+                  className="hover-icon"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
 
               <h2 className="advocacy-category">{slide.category}</h2>
@@ -188,7 +213,6 @@ const AboutAdvocacies = memo(function AboutAdvocacies() {
                       decoding="async"
                       width={96}
                       height={96}
-                      // Fallback for broken S3 links
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = placeholderImg;
                       }}
