@@ -584,7 +584,10 @@ const AdminSettings = () => {
     }
   }, []);
 
-  // Only update this one for the Partners fix!
+  // 1. ADD THIS AT THE TOP LEVEL (outside the component, near your imports)
+  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+
+  // 2. UPDATE THIS FUNCTION (around line 301)
   const getFullImageUrl = (url: string | null) => {
     if (!url) return "";
     
@@ -594,23 +597,23 @@ const AdminSettings = () => {
     // 2. Handle absolute S3 links and protocol-relative links
     if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
     
-    // 3. Handle relative server paths
-    if (url.includes("/tara-kabataan-optimized/")) {
-      return `${import.meta.env.VITE_API_BASE_URL}${url}`;
-    }
-    return `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan${url.startsWith("/") ? "" : "/"}${url}`;
+    // 3. Clean the path and prepend S3 Bucket
+    const cleanPath = url.startsWith("/") ? url.substring(1) : url;
+    return `${IMAGE_BASE}/${cleanPath}`;
   };
 
   const getFullImageUrlCouncil = (url: string | null) => {
     if (!url || url.trim() === "") return placeholderImg;
-    if (url.startsWith("http")) return url;
+    
+    // 1. Handle local preview images (Blob URLs)
+    if (url.startsWith("blob:")) return url;
 
-    const [path, query] = url.split("?");
-    const fullPath = path.includes("/tara-kabataan-optimized/")
-      ? `${import.meta.env.VITE_API_BASE_URL}${path}`
-      : `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/${path.startsWith("/") ? "" : "/"}${path}`;
+    // 2. Handle absolute S3 links and protocol-relative links
+    if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
 
-    return query ? `${fullPath}?${query}` : fullPath;
+    // 3. Clean the path and prepend S3 Bucket
+    const cleanPath = url.startsWith("/") ? url.substring(1) : url;
+    return `${IMAGE_BASE}/${cleanPath}`;
   };
 
   const handleSavePartnerUpdate = async () => {

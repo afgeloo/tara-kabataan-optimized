@@ -1,10 +1,16 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit(0);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 require_once 'db.php';
 
@@ -24,34 +30,25 @@ if (empty($ids)) {
 $placeholders = implode(',', array_fill(0, count($ids), '?'));
 $types = str_repeat('s', count($ids));
 
-// Step 1: Select partner images to delete
-$selectSql = "SELECT partner_image FROM tk_webapp.partnerships WHERE partner_id IN ($placeholders)";
-$stmtSelect = $conn->prepare($selectSql);
-$stmtSelect->bind_param($types, ...$ids);
-$stmtSelect->execute();
-$result = $stmtSelect->get_result();
-
-while ($row = $result->fetch_assoc()) {
-    if (!empty($row['partner_image'])) {
-        $imagePath = realpath(__DIR__ . '/../../' . ltrim($row['partner_image'], '/'));
-        if ($imagePath && file_exists($imagePath)) {
-            unlink($imagePath);
-        }
-    }
-}
-$stmtSelect->close();
-
-// Step 2: Delete partners from the database
+// Delete partners from the database
 $deleteSql = "DELETE FROM tk_webapp.partnerships WHERE partner_id IN ($placeholders)";
 $stmtDelete = $conn->prepare($deleteSql);
-$stmtDelete->bind_param($types, ...$ids);
-$success = $stmtDelete->execute();
-$stmtDelete->close();
 
-if ($success) {
-    echo json_encode(["success" => true]);
-} else {
-    echo json_encode(["success" => false, "error" => $conn->error]);
+if (!$stmtDelete) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Prepare failed: " . $conn->error]);
+    exit;
 }
 
+$stmtDelete->bind_param($types, ...$ids);
+
+if ($stmtDelete->execute()) {
+    echo json_encode(["success" => true]);
+} else {
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => $stmtDelete->error]);
+}
+
+$stmtDelete->close();
 $conn->close();
+?>

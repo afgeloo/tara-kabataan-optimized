@@ -1,30 +1,25 @@
 <?php
-// 1. HEADERS
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-// 2. PREFLIGHT
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// 3. DEPENDENCIES
 require __DIR__ . '/../vendor/autoload.php';
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 use Dotenv\Dotenv;
 
-// 4. LOAD ENV
 if (file_exists(__DIR__ . '/../.env')) {
     $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
     $dotenv->load();
 }
 
-// 5. S3 CONFIGURATION
 $s3Client = new S3Client([
     'region'      => 'ap-southeast-2',
     'version'     => 'latest',
@@ -35,27 +30,34 @@ $s3Client = new S3Client([
 ]);
 
 $bucketName = 'tara-kabataan-webapp';
-// Pointing to the partners folder
 $s3Folder   = 'tara-kabataan-optimized/tara-kabataan-webapp/uploads/partners-images/';
 
-// 6. UPLOAD LOGIC
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-    $imageName = uniqid("new_partner_") . "_" . basename($_FILES["image"]["name"]);
+    // Check allowed extensions
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+    
+    if (!in_array($ext, $allowedExtensions)) {
+        echo json_encode(["success" => false, "error" => "Invalid file type."]);
+        exit;
+    }
+
+    $imageName = uniqid() . "_partner_" . basename($_FILES["image"]["name"]);
 
     try {
         $result = $s3Client->putObject([
             'Bucket'      => $bucketName,
             'Key'         => $s3Folder . $imageName,
             'SourceFile'  => $_FILES['image']['tmp_name'],
-            'ContentType' => $_FILES['image']['type']
+            'ContentType' => mime_content_type($_FILES['image']['tmp_name'])
         ]);
 
-        // GENERATE FULL S3 URL
-        $fullS3Url = "https://{$bucketName}.s3.ap-southeast-2.amazonaws.com/{$s3Folder}{$imageName}";
+        // Return the clean, relative path
+        $relativePath = "partners-images/" . $imageName;
 
         echo json_encode([
             "success"   => true,
-            "image_url" => $fullS3Url
+            "image_url" => $relativePath
         ]);
 
     } catch (AwsException $e) {
