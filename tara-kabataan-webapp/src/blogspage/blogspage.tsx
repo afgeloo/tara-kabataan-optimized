@@ -267,7 +267,7 @@ export default function BlogsPage() {
     const ctrl = new AbortController();
     setLoading(true);
 
-    fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/blogs.php?category=ALL`, {
+    fetch(`${API_BASE}/blogs.php?category=ALL`, {
       signal: ctrl.signal,
       headers: { Accept: "application/json" },
       cache: "no-store",

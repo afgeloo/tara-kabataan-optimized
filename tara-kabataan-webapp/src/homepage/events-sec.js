@@ -25,7 +25,7 @@ const EventsSec = memo(() => {
         const ctrl = new AbortController();
         (async () => {
             try {
-                const res = await fetch(`${BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/events.php`, { signal: ctrl.signal });
+                const res = await fetch(`${BASE_URL}/events.php`, { signal: ctrl.signal });
                 if (!res.ok)
                     throw new Error(`HTTP ${res.status}`);
                 const data = (await res.json());

@@ -119,9 +119,9 @@ const AdminEvents = () => {
 
       let endpoint: string;
       if (cropMode === "new") {
-        endpoint = `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/add_new_event_image.php`;
+        endpoint = `${import.meta.env.VITE_API_BASE_URL}/add_new_event_image.php`;
       } else {
-        endpoint = `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_event_image.php`;
+        endpoint = `${import.meta.env.VITE_API_BASE_URL}/upload_event_image.php`;
         form.append("event_id", editableEvent!.event_id);
       }
 
@@ -171,7 +171,7 @@ const AdminEvents = () => {
 
       try {
         const verifyRes = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/verify_old_password.php`,
+          `${import.meta.env.VITE_API_BASE_URL}/verify_old_password.php`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -214,7 +214,7 @@ const AdminEvents = () => {
 
       try {
         const prevRes = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_previous_password.php`,
+          `${import.meta.env.VITE_API_BASE_URL}/check_previous_password.php`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -241,7 +241,7 @@ const AdminEvents = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/send_otp.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/send_otp.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -314,7 +314,7 @@ const AdminEvents = () => {
 
       try {
         const prevRes = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_previous_password.php`,
+          `${import.meta.env.VITE_API_BASE_URL}/check_previous_password.php`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -339,7 +339,7 @@ const AdminEvents = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_profile.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/update_profile.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -379,7 +379,7 @@ const AdminEvents = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/verify_otp.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/verify_otp.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -472,7 +472,7 @@ const AdminEvents = () => {
   useEffect(() => {
     setLoading(true);
     fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/events1.php`
+      `${import.meta.env.VITE_API_BASE_URL}/events1.php`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -500,7 +500,7 @@ const AdminEvents = () => {
               event.event_status = "ONGOING";
 
               fetch(
-                `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_event_status.php`,
+                `${import.meta.env.VITE_API_BASE_URL}/update_event_status.php`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -516,7 +516,7 @@ const AdminEvents = () => {
               event.event_status = "COMPLETED";
 
               fetch(
-                `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_event_status.php`,
+                `${import.meta.env.VITE_API_BASE_URL}/update_event_status.php`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -677,7 +677,7 @@ const AdminEvents = () => {
     }
 
     fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_event.php`,
+      `${import.meta.env.VITE_API_BASE_URL}/update_event.php`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -753,7 +753,7 @@ const AdminEvents = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/add_new_event.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/add_new_event.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -802,7 +802,7 @@ const AdminEvents = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_event.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/delete_event.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -841,7 +841,7 @@ const AdminEvents = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_event_image.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/upload_event_image.php`,
         {
           method: "POST",
           body: formData,
@@ -906,7 +906,7 @@ const AdminEvents = () => {
   const handleBulkDelete = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_bulk_events.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/delete_bulk_events.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -934,7 +934,7 @@ const AdminEvents = () => {
   const applyBulkStatus = async (newStatus: string) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_bulk_event_status.php`,
+        `${import.meta.env.VITE_API_BASE_URL}/update_bulk_event_status.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1057,7 +1057,7 @@ const AdminEvents = () => {
   useEffect(() => {
     if (!selectedEvent) return;
     fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/event_attendees.php?event_id=${selectedEvent.event_id}`
+      `${import.meta.env.VITE_API_BASE_URL}/event_attendees.php?event_id=${selectedEvent.event_id}`
     )
       .then((res) => res.json())
       .then((data) => setParticipants(data.participants || []))
@@ -2150,7 +2150,7 @@ const AdminEvents = () => {
 
                                 try {
                                   const res = await fetch(
-                                    `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_event_image.php`,
+                                    `${import.meta.env.VITE_API_BASE_URL}/upload_event_image.php`,
                                     {
                                       method: "POST",
                                       body: formData,
@@ -2708,7 +2708,7 @@ const AdminEvents = () => {
                             formData.append("image", file);
                             try {
                               const res = await fetch(
-                                `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_event_image.php`,
+                                `${import.meta.env.VITE_API_BASE_URL}/upload_event_image.php`,
                                 {
                                   method: "POST",
                                   body: formData,

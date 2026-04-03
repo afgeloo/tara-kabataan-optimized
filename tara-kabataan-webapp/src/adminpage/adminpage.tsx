@@ -13,7 +13,7 @@ const AdminPage: React.FC = () => {
     const verifySession = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_session.php`,
+          `${import.meta.env.VITE_API_BASE_URL}/check_session.php`,
           {
             method: "GET",
             credentials: "include", // CRITICAL: Sends the invisible cookie to PHP

@@ -25,7 +25,7 @@ const AdminSidebar: React.FC = React.memo(() => {
       try {
         // 1. Trigger the Backend Kill Switch to destroy the secure cookie
         await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/logout.php`,
+          `${import.meta.env.VITE_API_BASE_URL}/logout.php`,
           {
             method: "POST",
             credentials: "include", // CRITICAL: Tells PHP exactly which cookie to shred

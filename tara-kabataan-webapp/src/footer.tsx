@@ -36,7 +36,7 @@ const Footer: React.FC = memo(() => {
     (async () => {
       try {
         const res = await fetch(
-          `${BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/aboutus.php`,
+          `${BASE}/aboutus.php`,
           { signal: ctrl.signal }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -16,7 +16,7 @@ const AdminPage = () => {
                 return;
             }
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_session.php`, {
+                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/check_session.php`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

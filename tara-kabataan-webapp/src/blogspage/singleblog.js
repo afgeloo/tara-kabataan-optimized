@@ -64,7 +64,7 @@ export default function SingleBlog() {
         const ctrl = new AbortController();
         setLoading(true);
         setNotFound(false);
-        fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/blogs.php?blog_id=${id}`, {
+        fetch(`${API_BASE}/blogs.php?blog_id=${id}`, {
             signal: ctrl.signal,
             headers: { Accept: "application/json" },
             cache: "no-store",
@@ -90,7 +90,7 @@ export default function SingleBlog() {
         if (!id)
             return;
         const ctrl = new AbortController();
-        fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/get_blog_images.php?blog_id=${id}`, {
+        fetch(`${API_BASE}/get_blog_images.php?blog_id=${id}`, {
             signal: ctrl.signal,
             headers: { Accept: "application/json" },
             cache: "no-store",

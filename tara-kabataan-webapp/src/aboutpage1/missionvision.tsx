@@ -32,7 +32,7 @@ function MissionVision() {
     const ctrl = new AbortController();
 
     fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/aboutus.php`,
+      `${import.meta.env.VITE_API_BASE_URL}/aboutus.php`,
       { signal: ctrl.signal }
     )
       .then((res) => {

@@ -46,7 +46,7 @@ function EventDetails() {
             return;
         const ctrl = new AbortController();
         setLoading(true);
-        fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/events.php`, {
+        fetch(`${API_BASE}/events.php`, {
             signal: ctrl.signal,
             headers: { Accept: "application/json" },
             cache: "no-store",
@@ -135,7 +135,7 @@ function EventDetails() {
             return;
         try {
             setSubmitting(true);
-            const res = await fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/event_participants.php`, {
+            const res = await fetch(`${API_BASE}/event_participants.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ event_id: id, ...formData }),

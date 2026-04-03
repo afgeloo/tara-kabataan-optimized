@@ -6,7 +6,7 @@ import "./css/blogs-sec.css";
 import BlogsBg from "../assets/homepage/blogs-bg.png";
 import BookIcon from "../assets/homepage/book.png";
 // -- Config ------------------------------------------------------------------
-const API = `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/blogs.php`;
+const API = `${import.meta.env.VITE_API_BASE_URL}/blogs.php`;
 const MAX_ITEMS = 3;
 const CACHE_KEY = "blogsSec.cache.v1";
 const CACHE_TTL_MS = 60_000; // 1 min (tweak as you like)

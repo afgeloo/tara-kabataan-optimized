@@ -38,7 +38,7 @@ function WelcomeSec() {
         const ctrl = new AbortController();
         (async () => {
             try {
-                const res = await fetch(`${BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/aboutus.php`, {
+                const res = await fetch(`${BASE}/aboutus.php`, {
                     signal: ctrl.signal,
                 });
                 if (!res.ok)

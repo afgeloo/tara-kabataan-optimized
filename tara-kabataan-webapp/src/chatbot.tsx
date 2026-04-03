@@ -193,7 +193,7 @@ const Chatbot: React.FC = () => {
 
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/askGemini.php`,
+          `${import.meta.env.VITE_API_BASE_URL}/askGemini.php`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

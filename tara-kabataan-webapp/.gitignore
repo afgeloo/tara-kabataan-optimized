@@ -33,3 +33,11 @@ lerna-debug.log*
 # =====================
 *.tmp
 *.temp
+
+# Block heavy backend files
+vendor/
+api/vendor/
+uploads/
+api/uploads/
+*.sql
+api/*.sql

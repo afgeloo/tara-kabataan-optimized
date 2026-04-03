@@ -14,7 +14,7 @@ function GetInTouch() {
     const [instagramLink, setInstagramLink] = useState("https://www.instagram.com/tarakabataan");
     const [facebookLink, setFacebookLink] = useState("https://www.facebook.com/TaraKabataanMNL");
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/aboutus.php`)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/aboutus.php`)
             .then((res) => res.json())
             .then((data) => {
             if (data.contact_no)

@@ -10,7 +10,7 @@ import { ToastContainer } from "react-toastify";
 const AdminSettings = () => {
     const [members, setMembers] = useState([]);
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/members.php`)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/members.php`)
             .then((res) => res.json())
             .then((data) => {
             if (data.success) {
@@ -39,7 +39,7 @@ const AdminSettings = () => {
     const [roles, setRoles] = useState([]);
     const [showNewUserModal, setShowNewUserModal] = useState(false);
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/roles.php`)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/roles.php`)
             .then((res) => res.json())
             .then((data) => {
             if (data.success) {
@@ -77,7 +77,7 @@ const AdminSettings = () => {
         formData.append("image", file);
         formData.append("member_id", editableMember.member_id);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_member_image.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload_member_image.php`, {
                 method: "POST",
                 body: formData,
             });
@@ -102,7 +102,7 @@ const AdminSettings = () => {
     };
     const handleAddNewMemberSave = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/add_new_member.php`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/add_new_member.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ...newMember, member_image: "" }),
@@ -117,14 +117,14 @@ const AdminSettings = () => {
                     const formData = new FormData();
                     formData.append("image", file);
                     formData.append("member_id", newId);
-                    const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_member_image.php`, {
+                    const uploadRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload_member_image.php`, {
                         method: "POST",
                         body: formData,
                     });
                     const uploadData = await uploadRes.json();
                     if (uploadData.success && uploadData.image_url) {
                         imageUrl = uploadData.image_url;
-                        await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_member.php`, {
+                        await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_member.php`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -164,7 +164,7 @@ const AdminSettings = () => {
         if (!selectedMember)
             return;
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_member.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/delete_member.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ member_id: selectedMember.member_id }),
@@ -204,7 +204,7 @@ const AdminSettings = () => {
     const [bulkActionStatus, setBulkActionStatus] = useState("");
     const [bulkActionType, setBulkActionType] = useState(null);
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/partners.php`)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/partners.php`)
             .then((res) => res.json())
             .then((data) => {
             console.log("PARTNERS DATA:", data);
@@ -233,7 +233,7 @@ const AdminSettings = () => {
                 return;
             }
             try {
-                const verifyRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/verify_old_password.php`, {
+                const verifyRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/verify_old_password.php`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -269,7 +269,7 @@ const AdminSettings = () => {
                 }
             }
             try {
-                const prevRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_previous_password.php`, {
+                const prevRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/check_previous_password.php`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -290,7 +290,7 @@ const AdminSettings = () => {
         }
         const toastId = toast.loading("Sending OTP...");
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/send_otp.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/send_otp.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: profileEmail }),
@@ -348,7 +348,7 @@ const AdminSettings = () => {
                 }
             }
             try {
-                const prevRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_previous_password.php`, {
+                const prevRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/check_previous_password.php`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -368,7 +368,7 @@ const AdminSettings = () => {
             }
         }
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_profile.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_profile.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -404,7 +404,7 @@ const AdminSettings = () => {
     const handleVerifyOTP = async () => {
         const toastId = toast.loading("Verifying OTP...");
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/verify_otp.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/verify_otp.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: profileEmail, otp: otpInput }),
@@ -493,7 +493,7 @@ const AdminSettings = () => {
             partner_image: editImageUrl !== null ? editImageUrl : "",
         };
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_partners.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_partners.php`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -532,7 +532,7 @@ const AdminSettings = () => {
             partner_image: newPartner.partner_image || "",
         };
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/add_new_partner.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/add_new_partner.php`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -549,14 +549,14 @@ const AdminSettings = () => {
                         const formData = new FormData();
                         formData.append("image", file);
                         formData.append("partner_id", newId);
-                        const imgRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_partner_image.php`, {
+                        const imgRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload_partner_image.php`, {
                             method: "POST",
                             body: formData,
                         });
                         const imgData = await imgRes.json();
                         if (imgData.success && imgData.image_url) {
                             data.partner.partner_image = imgData.image_url;
-                            await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_partners.php`, {
+                            await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_partners.php`, {
                                 method: "POST",
                                 headers: {
                                     "Content-Type": "application/json",
@@ -609,7 +609,7 @@ const AdminSettings = () => {
             formData.append("partner_id", editablePartner.partner_id);
         }
         try {
-            const uploadUrl = `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_partner_image.php`;
+            const uploadUrl = `${import.meta.env.VITE_API_BASE_URL}/upload_partner_image.php`;
             const res = await fetch(uploadUrl, {
                 method: "POST",
                 body: formData,
@@ -643,7 +643,7 @@ const AdminSettings = () => {
         if (!selectedPartner)
             return;
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_partners.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/delete_partners.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ partner_id: selectedPartner.partner_id }),
@@ -666,7 +666,7 @@ const AdminSettings = () => {
     };
     const handleBulkDelete = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_bulk_partners.php`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/delete_bulk_partners.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ partner_ids: selectedPartnerIds }),
@@ -690,7 +690,7 @@ const AdminSettings = () => {
     };
     const [aboutData, setAboutData] = useState(null);
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/aboutus.php`)
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/aboutus.php`)
             .then((res) => res.json())
             .then((data) => {
             if (!data.error) {
@@ -727,7 +727,7 @@ const AdminSettings = () => {
             return;
         try {
             const updated = { ...aboutData, ...editableCoreValues };
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_aboutus.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_aboutus.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updated),
@@ -753,7 +753,7 @@ const AdminSettings = () => {
             return;
         try {
             const updated = { ...aboutData, ...editableAdvocacies };
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_aboutus.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_aboutus.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updated),
@@ -805,7 +805,7 @@ const AdminSettings = () => {
             email: newUserForm.email,
         };
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/new-user.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/new-user.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -838,7 +838,7 @@ const AdminSettings = () => {
             return;
         }
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/add_role.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/add_role.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ role_name: newRoleName }),
@@ -876,7 +876,7 @@ const AdminSettings = () => {
         if (!editingRoleId || !editingRoleName.trim())
             return;
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_role.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_role.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -908,7 +908,7 @@ const AdminSettings = () => {
         if (!confirm("Are you sure you want to delete this role?"))
             return;
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_role.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/delete_role.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ role_id }),
@@ -931,7 +931,7 @@ const AdminSettings = () => {
     };
     const deleteRole = async (role_id) => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_role.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/delete_role.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ role_id }),
@@ -1106,7 +1106,7 @@ const AdminSettings = () => {
                                                                 ...aboutData,
                                                                 [pageContentField]: editablePageContent,
                                                             };
-                                                            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_aboutus.php`, {
+                                                            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_aboutus.php`, {
                                                                 method: "POST",
                                                                 headers: { "Content-Type": "application/json" },
                                                                 body: JSON.stringify(updated),
@@ -1165,7 +1165,7 @@ const AdminSettings = () => {
                                                         if (hasError)
                                                             return;
                                                         try {
-                                                            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_aboutus.php`, {
+                                                            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_aboutus.php`, {
                                                                 method: "POST",
                                                                 headers: { "Content-Type": "application/json" },
                                                                 body: JSON.stringify(editableContact),
@@ -1223,7 +1223,7 @@ const AdminSettings = () => {
                                                                 const originalImage = selectedMember?.member_image;
                                                                 const updatedImage = memberImageUrl || "";
                                                                 if (!memberImageUrl && originalImage) {
-                                                                    await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_member_image.php`, {
+                                                                    await fetch(`${import.meta.env.VITE_API_BASE_URL}/delete_member_image.php`, {
                                                                         method: "POST",
                                                                         headers: { "Content-Type": "application/json" },
                                                                         body: JSON.stringify({
@@ -1236,7 +1236,7 @@ const AdminSettings = () => {
                                                                     member_image: updatedImage,
                                                                 };
                                                                 try {
-                                                                    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/update_member.php`, {
+                                                                    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/update_member.php`, {
                                                                         method: "POST",
                                                                         headers: { "Content-Type": "application/json" },
                                                                         body: JSON.stringify(updatedMember),

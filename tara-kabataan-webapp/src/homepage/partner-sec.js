@@ -40,7 +40,7 @@ const PartnerSec = memo(() => {
         const ctrl = new AbortController();
         (async () => {
             try {
-                const res = await fetch(`${BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/partners.php`, { signal: ctrl.signal });
+                const res = await fetch(`${BASE}/partners.php`, { signal: ctrl.signal });
                 if (!res.ok)
                     throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();

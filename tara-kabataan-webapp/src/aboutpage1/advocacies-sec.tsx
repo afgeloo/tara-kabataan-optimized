@@ -27,7 +27,7 @@ type ApiPayload = {
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-const API_URL = `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/members.php`;
+const API_URL = `${API_BASE}/members.php`;
 
 // ---------- tiny cache ----------
 const CACHE_VERSION = 1;

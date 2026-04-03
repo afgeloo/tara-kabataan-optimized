@@ -85,7 +85,7 @@ const AdminLogin = () => {
             const loginPayload = isPhoneLogin
                 ? { phone: phoneNumber, password }
                 : { email, password };
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/adminlogin.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/adminlogin.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(loginPayload),
@@ -106,7 +106,7 @@ const AdminLogin = () => {
                     if (isPhoneLogin) {
                         setPhoneOtpSent(true);
                         const toastId = toast.loading("Sending OTP to phone...");
-                        const otpRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/send_phone_otp.php`, {
+                        const otpRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/send_phone_otp.php`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ phone: phoneNumber }),
@@ -133,7 +133,7 @@ const AdminLogin = () => {
                     else {
                         setOtpSent(true);
                         const toastId = toast.loading("Sending OTP...");
-                        const otpRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/send_otp.php`, {
+                        const otpRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/send_otp.php`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ email }),
@@ -211,7 +211,7 @@ const AdminLogin = () => {
                 return;
             }
         }
-        const prevRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/check_previous_password.php`, {
+        const prevRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/check_previous_password.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -226,7 +226,7 @@ const AdminLogin = () => {
         }
         setPasswordError("");
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/resetadminpass.php`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/resetadminpass.php`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -304,7 +304,7 @@ const AdminLogin = () => {
                                             }
                                             const otp = phoneOtp.join("");
                                             try {
-                                                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/verify_phone_otp.php`, {
+                                                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/verify_phone_otp.php`, {
                                                     method: "POST",
                                                     headers: { "Content-Type": "application/json" },
                                                     body: JSON.stringify({ phone: phoneNumber, otp }),
@@ -359,7 +359,7 @@ const AdminLogin = () => {
                                     }
                                     else {
                                         try {
-                                            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/verify_otp.php`, {
+                                            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/verify_otp.php`, {
                                                 method: "POST",
                                                 headers: { "Content-Type": "application/json" },
                                                 body: JSON.stringify({ email, otp, password }),
@@ -395,7 +395,7 @@ const AdminLogin = () => {
                                 }, children: "Verify OTP" }), otpError && _jsx("div", { className: "admin-login-error", children: otpError })] }))] }), showResetModal && (_jsx("div", { className: "reset-password-modal", children: _jsxs("div", { className: "reset-password-box", children: [resetStep === "method" && (_jsxs(_Fragment, { children: [_jsx("div", { className: "modal-close-icon", onClick: closeResetModal, children: _jsx(FaTimes, {}) }), _jsx("h3", { children: "Reset Password" }), _jsx("div", { className: "admin-reset-button", children: _jsx("button", { className: "admin-login-button", onClick: () => setResetStep("email"), children: "Reset via Email" }) })] })), resetStep === "email" && (_jsxs(_Fragment, { children: [_jsx("div", { className: "modal-close-icon", onClick: closeResetModal, children: _jsx(FaTimes, {}) }), _jsx("h3", { children: "Enter Your Email" }), _jsx("input", { type: "email", placeholder: "Your email", value: resetContact, onChange: (e) => setResetContact(e.target.value) }), _jsxs("div", { className: "modal-buttons", children: [_jsx("button", { onClick: async () => {
                                                 const toastId = toast.loading("Sending OTP...");
                                                 try {
-                                                    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/send_otp.php`, {
+                                                    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/send_otp.php`, {
                                                         method: "POST",
                                                         headers: { "Content-Type": "application/json" },
                                                         body: JSON.stringify({ email: resetContact }),
@@ -463,7 +463,7 @@ const AdminLogin = () => {
                                                     return;
                                                 }
                                                 const otp = resetOtp.join("");
-                                                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/verify_otp.php`, {
+                                                const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/verify_otp.php`, {
                                                     method: "POST",
                                                     headers: { "Content-Type": "application/json" },
                                                     body: JSON.stringify({ email: resetContact, otp }),

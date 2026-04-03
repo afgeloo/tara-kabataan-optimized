@@ -4,7 +4,7 @@
 export const fetchEvents = async () => {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/tara-kabataan-optimized/tara-kabataan-backend/api/events.php`
+      `${import.meta.env.VITE_API_BASE_URL}/events.php`
     );
     const data = await res.json();
     return Array.isArray(data) ? data : [];

@@ -158,7 +158,7 @@ const AdminBlogs = () => {
     const ctrl = new AbortController();
     setLoading(true);
 
-    fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/blogs.php`, {
+    fetch(`${API_BASE}/blogs.php`, {
       signal: ctrl.signal,
       headers: { Accept: "application/json" },
       cache: "no-store",
@@ -317,7 +317,7 @@ const AdminBlogs = () => {
       more_images: editableBlogMoreImages,
     } as Blog;
 
-    fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/update_blogs.php`, {
+    fetch(`${API_BASE}/update_blogs.php`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(merged),
@@ -362,7 +362,7 @@ const AdminBlogs = () => {
     form.append("image", blob, "cropped.jpg");
 
     // We use the LONG PATH because you said it works for Events
-    const LONG_PATH = "/tara-kabataan-optimized/tara-kabataan-backend/api";
+    const LONG_PATH = "/api";
     
     let endpoint = "";
     if (cropMode === "new") {
@@ -405,7 +405,7 @@ const AdminBlogs = () => {
   const confirmDeleteBlog = useCallback(() => {
     if (!selectedBlog) return;
 
-    fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_blogs.php`, {
+    fetch(`${API_BASE}/delete_blogs.php`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ blog_id: selectedBlog.blog_id }),
@@ -440,7 +440,7 @@ const AdminBlogs = () => {
         return;
       }
 
-      fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/update_blog_pin_status.php`, {
+      fetch(`${API_BASE}/update_blog_pin_status.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ blog_id: blogId, is_pinned: currentPinned ? 0 : 1 }),
@@ -482,7 +482,7 @@ const AdminBlogs = () => {
 
       try {
         const res = await fetch(
-          `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/update_bulk_blog_status.php`,
+          `${API_BASE}/update_bulk_blog_status.php`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -515,7 +515,7 @@ const AdminBlogs = () => {
   const handleBulkDelete = useCallback(async () => {
     try {
       const res = await fetch(
-        `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/delete_bulk_blogs.php`,
+        `${API_BASE}/delete_bulk_blogs.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -569,7 +569,7 @@ const AdminBlogs = () => {
 
     try {
       const res = await fetch(
-        `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/add_new_blog.php`,
+        `${API_BASE}/add_new_blog.php`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -584,7 +584,7 @@ const AdminBlogs = () => {
 
         // OPTIONAL: fetch fresh list
         try {
-          const fresh = await fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/blogs.php`).then(
+          const fresh = await fetch(`${API_BASE}/blogs.php`).then(
             (r) => r.json()
           );
           if (fresh?.blogs) setBlogs(fresh.blogs);
@@ -1389,7 +1389,7 @@ const AdminBlogs = () => {
                               const fd = new FormData();
                               fd.append("image", file);
                               try {
-                                const r = await fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_blog_image.php`, {
+                                const r = await fetch(`${API_BASE}/upload_blog_image.php`, {
                                   method: "POST",
                                   body: fd,
                                 });
@@ -1730,7 +1730,7 @@ const AdminBlogs = () => {
                             const fd = new FormData();
                             fd.append("image", file);
                             try {
-                              const r = await fetch(`${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/upload_blog_image.php`, {
+                              const r = await fetch(`${API_BASE}/upload_blog_image.php`, {
                                 method: "POST",
                                 body: fd,
                               });

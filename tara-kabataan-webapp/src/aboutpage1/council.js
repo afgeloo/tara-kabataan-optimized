@@ -33,8 +33,8 @@ export default function Council() {
         if (fresh)
             return;
         const ctrl = new AbortController();
-        const aboutUrl = `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/aboutus.php`;
-        const councilUrl = `${API_BASE}/tara-kabataan-optimized/tara-kabataan-backend/api/council.php`;
+        const aboutUrl = `${API_BASE}/aboutus.php`;
+        const councilUrl = `${API_BASE}/council.php`;
         Promise.all([
             fetch(aboutUrl, { signal: ctrl.signal }).then((r) => (r.ok ? r.json() : Promise.reject(r))),
             fetch(councilUrl, { signal: ctrl.signal }).then((r) => (r.ok ? r.json() : Promise.reject(r))),
