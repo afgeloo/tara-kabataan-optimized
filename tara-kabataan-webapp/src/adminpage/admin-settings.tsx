@@ -26,6 +26,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 const TABS = ["About Us", "Members", "Partnerships"];
 const PARTNERS_PER_PAGE = 8;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB Limit
 
 const validatePasswordStrength = (password: string, email: string): string | null => {
   if (password.length < 8) return "Password must be at least 8 characters.";
@@ -40,6 +41,14 @@ const validatePasswordStrength = (password: string, email: string): string | nul
     }
   }
   return null;
+};
+
+const validateImageSize = (file: File): boolean => {
+  if (file.size > MAX_FILE_SIZE) {
+    toast.error(`Image size exceeds 5MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.`);
+    return false;
+  }
+  return true;
 };
 
 interface Member {
@@ -272,6 +281,11 @@ const AdminSettings = () => {
   const handleMemberImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editableMember?.role_id) return;
+    
+    if (!validateImageSize(file)) {
+      e.target.value = ""; // Reset input so user can try again
+      return;
+    }
 
     const formData = new FormData();
     formData.append("image", file);
@@ -295,7 +309,13 @@ const AdminSettings = () => {
     }
   };
 
-  const handleMemberImageRemove = () => setMemberImageUrl(null);
+  const handleMemberImageRemove = () => {
+    setMemberImageUrl(null);
+    const input = document.getElementById("member-image-upload") as HTMLInputElement;
+    const newFileInput = document.getElementById("new-member-image-upload") as HTMLInputElement;
+    if (input) input.value = "";
+    if (newFileInput) newFileInput.value = "";
+  };
 
   const handleAddNewMemberSave = async () => {
     try {
@@ -522,10 +542,28 @@ const AdminSettings = () => {
 
   const getFullImageUrl = (url: string | null) => {
     if (!url) return "";
+    
+    // 1. Keep local upload previews working
     if (url.startsWith("blob:")) return url;
+    
+    // 2. Ignore already absolute URLs
     if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
-    const cleanPath = url.startsWith("/") ? url.substring(1) : url;
-    return `${IMAGE_BASE}/${cleanPath}`;
+
+    // 3. Preserve cache-busting queries while cleaning the path
+    const [path, query] = url.split("?");
+    let cleanPath = path.startsWith("/") ? path.substring(1) : path;
+
+    // 4. Strip redundant S3 folders (The fix for Partner images!)
+    if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
+      cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
+    } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
+      cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
+    }
+
+    let full = `${IMAGE_BASE}/${cleanPath}`;
+    if (query) full += `?${query}`;
+    
+    return full;
   };
 
   const getFullImageUrlCouncil = (url: string | null) => {
@@ -638,6 +676,11 @@ const AdminSettings = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!validateImageSize(file)) {
+      e.target.value = ""; // Reset input
+      return;
+    }
+
     const tempPreviewUrl = URL.createObjectURL(file);
     if (mode === "edit") {
       setEditImageUrl(tempPreviewUrl);
@@ -668,8 +711,15 @@ const AdminSettings = () => {
   };
 
   const handleImageRemove = (mode: "edit" | "new") => {
-    if (mode === "edit") setEditImageUrl(null);
-    else setNewImageUrl(null);
+    if (mode === "edit") {
+      setEditImageUrl(null);
+      const input = document.getElementById("partner-image-upload") as HTMLInputElement;
+      if (input) input.value = "";
+    } else {
+      setNewImageUrl(null);
+      const input = document.getElementById("new-partner-image-upload") as HTMLInputElement;
+      if (input) input.value = "";
+    }
   };
 
   const handleSingleDelete = () => {
@@ -1785,7 +1835,13 @@ const AdminSettings = () => {
                           style={{ display: "none" }}
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file) setMemberImageUrl(URL.createObjectURL(file));
+                            if (file) {
+                              if (!validateImageSize(file)) {
+                                e.target.value = "";
+                                return;
+                              }
+                              setMemberImageUrl(URL.createObjectURL(file));
+                            }
                           }}
                         />
                         <div className="admin-member-image-buttons">
