@@ -1,3 +1,5 @@
+// src/src/about/CoreValuesSection.tsx (or wherever this file lives)
+
 import "./css/coreval.css";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ribbon from "../assets/aboutpage/coreval-ribbon.png";

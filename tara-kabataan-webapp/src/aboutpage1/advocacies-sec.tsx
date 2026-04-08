@@ -1,3 +1,5 @@
+// src/src/about/AdvocaciesSection.tsx (or wherever this file lives)
+
 import React, { memo, useEffect, useMemo, useState } from "react";
 import "./css/advocacies-sec.css";
 

@@ -1,3 +1,5 @@
+// src/src/about/BriefBgSection.tsx (or wherever this file lives)
+
 import "./css/briefbg-sec.css";
 import React, { memo, useEffect, useState } from "react";
 import BgCarousel from "./bgcarousel";

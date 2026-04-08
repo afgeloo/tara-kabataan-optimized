@@ -1,3 +1,5 @@
+// src/src/about/BgCarousel.tsx (or wherever this file lives)
+
 import React, { useState, useEffect, useCallback, memo, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "react-feather";
 import "./css/bgcarousel.css";

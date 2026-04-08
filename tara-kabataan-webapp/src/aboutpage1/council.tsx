@@ -1,6 +1,7 @@
 // src/components/Council.tsx
+
+import React, { useEffect, useMemo, useState, memo } from "react";
 import "./css/council.css";
-import React, { useEffect, useMemo, useState } from "react";
 import placeholderImg from "../assets/aboutpage/img-placeholder-guy.png";
 import ribbon from "../assets/aboutpage/council-ribbon.png";
 
@@ -13,60 +14,60 @@ type Member = {
 
 type AboutPayload = { council?: string | null; [k: string]: unknown };
 
+/* ---------- Constants ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-
 const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
-
 const BLACKLISTED_ROLES = ["Kalusugan", "Kalikasan", "Karunungan", "Kultura", "Kasarian"];
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-// ---- tiny in-tab cache to avoid refetches per mount ----
-let _cacheAt = 0;
-let _councilCache: Member[] | null = null;
-let _aboutCache: string | null = null;
-const TTL = 5 * 60 * 1000;
-
+/* ---------- Robust S3 Image Resolver ---------- */
 const resolveImage = (raw: string | null): string => {
   if (!raw || !raw.trim()) return placeholderImg;
-  
-  // 1. If it is already a full S3 link, return as-is
-  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) {
-    return raw;
-  }
+  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) return raw;
 
-  // 2. Separate the path from the cache-busting query (e.g., ?t=123)
   const [path, query] = raw.split("?");
   let cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
-  // 3. Strip out the old redundant folders if they exist in the DB record
-  if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
-    cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
-  } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
-    cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
-  }
+  // Strip out redundant folders
+  cleanPath = cleanPath
+    .replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "")
+    .replace("tara-kabataan-webapp/uploads/", "")
+    .replace("members-images/members-images/", "members-images/"); // Fix double folder
 
-  // 4. If it's just a raw filename, make sure it goes into the members-images folder
-  if (!cleanPath.includes("/")) {
-    cleanPath = `members-images/${cleanPath}`;
-  }
+  if (!cleanPath.includes("/")) cleanPath = `members-images/${cleanPath}`;
 
-  // 5. Combine perfectly
   let full = `${IMAGE_BASE}/${cleanPath}`;
   if (query) full += `?${query}`;
   
   return full;
 };
 
-export default function Council() {
-  // PERSISTENT CACHE
+/* ---------- Component ---------- */
+const Council = memo(() => {
+  // 1. INSTANT RENDER: Grab data from disk on mount
   const [councilData, setCouncilData] = useState<Member[]>(() => {
-    const cached = localStorage.getItem("tk_council_list");
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [councilText, setCouncilText] = useState<string>(() => {
-    return JSON.parse(localStorage.getItem("tk_council_desc") || '"Loading..."');
+    try {
+      const cached = localStorage.getItem("tk_council_list");
+      return cached ? JSON.parse(cached) : [];
+    } catch { return []; }
   });
 
+  const [councilText, setCouncilText] = useState<string>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("tk_council_desc") || '"Loading..."');
+    } catch { return "Loading..."; }
+  });
+
+  // 2. BACKGROUND SYNC (Only if Cache is Expired)
   useEffect(() => {
+    const lastFetch = Number(localStorage.getItem("tk_council_time") || 0);
+    const now = Date.now();
+
+    // SMART CACHE: If the data is less than 5 minutes old, STOP! Don't hit the database.
+    if (councilData.length > 0 && (now - lastFetch < CACHE_TTL)) {
+      return; 
+    }
+
     const ctrl = new AbortController();
     const aboutUrl = `${API_BASE}/aboutus.php`;
     const councilUrl = `${API_BASE}/council.php`;
@@ -79,24 +80,28 @@ export default function Council() {
         const text = about?.council?.trim() || "No data.";
         const blacklist = new Set(BLACKLISTED_ROLES.map((s) => s.toLowerCase()));
 
-        const normalized = Array.isArray(council) ? council.map((m) => ({
-                ...m,
-                member_image: resolveImage(m.member_image),
-              })).filter((m) => !blacklist.has(m.role_name.toLowerCase())) : [];
+        const normalized = Array.isArray(council) 
+          ? council
+              .map((m) => ({ ...m, member_image: resolveImage(m.member_image) }))
+              .filter((m) => !blacklist.has(m.role_name.toLowerCase())) 
+          : [];
 
         setCouncilText(text);
         setCouncilData(normalized);
         
-        // Save everything to disk
+        // Save everything to disk AND log the exact time we fetched it
         localStorage.setItem("tk_council_list", JSON.stringify(normalized));
         localStorage.setItem("tk_council_desc", JSON.stringify(text));
+        localStorage.setItem("tk_council_time", String(Date.now()));
       })
-      .catch((err) => err?.name !== "AbortError" && console.error(err));
+      .catch((err) => {
+        if (err?.name !== "AbortError") console.error("Council fetch error:", err);
+      });
 
     return () => ctrl.abort();
-  }, []);
+  }, [councilData.length]);
 
-  // Identify president (case-insensitive), then others
+  // 3. IDENTIFY LEADERS
   const { president, others } = useMemo(() => {
     const prez = councilData.find((m) => m.role_name.toLowerCase() === "president");
     const rest = councilData.filter((m) => m !== prez);
@@ -166,4 +171,6 @@ export default function Council() {
       </div>
     </div>
   );
-}
+});
+
+export default Council;
