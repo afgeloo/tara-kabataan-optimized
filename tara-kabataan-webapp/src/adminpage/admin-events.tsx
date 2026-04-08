@@ -25,6 +25,10 @@ import { getCroppedImg } from "./utils/cropImage";
 
 const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
+// --- FILE SIZE LIMITS ---
+const MAX_FILE_SIZE_MB = 2;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const CATEGORIES = ["KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"];
 const STATUSES = ["UPCOMING", "ONGOING", "COMPLETED", "CANCELLED"];
 const FILTER_CATEGORIES = ["All", "Kalusugan", "Kalikasan", "Karunungan", "Kultura", "Kasarian"];
@@ -261,6 +265,14 @@ const AdminEvents = () => {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>, mode: "new" | "edit") => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // ADDED: Main Event Image Size Validation
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(`Image is too large! Please limit uploads to ${MAX_FILE_SIZE_MB}MB.`);
+      e.target.value = ''; 
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       setCropSrc(reader.result as string);
@@ -534,10 +546,21 @@ const AdminEvents = () => {
         </button>
       ))}
       <button className="format-btn bullet" onMouseDown={(e) => { e.preventDefault(); saveSelection(); }} onClick={() => applyFormatting("insertUnorderedList")}><FaListUl /></button>
-      <button className="format-btn image" onMouseDown={(e) => e.preventDefault()} onClick={() => document.getElementById(isAdding ? "add-new-content-image-input" : "new-content-image-input")?.click()}><FaImage /></button>
-      <input type="file" accept="image/*" id={isAdding ? "add-new-content-image-input" : "new-content-image-input"} style={{ display: "none" }} onChange={async (e) => {
+      
+      {/* FIXED ID CONFLICT: Distinct IDs between Adding vs Editing */}
+      <button className="format-btn image" onMouseDown={(e) => e.preventDefault()} onClick={() => document.getElementById(isAdding ? "add-new-content-image-input" : "edit-content-image-input")?.click()}><FaImage /></button>
+      
+      {/* ADDED: Rich Text Image File Size Limit */}
+      <input type="file" accept="image/*" id={isAdding ? "add-new-content-image-input" : "edit-content-image-input"} style={{ display: "none" }} onChange={async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        if (file.size > MAX_FILE_SIZE_BYTES) {
+          toast.error(`Image is too large! Please limit uploads to ${MAX_FILE_SIZE_MB}MB.`);
+          e.target.value = '';
+          return;
+        }
+
         const formData = new FormData(); formData.append("image", file);
         try {
           const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload_event_image.php`, { method: "POST", body: formData });

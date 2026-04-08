@@ -40,6 +40,10 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 // --- S3 BUCKET CONFIGURATION ---
 const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
+// --- FILE SIZE LIMITS ---
+const MAX_FILE_SIZE_MB = 2;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const CATEGORIES = ["All", "Kalusugan", "Kalikasan", "Karunungan", "Kultura", "Kasarian"] as const;
 const NEW_CATEGORIES = ["KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"] as const;
 const STATUS_FILTER = ["All", "Draft", "Published", "Pinned", "Archived"] as const;
@@ -412,6 +416,14 @@ const AdminBlogs = memo(() => {
   const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>, mode: "new" | "edit") => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // ADDED: Main Image Size Validation (covers both new and edit depending on mode)
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(`Image is too large! Please limit uploads to ${MAX_FILE_SIZE_MB}MB.`);
+      e.target.value = ''; 
+      return;
+    }
+
     const rd = new FileReader();
     rd.onload = () => {
       setCropSrc(rd.result as string);
@@ -1060,11 +1072,17 @@ const AdminBlogs = memo(() => {
                           <button className="upload-btn" onClick={() => document.getElementById("edit-more-images-input")?.click()} disabled={!isEditing}>Add More</button>
                           <button className="remove-btn" onClick={() => { if (isEditing) setEditableBlogMoreImages([]); }} disabled={!isEditing}>Clear All</button>
                         </div>
+                        
+                        {/* ADDED: Edit Blog - More Images File Size Limit */}
                         <input type="file" accept="image/*" multiple style={{ display: "none" }} id="edit-more-images-input" onChange={async (e) => {
                           const files = e.target.files;
                           if (!files || !isEditing) return;
                           const uploaded: string[] = [];
                           for (const file of Array.from(files)) {
+                            if (file.size > MAX_FILE_SIZE_BYTES) {
+                              toast.error(`"${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB limit and was skipped.`);
+                              continue;
+                            }
                             const fd = new FormData(); fd.append("image", file);
                             try {
                               const r = await fetch(`${API_BASE}/upload_blog_image.php`, { method: "POST", body: fd });
@@ -1091,9 +1109,19 @@ const AdminBlogs = memo(() => {
                           <button className="format-btn italic" onMouseDown={(e) => { e.preventDefault(); saveSelection(); }} onClick={() => applyFormatting("italic")}><FaItalic /></button>
                           <button className="format-btn underline" onMouseDown={(e) => { e.preventDefault(); saveSelection(); }} onClick={() => applyFormatting("underline")}><FaUnderline /></button>
                           <button className="format-btn bullet" onMouseDown={(e) => { e.preventDefault(); saveSelection(); }} onClick={applyList}><FaListUl /></button>
-                          <button className="format-btn image" onMouseDown={(e) => e.preventDefault()} onClick={() => document.getElementById("new-content-image-input")?.click()}><FaImage /></button>
-                          <input type="file" accept="image/*" id="new-content-image-input" style={{ display: "none" }} onChange={async (e) => {
+                          {/* FIXED ID CONFLICT: Changed from new-content-image-input to edit-content-image-input */}
+                          <button className="format-btn image" onMouseDown={(e) => e.preventDefault()} onClick={() => document.getElementById("edit-content-image-input")?.click()}><FaImage /></button>
+                          
+                          {/* ADDED: Edit Blog - Rich Text Image File Size Limit */}
+                          <input type="file" accept="image/*" id="edit-content-image-input" style={{ display: "none" }} onChange={async (e) => {
                             const file = e.target.files?.[0]; if (!file) return;
+                            
+                            if (file.size > MAX_FILE_SIZE_BYTES) {
+                              toast.error(`Image is too large! Please limit uploads to ${MAX_FILE_SIZE_MB}MB.`);
+                              e.target.value = '';
+                              return;
+                            }
+
                             const formData = new FormData(); formData.append("image", file);
                             try {
                               const res = await fetch(`${API_BASE}/upload_blog_image.php`, { method: "POST", body: formData });
@@ -1205,10 +1233,15 @@ const AdminBlogs = memo(() => {
                         <button className="remove-btn" onClick={() => setNewBlogMoreImages([])}>Clear All</button>
                       </div>
 
+                      {/* ADDED: New Blog - More Images File Size Limit */}
                       <input type="file" accept="image/*" multiple style={{ display: "none" }} id="new-blog-more-images-input" onChange={async (e) => {
                         const files = e.target.files; if (!files) return;
                         const uploaded: string[] = [];
                         for (const file of Array.from(files)) {
+                          if (file.size > MAX_FILE_SIZE_BYTES) {
+                            toast.error(`"${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB limit and was skipped.`);
+                            continue;
+                          }
                           const fd = new FormData(); fd.append("image", file);
                           try {
                             const r = await fetch(`${API_BASE}/upload_blog_image.php`, { method: "POST", body: fd });
@@ -1234,8 +1267,17 @@ const AdminBlogs = memo(() => {
                         <button className="format-btn underline" onMouseDown={(e) => e.preventDefault()} onClick={() => document.execCommand("underline")}><FaUnderline /></button>
                         <button className="format-btn bullet" onMouseDown={(e) => e.preventDefault()} onClick={() => document.execCommand("insertUnorderedList")}><FaListUl /></button>
                         <button className="format-btn image" onMouseDown={(e) => e.preventDefault()} onClick={() => document.getElementById("new-content-image-input")?.click()}><FaImage /></button>
+                        
+                        {/* ADDED: New Blog - Rich Text Image File Size Limit */}
                         <input type="file" accept="image/*" id="new-content-image-input" style={{ display: "none" }} onChange={async (e) => {
                           const file = e.target.files?.[0]; if (!file) return;
+                          
+                          if (file.size > MAX_FILE_SIZE_BYTES) {
+                            toast.error(`Image is too large! Please limit uploads to ${MAX_FILE_SIZE_MB}MB.`);
+                            e.target.value = '';
+                            return;
+                          }
+
                           const formData = new FormData(); formData.append("image", file);
                           try {
                             const res = await fetch(`${API_BASE}/upload_blog_image.php`, { method: "POST", body: formData });
