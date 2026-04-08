@@ -1,8 +1,7 @@
-// src/adminpage/adminpage.tsx
-
 import React, { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import AdminSidebar from "./admin-sidebar";
+import Preloader from "../preloader"; // Added your preloader
 import "./css/adminpage.css";
 import "./css/admin-blogs.css";
 import "./css/admin-events.css";
@@ -18,7 +17,7 @@ const AdminPage: React.FC = () => {
           `${import.meta.env.VITE_API_BASE_URL}/check_session.php`,
           {
             method: "GET",
-            credentials: "include", // CRITICAL: Sends the invisible cookie to PHP
+            credentials: "include", 
           }
         );
 
@@ -43,9 +42,10 @@ const AdminPage: React.FC = () => {
   }, []);
 
   if (isAuthenticated === null) {
+    // Replaced raw text with your beautiful preloader
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        Loading securely...
+      <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "var(--app-bg, #fff)" }}>
+        <Preloader />
       </div>
     ); 
   }

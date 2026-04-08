@@ -1,4 +1,4 @@
-// src/preload-gate.tsx
+// preload-gate.tsx
 import React, { useEffect, useRef, useState } from "react";
 import Preloader from "./preloader";
 

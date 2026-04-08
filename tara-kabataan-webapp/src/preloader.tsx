@@ -1,3 +1,5 @@
+// preloader.tsx
+
 import React, { memo } from "react";
 import "./global-css/preloader.css";
 import preloaderImg from "./assets/logos/preloader.png";

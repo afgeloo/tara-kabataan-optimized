@@ -1,3 +1,5 @@
+// footer.tsx
+
 import React, { useEffect, useMemo, useRef, useState, memo } from "react";
 import "./global-css/footer.css";
 import "./global-css/header.css";

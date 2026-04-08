@@ -1,10 +1,13 @@
-// main.tsx
 import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import "./global-css/index.css";
 
-const App          = lazy(() => import("./app"));
+// Eager load the core app shell to prevent initialization flashes
+import App from "./app";
+import Preloader from "./preloader";
+
+// Lazy load the heavy route components
 const HomePage     = lazy(() => import("./homepage/homepage"));
 const EventsPage   = lazy(() => import("./eventspage/eventspagehome"));
 const EventDetails = lazy(() => import("./eventspage/eventpage-details"));
@@ -20,32 +23,28 @@ const AdminBlogs    = lazy(() => import("./adminpage/admin-blogs"));
 const AdminEvents   = lazy(() => import("./adminpage/admin-events"));
 const AdminSettings = lazy(() => import("./adminpage/admin-settings"));
 
-// keep null here to avoid showing a loader during client-side code-split navigations
-const Fallback = () => null;
+// Keeps route transitions silent (no full-screen loader when clicking links)
+const RouteFallback = () => null; 
 
 const router = createBrowserRouter(
   [
     {
       path: "/",
-      element: (
-        <Suspense fallback={<Fallback />}>
-          <App />
-        </Suspense>
-      ),
+      element: <App />, 
       children: [
-        { index: true, element: <HomePage /> },
-        { path: "About", element: <AboutPage /> },
-        { path: "Contact", element: <ContactPage /> },
-        { path: "Events", element: <EventsPage /> },
-        { path: "Events/:id", element: <EventDetails /> },
-        { path: "Blogs", element: <BlogsPage /> },
-        { path: "Blog/:id", element: <SingleBlog /> },
+        { index: true, element: <Suspense fallback={<RouteFallback />}><HomePage /></Suspense> },
+        { path: "About", element: <Suspense fallback={<RouteFallback />}><AboutPage /></Suspense> },
+        { path: "Contact", element: <Suspense fallback={<RouteFallback />}><ContactPage /></Suspense> },
+        { path: "Events", element: <Suspense fallback={<RouteFallback />}><EventsPage /></Suspense> },
+        { path: "Events/:id", element: <Suspense fallback={<RouteFallback />}><EventDetails /></Suspense> },
+        { path: "Blogs", element: <Suspense fallback={<RouteFallback />}><BlogsPage /></Suspense> },
+        { path: "Blog/:id", element: <Suspense fallback={<RouteFallback />}><SingleBlog /></Suspense> },
       ],
     },
     {
       path: "/Admin-login",
       element: (
-        <Suspense fallback={<Fallback />}>
+        <Suspense fallback={<Preloader />}>
           <AdminLogin />
         </Suspense>
       ),
@@ -53,22 +52,18 @@ const router = createBrowserRouter(
     {
       path: "/Admin",
       element: (
-        <Suspense fallback={<Fallback />}>
+        <Suspense fallback={<Preloader />}>
           <RequireAuth />
         </Suspense>
       ),
       children: [
         {
           path: "",
-          element: (
-            <Suspense fallback={<Fallback />}>
-              <AdminPage />
-            </Suspense>
-          ),
+          element: <AdminPage />,
           children: [
-            { path: "Blogs", element: <AdminBlogs /> },
-            { path: "Events", element: <AdminEvents /> },
-            { path: "Settings", element: <AdminSettings /> },
+            { path: "Blogs", element: <Suspense fallback={<RouteFallback />}><AdminBlogs /></Suspense> },
+            { path: "Events", element: <Suspense fallback={<RouteFallback />}><AdminEvents /></Suspense> },
+            { path: "Settings", element: <Suspense fallback={<RouteFallback />}><AdminSettings /></Suspense> },
             { index: true, element: <Navigate to="Blogs" replace /> },
           ],
         },
@@ -80,8 +75,6 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Suspense fallback={<Fallback />}>
-      <RouterProvider router={router} />
-    </Suspense>
+    <RouterProvider router={router} />
   </StrictMode>
 );

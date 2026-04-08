@@ -1,3 +1,5 @@
+// gototop.tsx
+
 import React, { useEffect, useRef, useState, useCallback, memo } from "react";
 import "./global-css/gototop.css";
 import { IoIosArrowUp } from "react-icons/io";
