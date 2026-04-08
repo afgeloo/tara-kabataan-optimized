@@ -1,3 +1,5 @@
+// src/adminpage/admin-sidebar.tsx
+
 import React, { useState, useCallback } from "react";
 import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {

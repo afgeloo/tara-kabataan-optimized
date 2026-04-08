@@ -1,3 +1,5 @@
+// src/adminpage/requireauth.tsx
+
 import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 

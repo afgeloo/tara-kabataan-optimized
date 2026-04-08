@@ -1,3 +1,5 @@
+// src/adminpage/admin-login.tsx
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/admin-login.css";

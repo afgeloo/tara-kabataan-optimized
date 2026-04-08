@@ -1,3 +1,5 @@
+// src/adminpage/admin-events.tsx
+
 import "./css/admin-events.css";
 import president from "../assets/aboutpage/council/president.jpg";
 import { BsThreeDots } from "react-icons/bs";

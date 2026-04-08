@@ -1,3 +1,5 @@
+// src/adminpage/admin-settings.tsx
+
 import "./css/admin-settings.css";
 import {
   FaSearch,
