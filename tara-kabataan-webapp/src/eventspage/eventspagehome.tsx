@@ -1,23 +1,23 @@
+// src/eventspage/eventspagehome.tsx
 import { memo, Suspense, lazy } from "react";
 import Footer from "../footer";
 import Header from "../header";
-import EventsPageRSVP from "./eventspage-rsvp";
+import PreloaderEvents from "./loader-events";
 
-// Optional: lazy load RSVP if heavy
-// const EventsPageRSVP = lazy(() => import("./eventspage-rsvp"));
+// Lazy load the heavy RSVP logic to speed up initial site load
+const EventsPageRSVP = lazy(() => import("./eventspage-rsvp"));
 
-const Eventspage = () => {
+const Eventspage = memo(() => {
   return (
     <>
       <Header />
-      {/* If you lazy load, wrap in Suspense */}
-      {/* <Suspense fallback={<div>Loading events...</div>}> */}
+      {/* Show the smooth preloader while the heavy component streams in */}
+      <Suspense fallback={<PreloaderEvents />}>
         <EventsPageRSVP />
-      {/* </Suspense> */}
+      </Suspense>
       <Footer />
     </>
   );
-};
+});
 
-// Memoize so it doesn't re-render unless props change
-export default memo(Eventspage);
+export default Eventspage;

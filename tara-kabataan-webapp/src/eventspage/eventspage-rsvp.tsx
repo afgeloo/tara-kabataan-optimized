@@ -1,3 +1,5 @@
+// src/eventspage/eventspage-rsvp.tsx
+
 import React, { useEffect, useState, useRef, useCallback, useMemo, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/eventpage-rsvp.css";
@@ -14,6 +16,7 @@ export interface Event {
   event_category: string;
   event_title: string;
   event_date: string;
+  event_day?: string;
   event_start_time: string;
   event_end_time: string;
   event_venue: string;
@@ -28,15 +31,11 @@ export interface Event {
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
-const DATE_FMT_FULL = new Intl.DateTimeFormat(undefined, {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const DATE_FMT_FULL = new Intl.DateTimeFormat(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 const MONTH_FMT = new Intl.DateTimeFormat(undefined, { month: "long" });
 
-const getSafeImageUrl = (url?: string | null) => {
+// --- THE ROBUST S3 IMAGE RESOLVER ---
+export const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
   if (url.startsWith("http") || url.startsWith("//")) return url;
 
@@ -64,89 +63,69 @@ const convertTo12HourFormat = (time: string) => {
   return `${hour}:${minute} ${ampm}`;
 };
 
-function EventsPageRSVP() {
+// --- ZERO LATENCY GLOBAL CACHE ---
+export let _globalEventsCache: Event[] | null = null;
+export let _globalEventsCacheAt = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+export default function EventsPageRSVP() {
   const navigate = useNavigate();
 
-  // persisted view state
-  const [eventsToShow, setEventsToShow] = useState(() => {
-    const saved = sessionStorage.getItem("eventShowCount");
-    return saved ? parseInt(saved, 10) : 12;
-  });
-  const [viewType, setViewType] = useState<"UPCOMING" | "PAST">(
-    () => (sessionStorage.getItem("eventViewType") as "UPCOMING" | "PAST") || "UPCOMING"
-  );
-  const [selectedCategory, setSelectedCategory] = useState(
-    () => sessionStorage.getItem("eventCategory") || "ALL"
-  );
-  const [searchQuery, setSearchQuery] = useState(
-    () => sessionStorage.getItem("eventSearchQuery") || ""
-  );
+  const [eventsToShow, setEventsToShow] = useState(() => parseInt(sessionStorage.getItem("eventShowCount") || "12", 10));
+  const [viewType, setViewType] = useState<"UPCOMING" | "PAST">(() => (sessionStorage.getItem("eventViewType") as "UPCOMING" | "PAST") || "UPCOMING");
+  const [selectedCategory, setSelectedCategory] = useState(() => sessionStorage.getItem("eventCategory") || "ALL");
+  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("eventSearchQuery") || "");
   const [selectedMonth, setSelectedMonth] = useState("ALL");
   const [selectedYear, setSelectedYear] = useState("ALL");
 
-  // data + flags
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<Event[]>(_globalEventsCache || []);
+  const [loading, setLoading] = useState(!_globalEventsCache);
   const [restoringScroll, setRestoringScroll] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    contact: "",
-    expectations: "",
-  });
+  const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", contact: "", expectations: "" });
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
-  const categories = useMemo(
-    () => ["ALL", "KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"],
-    []
-  );
+  const categories = useMemo(() => ["ALL", "KALUSUGAN", "KALIKASAN", "KARUNUNGAN", "KULTURA", "KASARIAN"], []);
 
-  /* ---------- scroll restore BEFORE paint (no flicker) ---------- */
-  const restored = useRef(false);
   useLayoutEffect(() => {
-    if (!restored.current) {
-      const savedScroll = sessionStorage.getItem("eventScrollY");
-      if (savedScroll) window.scrollTo(0, parseInt(savedScroll, 10) || 0);
-      restored.current = true;
-    }
-  }, []);
+    if (!restoringScroll) return;
+    const savedScroll = sessionStorage.getItem("eventScrollY");
+    if (savedScroll) window.scrollTo(0, parseInt(savedScroll, 10) || 0);
+    setRestoringScroll(false);
+  }, [restoringScroll]);
 
-  /* ---------- fetch events (abortable) ---------- */
+  /* ---------- fetch events (Zero Latency) ---------- */
   useEffect(() => {
+    const now = Date.now();
+    if (_globalEventsCache && (now - _globalEventsCacheAt < CACHE_TTL)) {
+      setEvents(_globalEventsCache);
+      setLoading(false);
+      return;
+    }
+
     const ctrl = new AbortController();
     setLoading(true);
 
     fetch(`${API_BASE}/events.php`, {
       signal: ctrl.signal,
-      headers: { Accept: "application/json" },
-      cache: "no-store",
+      headers: { Accept: "application/json" } // Removed "no-store" cache blocker
     })
       .then((res) => res.json())
       .then((data) => {
-        setEvents(Array.isArray(data) ? data : []);
-        // if we restored from scroll, clear those persisted keys now
-        const savedScroll = sessionStorage.getItem("eventScrollY");
-        if (savedScroll) {
-          sessionStorage.removeItem("eventScrollY");
-          sessionStorage.removeItem("eventViewType");
-          sessionStorage.removeItem("eventCategory");
-          sessionStorage.removeItem("eventSearchQuery");
-        }
-        setRestoringScroll(false);
+        const arr = Array.isArray(data) ? data : [];
+        _globalEventsCache = arr;
+        _globalEventsCacheAt = Date.now();
+        setEvents(arr);
       })
       .catch((err) => {
-        if (err?.name !== "AbortError") {
-          console.error("Error fetching events:", err);
-          setRestoringScroll(false);
-        }
+        if (err?.name !== "AbortError") console.error("Error fetching events:", err);
       })
       .finally(() => setLoading(false));
 
     return () => ctrl.abort();
   }, []);
 
-  /* ---------- derived: month/year options ---------- */
   const monthOptions = useMemo(() => {
     const set = new Set<string>();
     for (const e of events) {
@@ -165,7 +144,6 @@ function EventsPageRSVP() {
     return Array.from(set).sort();
   }, [events]);
 
-  /* ---------- derived: filtered events ---------- */
   const filteredEvents = useMemo(() => {
     const now = new Date();
     const q = searchQuery.trim().toLowerCase();
@@ -180,33 +158,22 @@ function EventsPageRSVP() {
       const [sh, sm] = (event.event_start_time || "00:00").split(":").map(Number);
       const [eh, em] = (event.event_end_time || "00:00").split(":").map(Number);
 
-      const start = new Date(eventDate);
-      start.setHours(sh || 0, sm || 0, 0, 0);
-      const end = new Date(eventDate);
-      end.setHours(eh || 0, em || 0, 0, 0);
+      const start = new Date(eventDate).setHours(sh || 0, sm || 0, 0, 0);
+      const end = new Date(eventDate).setHours(eh || 0, em || 0, 0, 0);
 
-      const isOngoingNow = now >= start && now <= end;
-      const isPastEvent = now > end;
+      const isOngoingNow = now.getTime() >= start && now.getTime() <= end;
+      const isPastEvent = now.getTime() > end;
 
       let corrected = (event.event_status || "").toLowerCase();
       if ((corrected === "upcoming" || corrected === "ongoing") && isPastEvent) corrected = "completed";
       else if (corrected === "upcoming" && isOngoingNow) corrected = "ongoing";
 
-      const matchesView =
-        viewType === "UPCOMING"
-          ? corrected === "upcoming" || corrected === "ongoing"
-          : corrected === "completed";
-
-      const matchesCategory =
-        selectedCategory === "ALL" || event.event_category?.toUpperCase() === selectedCategory;
-
-      const matchesSearch =
-        !q ||
-        event.event_title?.toLowerCase().includes(q) ||
-        event.event_category?.toLowerCase().includes(q) ||
-        event.event_venue?.toLowerCase().includes(q) ||
-        formatDateRSVP(event.event_date).toLowerCase().includes(q);
-
+      const matchesView = viewType === "UPCOMING" ? (corrected === "upcoming" || corrected === "ongoing") : corrected === "completed";
+      const matchesCategory = selectedCategory === "ALL" || event.event_category?.toUpperCase() === selectedCategory;
+      const matchesSearch = !q || 
+        event.event_title?.toLowerCase().includes(q) || 
+        event.event_category?.toLowerCase().includes(q) || 
+        event.event_venue?.toLowerCase().includes(q);
       const matchesMonth = selectedMonth === "ALL" || eventMonth === selectedMonth;
       const matchesYear = selectedYear === "ALL" || eventYear === selectedYear;
 
@@ -214,28 +181,22 @@ function EventsPageRSVP() {
     });
   }, [events, viewType, selectedCategory, searchQuery, selectedMonth, selectedYear]);
 
-  /* ---------- derived: currentEvents for grid ---------- */
-  const currentEvents = useMemo(
-    () => filteredEvents.slice(0, eventsToShow),
-    [filteredEvents, eventsToShow]
-  );
+  const currentEvents = useMemo(() => filteredEvents.slice(0, eventsToShow), [filteredEvents, eventsToShow]);
 
-  /* ---------- derived: carousel slides (sorted once) ---------- */
   const carouselSlides = useMemo(() => {
     if (!events.length) return [];
-    const sorted = [...events].sort(
-      (a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
-    );
-    return sorted.slice(0, 5).map((event) => ({
-      image: getSafeImageUrl(event.event_image),
-      category: event.event_category,
-      title: event.event_title,
-      date: formatDateRSVP(event.event_date),
-      location: event.event_venue,
-    }));
+    return [...events]
+      .sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime())
+      .slice(0, 5)
+      .map((event) => ({
+        image: getSafeImageUrl(event.event_image),
+        category: event.event_category,
+        title: event.event_title,
+        date: formatDateRSVP(event.event_date),
+        location: event.event_venue,
+      }));
   }, [events]);
 
-  /* ---------- handlers (stable) ---------- */
   const openModal = useCallback((e: React.MouseEvent, eventId: string) => {
     e.stopPropagation();
     setSelectedEventId(eventId);
@@ -244,155 +205,87 @@ function EventsPageRSVP() {
 
   const closeModal = useCallback(() => setShowModal(false), []);
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setFormData((fd) => (fd[name as keyof typeof fd] === value ? fd : { ...fd, [name]: value }));
-    },
-    []
-  );
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((fd) => ({ ...fd, [name]: value }));
+  }, []);
 
-  const [submitting, setSubmitting] = useState(false); // ensure it's declared (typescript)
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEventId || submitting) return;
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!selectedEventId) {
-        toast.error("No event selected");
-        return;
+    try {
+      setSubmitting(true);
+      const res = await fetch(`${API_BASE}/event_participants.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_id: selectedEventId, ...formData }),
+      });
+      const json = await res.json();
+
+      if (res.ok && json.success) {
+        toast.success("Registered successfully!");
+        
+        // INSTANT UI UPDATE & CACHE UPDATE
+        const updatedEvents = events.map(evt => evt.event_id === selectedEventId ? { ...evt, event_going: Number(evt.event_going || 0) + 1 } : evt);
+        setEvents(updatedEvents);
+        _globalEventsCache = updatedEvents; 
+
+        setShowModal(false);
+        setFormData({ name: "", email: "", contact: "", expectations: "" });
+      } else {
+        toast.error(json.error || "Registration failed");
       }
-      if (submitting) return;
+    } catch (err) {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [selectedEventId, formData, submitting, events]);
 
-      try {
-        setSubmitting(true);
-        const res = await fetch(
-          `${API_BASE}/event_participants.php`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              event_id: selectedEventId,
-              name: formData.name,
-              email: formData.email,
-              contact: formData.contact,
-              expectations: formData.expectations,
-            }),
-          }
-        );
-        const json = await res.json();
+  const onCardClick = useCallback((eventId: string) => {
+    sessionStorage.setItem("eventScrollY", String(window.scrollY));
+    sessionStorage.setItem("eventViewType", viewType);
+    sessionStorage.setItem("eventCategory", selectedCategory);
+    sessionStorage.setItem("eventSearchQuery", searchQuery);
+    sessionStorage.setItem("eventShowCount", String(eventsToShow));
+    navigate(`/events/${eventId}`);
+  }, [viewType, selectedCategory, searchQuery, eventsToShow, navigate]);
 
-        if (res.ok && json.success) {
-          toast.success("Registered successfully!");
-          setEvents((prev) =>
-            prev.map((evt) =>
-              evt.event_id === selectedEventId ? { ...evt, event_going: (evt.event_going || 0) + 1 } : evt
-            )
-          );
-          setShowModal(false);
-          setFormData({ name: "", email: "", contact: "", expectations: "" });
-        } else {
-          toast.error(json.error || "Registration failed");
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Network error. Please try again.");
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [selectedEventId, formData, submitting]
-  );
-
-  const handleSeeMore = useCallback(() => setEventsToShow((prev) => prev + 4), []);
-  const handleSeeLess = useCallback(() => setEventsToShow((prev) => Math.max(12, prev - 4)), []);
-
-  const onCardClick = useCallback(
-    (eventId: string) => {
-      sessionStorage.setItem("eventScrollY", String(window.scrollY));
-      sessionStorage.setItem("eventViewType", viewType);
-      sessionStorage.setItem("eventCategory", selectedCategory);
-      sessionStorage.setItem("eventSearchQuery", searchQuery);
-      sessionStorage.setItem("eventShowCount", String(eventsToShow));
-      navigate(`/events/${eventId}`);
-    },
-    [viewType, selectedCategory, searchQuery, eventsToShow, navigate]
-  );
-
-  // debounce search input to reduce filter recalcs
   const debounceRef = useRef<number | null>(null);
   const onSearchChange = useCallback((val: string) => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    debounceRef.current = window.setTimeout(() => {
-      setSearchQuery(val);
-    }, 250);
+    debounceRef.current = window.setTimeout(() => setSearchQuery(val), 250);
   }, []);
 
-  // lock background scroll while modal open
   useEffect(() => {
-    if (!showModal) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [showModal]);
-
-  // ESC to close modal
-  useEffect(() => {
-    if (!showModal) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowModal(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    document.body.style.overflow = showModal ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [showModal]);
 
   return (
     <div className="events-page-rsvp">
-      {loading || restoringScroll ? (
+      {loading ? (
         <Preloader />
       ) : (
         <>
           <div className="events-header-row">
             <h1 className="eventspage-header-EVENTS">Recent Events</h1>
-            {events.length > 0 && (
-              <EventsCarousel
-                slides={carouselSlides}
-                autoSlide
-                autoSlideInterval={5000}
-              />
-            )}
+            {events.length > 0 && <EventsCarousel slides={carouselSlides} autoSlide autoSlideInterval={5000} />}
           </div>
 
           <hr className="events-header-divider" />
-
           <h1 className="eventspage-header-2-EVENTS">Events</h1>
 
           <div className="events-header-row-2">
             <div className="event-searchbar-container">
-              <input
-                type="text"
-                placeholder="Search events..."
-                defaultValue={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="event-searchbar-input"
-              />
+              <input type="text" placeholder="Search events..." defaultValue={searchQuery} onChange={(e) => onSearchChange(e.target.value)} className="event-searchbar-input" />
               <img src={searchIconEventspage} alt="Search" className="event-searchbar-icon" />
             </div>
 
             <div className="event-toggle-tabs">
-              <button
-                className={`event-toggle-tab ${viewType === "UPCOMING" ? "active" : ""}`}
-                onClick={() => setViewType("UPCOMING")}
-              >
-                UPCOMING
-              </button>
-              <button
-                className={`event-toggle-tab ${viewType === "PAST" ? "active" : ""}`}
-                onClick={() => setViewType("PAST")}
-              >
-                PAST
-              </button>
+              <button className={`event-toggle-tab ${viewType === "UPCOMING" ? "active" : ""}`} onClick={() => setViewType("UPCOMING")}>UPCOMING</button>
+              <button className={`event-toggle-tab ${viewType === "PAST" ? "active" : ""}`} onClick={() => setViewType("PAST")}>PAST</button>
             </div>
           </div>
 
@@ -400,55 +293,24 @@ function EventsPageRSVP() {
             <div className="event-category-filter">
               <div className="category-buttons-desktop">
                 {categories.map((category) => (
-                  <span
-                    key={category}
-                    className={`category-button ${selectedCategory === category ? "active" : ""}`}
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {category}
-                  </span>
+                  <span key={category} className={`category-button ${selectedCategory === category ? "active" : ""}`} onClick={() => setSelectedCategory(category)}>{category}</span>
                 ))}
               </div>
               <div className="category-dropdown-mobile">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="category-select"
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
+                <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="category-select">
+                  {categories.map((category) => <option key={category} value={category}>{category}</option>)}
                 </select>
               </div>
             </div>
 
             <div className="event-filter-wrapper">
-              <select
-                className="event-filter-dropdown"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-              >
+              <select className="event-filter-dropdown" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
                 <option value="ALL">All Months</option>
-                {monthOptions.map((month) => (
-                  <option key={month} value={month}>
-                    {month}
-                  </option>
-                ))}
+                {monthOptions.map((month) => <option key={month} value={month}>{month}</option>)}
               </select>
-
-              <select
-                className="event-filter-dropdown"
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-              >
+              <select className="event-filter-dropdown" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
                 <option value="ALL">All Years</option>
-                {yearOptions.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
+                {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
               </select>
             </div>
           </div>
@@ -458,19 +320,8 @@ function EventsPageRSVP() {
           {filteredEvents.length > 0 ? (
             <div className="eventsrsvp-grid">
               {currentEvents.map((event) => (
-                <div
-                  key={event.event_id}
-                  className="event-card"
-                  onClick={() => onCardClick(event.event_id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <img
-                    src={getSafeImageUrl(event.event_image)}
-                    alt={event.event_title || "No image available"}
-                    className="event-image"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                <div key={event.event_id} className="event-card" onClick={() => onCardClick(event.event_id)} style={{ cursor: "pointer" }}>
+                  <img src={getSafeImageUrl(event.event_image)} alt={event.event_title} className="event-image" loading="lazy" decoding="async" />
                   <h3 className="event-title">{event.event_title}</h3>
                   <p className="event-category">{event.event_category}</p>
                   <p className="event-date">
@@ -483,133 +334,41 @@ function EventsPageRSVP() {
                   </p>
                   {viewType === "UPCOMING" && (
                     <div className="event-buttons">
-                      <button
-                        className="eventrsvp-button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEventId(event.event_id);
-                          setShowModal(true);
-                        }}
-                      >
-                        RSVP
-                      </button>
+                      <button className="eventrsvp-button" onClick={(e) => openModal(e, event.event_id)}>RSVP</button>
                     </div>
                   )}
                 </div>
               ))}
-
-              {filteredEvents.length > 0 && (
+              {eventsToShow < filteredEvents.length && (
                 <div className="see-more-container">
-                  {eventsToShow < filteredEvents.length && (
-                    <button className="see-more-button" onClick={handleSeeMore}>
-                      See More
-                    </button>
-                  )}
-                  {eventsToShow > 12 && (
-                    <button className="see-less-button" onClick={handleSeeLess}>
-                      Show Less
-                    </button>
-                  )}
+                  <button className="see-more-button" onClick={() => setEventsToShow(p => p + 4)}>See More</button>
                 </div>
               )}
             </div>
           ) : (
-            <div className="no-events-container">
-              <p>No events found.</p>
-            </div>
+            <div className="no-events-container"><p>No events found.</p></div>
           )}
         </>
       )}
 
       {showModal && (
         <div className="event-rsvp-modal-overlay" onClick={closeModal}>
-          <div
-            className="event-rsvp-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="event-rsvp-modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>REGISTER</h2>
             <form onSubmit={handleSubmit} className="event-rsvp-form">
-              <label>
-                Name
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="event-rsvp-form-input"
-                />
-              </label>
-
-              <label>
-                Email
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="event-rsvp-form-input"
-                />
-              </label>
-
-              <label>
-                Contact
-                <input
-                  type="text"
-                  name="contact"
-                  value={formData.contact}
-                  onChange={handleChange}
-                  required
-                  className="event-rsvp-form-input"
-                />
-              </label>
-
-              <label>
-                What to Expect
-                <textarea
-                  name="expectations"
-                  value={formData.expectations}
-                  onChange={handleChange}
-                  rows={4}
-                  className="event-rsvp-form-textarea"
-                />
-              </label>
-
+              <label>Name<input type="text" name="name" value={formData.name} onChange={handleChange} required className="event-rsvp-form-input" /></label>
+              <label>Email<input type="email" name="email" value={formData.email} onChange={handleChange} required className="event-rsvp-form-input" /></label>
+              <label>Contact<input type="text" name="contact" value={formData.contact} onChange={handleChange} required className="event-rsvp-form-input" /></label>
+              <label>What to Expect<textarea name="expectations" value={formData.expectations} onChange={handleChange} rows={4} className="event-rsvp-form-textarea" /></label>
               <div className="event-rsvp-form-actions">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="event-rsvp-form-btn event-rsvp-form-btn-cancel"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="event-rsvp-form-btn event-rsvp-form-btn-submit"
-                >
-                  {submitting ? "Submitting..." : "Submit"}
-                </button>
+                <button type="button" onClick={closeModal} className="event-rsvp-form-btn event-rsvp-form-btn-cancel">Cancel</button>
+                <button type="submit" disabled={submitting} className="event-rsvp-form-btn event-rsvp-form-btn-submit">{submitting ? "Submitting..." : "Submit"}</button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
     </div>
   );
 }
-
-export default EventsPageRSVP;

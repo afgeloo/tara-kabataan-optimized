@@ -1,52 +1,63 @@
+// src/eventspage/eventspage-pastevents.tsx
+
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { fetchEvents, formatDatePast, convertTo12HourFormat } from "./mockServer";
+import { useNavigate } from "react-router-dom";
 import "./css/eventpage-pastevents.css";
 import locationIconeventspage from "../assets/eventspage/Location-eventspage.png";
 import searchIconEventspage from "../assets/eventspage/Search-icon-events.png";
-import { useNavigate } from "react-router-dom";
 
-export interface Event {
-  event_id: string;
-  event_image: string;
-  event_category: string;
-  event_title: string;
-  event_date: string;       // ISO
-  event_day: string;
-  event_start_time: string; // HH:mm
-  event_end_time: string;   // HH:mm
-  event_venue: string;
-  event_content: string;
-  event_speakers: string;
-  event_status: string;     // "Completed"/"COMPLETED"/etc.
-  created_at: string;
-  event_going?: number;
-}
+// Grab the shared Cache, Types, and Image Utility!
+import { Event, _globalEventsCache, getSafeImageUrl } from "./eventspage-rsvp";
 
-/* ---------- helpers ---------- */
+/* ---------- local helpers ---------- */
 const API_BASE = import.meta.env?.VITE_API_BASE_URL ?? "";
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
-const getSafeImageUrl = (url?: string | null) => {
-  if (!url) return "";
-  if (url.startsWith("http") || url.startsWith("//")) return url;
-
-  let cleanPath = url
-    .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
-    .replace("events-images/events-images/", "events-images/");
-
-  if (cleanPath.startsWith("/")) cleanPath = cleanPath.substring(1);
-  return `${IMAGE_BASE}/${cleanPath}`;
+const formatDatePast = (dateStr: string) => {
+  const t = Date.parse(dateStr);
+  if (Number.isNaN(t)) return "Invalid Date";
+  return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" }).format(new Date(t));
 };
 
-const getMonthName = (dateStr: string) =>
-  new Date(dateStr).toLocaleString("default", { month: "long" });
+const convertTo12HourFormat = (time: string) => {
+  if (!time) return "";
+  const [h, m] = time.split(":");
+  let hour = parseInt(h || "0", 10);
+  const minute = (m ?? "00").padEnd(2, "0").slice(0, 2);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${minute} ${ampm}`;
+};
+
+const getMonthName = (dateStr: string) => new Date(dateStr).toLocaleString("default", { month: "long" });
 const getYearStr = (dateStr: string) => String(new Date(dateStr).getFullYear());
 
 export default function PastEvents() {
   const navigate = useNavigate();
 
-  // data
-  const [events, setEvents] = useState<Event[]>([]);
+  // --- SMART FILTER LOGIC ---
+  // This automatically marks events as "completed" if their end time has passed, 
+  // keeping the UI perfect even if the DB hasn't been updated yet!
+  const getCompletedEvents = useCallback((rawEvents: Event[]) => {
+    const now = Date.now();
+    return rawEvents.filter((event) => {
+      const t = Date.parse(event.event_date);
+      if (Number.isNaN(t)) return false;
+      
+      const [eh, em] = (event.event_end_time || "00:00").split(":").map(Number);
+      const end = new Date(t).setHours(eh || 0, em || 0, 0, 0);
+
+      let status = (event.event_status || "").toLowerCase();
+      if ((status === "upcoming" || status === "ongoing") && now > end) {
+        status = "completed";
+      }
+      return status === "completed";
+    });
+  }, []);
+
+  // 1. Zero-Latency Initialization: Check if we already have the cache!
+  const [events, setEvents] = useState<Event[]>(() => {
+    return _globalEventsCache ? getCompletedEvents(_globalEventsCache) : [];
+  });
 
   // filters
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,11 +65,11 @@ export default function PastEvents() {
   const [year, setYear] = useState("");
   const [category, setCategory] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("ALL"); // kept for parity, not used in UI
 
-  // debounce search input to avoid filtering on every keystroke
+  // debounce search input
   const [searchInput, setSearchInput] = useState("");
   const debounceRef = useRef<number | null>(null);
+  
   const onSearchChange = useCallback((val: string) => {
     setSearchInput(val);
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -67,22 +78,25 @@ export default function PastEvents() {
     }, 250);
   }, []);
 
-  // fetch + prefilter to completed
+  // 2. Fallback Fetch: Only runs if the user landed directly on this page without hitting the homepage
   useEffect(() => {
+    if (_globalEventsCache) return; // Cache is hot, skip network request!
+
     let mounted = true;
-    fetchEvents().then((data: Event[] | unknown) => {
-      if (!mounted) return;
-      const arr = Array.isArray(data) ? (data as Event[]) : [];
-      const completedOnly = arr.filter(
-        (e) => (e.event_status || "").toLowerCase() === "completed"
-      );
-      setEvents(completedOnly);
-    });
+    fetch(`${API_BASE}/events.php`, { headers: { Accept: "application/json" } })
+      .then(res => res.json())
+      .then(data => {
+        if (!mounted) return;
+        const arr = Array.isArray(data) ? data : [];
+        setEvents(getCompletedEvents(arr));
+      })
+      .catch(err => console.error("Failed to load past events:", err));
+
     return () => {
       mounted = false;
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [selectedCategory]); // kept dependency to match your original behavior
+  }, [getCompletedEvents]);
 
   /* ---------- derived options ---------- */
   const currentYear = new Date().getFullYear();

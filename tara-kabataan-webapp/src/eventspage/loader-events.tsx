@@ -1,3 +1,5 @@
+// loader-events.tsx - Preloader Component for Events Page in Tara Kabataan Webapp
+
 import React from "react";
 import "./css/loader-events.css"; 
 import preloaderImg from "../assets/logos/preloader.png"; 
