@@ -29,7 +29,7 @@ const EmailUs = memo(() => {
     }
     const emailParts = val.split("@");
     if (emailParts.length !== 2 || !allowedDomains.includes(emailParts[1].toLowerCase())) {
-      setEmailError("Enter a valid email or leave blank for 'Anonymous'");
+      setEmailError("Enter a valid email or leave blank");
       return false;
     }
     setEmailError("");
@@ -115,18 +115,18 @@ const EmailUs = memo(() => {
 
           <form ref={form} onSubmit={sendEmail} className="contact-form">
             <label>Name</label>
-            <input type="text" name="user_name" placeholder="Name or 'Anonymous' (Optional)" />
+            <input type="text" name="user_name" placeholder="(Optional)" />
 
             <label>Email</label>
-            <input type="text" name="user_email" placeholder="Email or 'Anonymous' (Optional)" value={email} onChange={handleEmailChange} />
+            <input type="text" name="user_email" placeholder="(Optional)" value={email} onChange={handleEmailChange} />
             {emailError && <p className="error-message">{emailError}</p>}
 
             <label>Contact No.</label>
-            <input type="tel" name="user_contact" placeholder="Contact No. or 'Anonymous' (Optional)" value={contact} onChange={handleContactChange} />
+            <input type="tel" name="user_contact" placeholder="(Optional)" value={contact} onChange={handleContactChange} />
             {contactError && <p className="error-message">{contactError}</p>}
 
             <label>Message</label>
-            <textarea name="message" required placeholder="Write your message here (Required)" />
+            <textarea name="message" required placeholder="Write your message here" />
 
             <button type="submit" disabled={!!emailError || !!contactError}>
               <img src={sendEmailBtnImg} alt="Send Email Icon" />

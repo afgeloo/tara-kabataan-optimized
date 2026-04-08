@@ -219,6 +219,25 @@ function EventDetails() {
         <ToastContainer position="top-center" autoClose={1500} hideProgressBar closeOnClick limit={1} />
       </div>
 
+      {/* --- THE MISSING RSVP MODAL HAS BEEN RESTORED HERE --- */}
+      {showModal && (
+        <div className="event-rsvp-modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="event-rsvp-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>REGISTER</h2>
+            <form onSubmit={handleSubmit} className="event-rsvp-form">
+              <label>Name<input type="text" name="name" value={formData.name} onChange={handleChange} required className="event-rsvp-form-input" /></label>
+              <label>Email<input type="email" name="email" value={formData.email} onChange={handleChange} required className="event-rsvp-form-input" /></label>
+              <label>Contact No.<input type="text" name="contact" value={formData.contact} onChange={handleChange} required className="event-rsvp-form-input" /></label>
+              <label>What to Expect<textarea name="expectations" value={formData.expectations} onChange={handleChange} rows={4} className="event-rsvp-form-textarea" /></label>
+              <div className="event-rsvp-form-actions">
+                <button type="button" onClick={() => setShowModal(false)} className="event-rsvp-form-btn event-rsvp-form-btn-cancel">Cancel</button>
+                <button type="submit" disabled={submitting} className="event-rsvp-form-btn event-rsvp-form-btn-submit">{submitting ? "Submitting..." : "Submit"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {showImageModal && fullImageUrl && (
         <div className="zoom-modal">
           <div className="zoom-backdrop" onClick={() => setShowImageModal(false)} />
