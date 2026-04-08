@@ -63,11 +63,6 @@ const Council = memo(() => {
     const lastFetch = Number(localStorage.getItem("tk_council_time") || 0);
     const now = Date.now();
 
-    // SMART CACHE: If the data is less than 5 minutes old, STOP! Don't hit the database.
-    if (councilData.length > 0 && (now - lastFetch < CACHE_TTL)) {
-      return; 
-    }
-
     const ctrl = new AbortController();
     const aboutUrl = `${API_BASE}/aboutus.php`;
     const councilUrl = `${API_BASE}/council.php`;
