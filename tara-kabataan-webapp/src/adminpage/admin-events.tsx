@@ -76,16 +76,29 @@ const validatePasswordSafety = (profilePassword: string, profileEmail: string) =
   return null;
 };
 
-// Helper: Forces all HTML links to open in a new tab safely
+// Helper: Forces links to open in a new tab safely and permanently injects blue/underline styles
 const processHtmlLinks = (htmlString: string) => {
   if (!htmlString) return "";
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
   const links = doc.querySelectorAll('a');
+  
   links.forEach(link => {
+    let href = link.getAttribute('href');
+    // Ensure missing 'https://' is auto-added
+    if (href && !/^https?:\/\//i.test(href) && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+      href = 'https://' + href;
+      link.setAttribute('href', href);
+    }
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
+    // INJECT INLINE STYLES: Forces the link to visibly appear as a link everywhere!
+    link.style.textDecoration = 'underline';
+    link.style.color = '#1299ED'; // Vibrant blue
+    link.style.fontWeight = 'bold';
+    link.style.cursor = 'pointer';
   });
+  
   return doc.body.innerHTML;
 };
 
@@ -464,13 +477,11 @@ const AdminEvents = () => {
     setEditMissing(newEditMissing);
     if (Object.values(newEditMissing).some(Boolean)) return showTempNotification("Please fill out all required fields marked with *");
 
-    // NOTE: PAST DATE VALIDATION HAS BEEN REMOVED FOR EDITING
-
     let finalEditContent = editableEvent.content;
     if (textareaRef.current) {
         finalEditContent = textareaRef.current.innerHTML;
     }
-    // Forces any links inside content to open in new tab
+    // Final sanity check: Add styles/target blank to all links before sending to database
     editableEvent.content = processHtmlLinks(finalEditContent);
 
     if (tempImageUrl !== null) editableEvent.image_url = tempImageUrl;
@@ -502,13 +513,12 @@ const AdminEvents = () => {
     setMissing(newMissing);
     if (Object.values(newMissing).some(Boolean)) return showTempNotification("Please fill out all required fields marked with *");
 
-    // PAST DATE VALIDATION KEPT FOR ADDING NEW EVENTS
     const selectedDate = new Date(newEvent.event_date);
     selectedDate.setHours(0, 0, 0, 0);
     const today = new Date(); today.setHours(0, 0, 0, 0);
     if (selectedDate < today) return showTempNotification("Event date cannot be in the past!");
 
-    // Forces any links inside content to open in new tab
+    // Apply inline link styles before saving to database
     const finalContent = processHtmlLinks(extractedContent);
 
     try {
@@ -568,10 +578,19 @@ const AdminEvents = () => {
       
       {/* Clickable Link Feature */}
       <button className="format-btn link" onMouseDown={(e) => { e.preventDefault(); saveSelection(); }} onClick={() => {
-        restoreSelection();
-        const url = prompt("Enter link URL (include http:// or https://):");
+        // 1. Prompt for URL BEFORE restoring selection to prevent browser focus loss
+        const url = prompt("Enter link URL (e.g. www.google.com):");
         if (url) {
-          applyFormatting("createLink", url);
+          // 2. Restore selection highlight and execute the link command
+          restoreSelection();
+          document.execCommand("createLink", false, url);
+          
+          // 3. Immediately parse the HTML to turn the new link blue so the Admin sees it instantly!
+          const div = document.getElementById(editorId);
+          if (div) {
+            div.innerHTML = processHtmlLinks(div.innerHTML);
+            setEventState((prev: any) => prev ? { ...prev, content: div.innerHTML } : prev);
+          }
         }
       }}><FaLink /></button>
       
