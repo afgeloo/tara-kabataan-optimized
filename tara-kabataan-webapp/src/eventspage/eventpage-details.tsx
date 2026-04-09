@@ -32,18 +32,6 @@ export const convertTo12HourFormat = (time: string) => {
   return `${hour}:${minute} ${ampm}`;
 };
 
-// Auto-Linker: Converts plain text URLs (http://...) into clickable <a> tags automatically
-const autoLinkText = (html: string) => {
-  if (!html) return "";
-  const urlRegex = /(https?:\/\/[^\s<]+)/g;
-  // Temporarily replace URLs that are ALREADY inside an href attribute so we don't break them
-  let tempHtml = html.replace(/href="(https?:\/\/[^"]+)"/g, 'data-href="$1"');
-  // Auto-link any remaining plain-text URLs
-  tempHtml = tempHtml.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #1299ED; text-decoration: underline; font-weight: bold;">$1</a>');
-  // Restore the original hrefs
-  return tempHtml.replace(/data-href="(https?:\/\/[^"]+)"/g, 'href="$1"');
-};
-
 function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -93,29 +81,18 @@ function EventDetails() {
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [showModal, showImageModal]);
 
-  // CONTENT PARSER: Makes images zoomable AND forces links to open in a new tab
+  // Make images zoomable (The links are already formatted via the Admin panel)
   useEffect(() => {
     const container = aboutRef.current;
     if (!container) return;
 
-    // 1. Process Images (Zoom)
+    // Process Images (Zoom)
     const imgs = Array.from(container.querySelectorAll<HTMLImageElement>("img"));
     const handlers = imgs.map((img) => {
       img.style.cursor = "zoom-in";
       const handler = () => { setFullImageUrl(img.src); setShowImageModal(true); };
       img.addEventListener("click", handler);
       return { img, handler };
-    });
-
-    // 2. Process Links (Clickable & New Tab)
-    const links = Array.from(container.querySelectorAll<HTMLAnchorElement>("a"));
-    links.forEach((link) => {
-      link.setAttribute("target", "_blank");
-      link.setAttribute("rel", "noopener noreferrer");
-      link.style.textDecoration = "underline"; // Ensure it looks like a link
-      link.style.color = "#1299ED"; // Tara Kabataan secondary blue for high visibility
-      link.style.fontWeight = "bold";
-      link.style.cursor = "pointer";
     });
 
     return () => handlers.forEach(({ img, handler }) => img.removeEventListener("click", handler));
@@ -203,8 +180,8 @@ function EventDetails() {
 
               <div className="event-detail-section">
                 <p className="event-info-label">Speakers</p><br />
-                {/* Speakers auto-link parser added here */}
-                <div className="event-info-value" dangerouslySetInnerHTML={{ __html: autoLinkText((event.event_speakers || "To be announced").replace(/\n/g, "<br>").replace(/  /g, "  ")) }} />
+                {/* Rendered directly without the buggy parser */}
+                <div className="event-info-value" dangerouslySetInnerHTML={{ __html: (event.event_speakers || "To be announced").replace(/\n/g, "<br>").replace(/  /g, "  ") }} />
               </div>
 
               <div className="event-detail-section">
@@ -214,7 +191,7 @@ function EventDetails() {
 
               <div className="event-detail-section">
                 <p className="event-info-label">Location</p>
-                {/* Venue text is now a clickable Google Maps link! */}
+                {/* Venue text is a clickable Google Maps link! */}
                 <a 
                   href={`https://maps.google.com/?q=${encodeURIComponent(event.event_venue)}`} 
                   target="_blank" 
@@ -249,8 +226,8 @@ function EventDetails() {
               </div>
             </div>
             <div className="event-divider"></div>
-            {/* Event content auto-link parser added here */}
-            <div className="event-about" ref={aboutRef} dangerouslySetInnerHTML={{ __html: autoLinkText(event.event_content) }} />
+            {/* Event content rendered cleanly from the database */}
+            <div className="event-about" ref={aboutRef} dangerouslySetInnerHTML={{ __html: event.event_content }} />
           </div>
         </div>
 
