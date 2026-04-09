@@ -32,6 +32,18 @@ export const convertTo12HourFormat = (time: string) => {
   return `${hour}:${minute} ${ampm}`;
 };
 
+// Auto-Linker: Converts plain text URLs (http://...) into clickable <a> tags automatically
+const autoLinkText = (html: string) => {
+  if (!html) return "";
+  const urlRegex = /(https?:\/\/[^\s<]+)/g;
+  // Temporarily replace URLs that are ALREADY inside an href attribute so we don't break them
+  let tempHtml = html.replace(/href="(https?:\/\/[^"]+)"/g, 'data-href="$1"');
+  // Auto-link any remaining plain-text URLs
+  tempHtml = tempHtml.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #1299ED; text-decoration: underline; font-weight: bold;">$1</a>');
+  // Restore the original hrefs
+  return tempHtml.replace(/data-href="(https?:\/\/[^"]+)"/g, 'href="$1"');
+};
+
 function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -185,13 +197,14 @@ function EventDetails() {
 
             <div className="event-details-info">
               <div className="event-detail-section-going">
-                <p className="event-info-label-going">{isPast ? "Event Came" : "Event Going"}:</p>
+                <p className="event-info-label-going">{isPast ? "Total Attended" : "Currently Going"}:</p>
                 <p className="event-info-value-going">{event.event_going || 0}</p>
               </div>
 
               <div className="event-detail-section">
                 <p className="event-info-label">Speakers</p><br />
-                <div className="event-info-value" dangerouslySetInnerHTML={{ __html: (event.event_speakers || "To be announced").replace(/\n/g, "<br>").replace(/  /g, "  ") }} />
+                {/* Speakers auto-link parser added here */}
+                <div className="event-info-value" dangerouslySetInnerHTML={{ __html: autoLinkText((event.event_speakers || "To be announced").replace(/\n/g, "<br>").replace(/  /g, "  ")) }} />
               </div>
 
               <div className="event-detail-section">
@@ -201,9 +214,18 @@ function EventDetails() {
 
               <div className="event-detail-section">
                 <p className="event-info-label">Location</p>
-                <p className="event-info-value">{event.event_venue}</p>
+                {/* Venue text is now a clickable Google Maps link! */}
+                <a 
+                  href={`https://maps.google.com/?q=${encodeURIComponent(event.event_venue)}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="event-info-value"
+                  style={{ textDecoration: "underline", color: "#1299ED", cursor: "pointer", display: "inline-block" }}
+                >
+                  {event.event_venue}
+                </a>
                 <div className="event-map">
-                  <iframe src={`https://www.google.com/maps?q=${encodeURIComponent(event.event_venue)}&z=18&output=embed`} width="100%" height="250" loading="lazy" style={{ border: "0", borderRadius: "10px" }} />
+                  <iframe src={`https://www.google.com/maps?q=${encodeURIComponent(event.event_venue)}&z=18&output=embed`} width="100%" height="250" loading="lazy" style={{ border: "0", borderRadius: "10px", marginTop: "10px" }} />
                 </div>
               </div>
             </div>
@@ -222,17 +244,19 @@ function EventDetails() {
 
             <div className="event-about-header">
               <span>About the Event</span>
-              <div className="copy-link" onClick={copyEventLink}><img src={attachIcon} alt="Copy link" /></div>
+              <div className="copy-link" onClick={copyEventLink} style={{ cursor: "pointer", transition: "transform 0.2s" }} onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"} onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}>
+                <img src={attachIcon} alt="Copy link" />
+              </div>
             </div>
             <div className="event-divider"></div>
-            <div className="event-about" ref={aboutRef} dangerouslySetInnerHTML={{ __html: event.event_content }} />
+            {/* Event content auto-link parser added here */}
+            <div className="event-about" ref={aboutRef} dangerouslySetInnerHTML={{ __html: autoLinkText(event.event_content) }} />
           </div>
         </div>
 
         <ToastContainer position="top-center" autoClose={1500} hideProgressBar closeOnClick limit={1} />
       </div>
 
-      {/* --- THE MISSING RSVP MODAL HAS BEEN RESTORED HERE --- */}
       {showModal && (
         <div className="event-rsvp-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="event-rsvp-modal-content" onClick={(e) => e.stopPropagation()}>
