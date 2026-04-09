@@ -81,16 +81,29 @@ function EventDetails() {
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [showModal, showImageModal]);
 
+  // CONTENT PARSER: Makes images zoomable AND forces links to open in a new tab
   useEffect(() => {
     const container = aboutRef.current;
     if (!container) return;
 
+    // 1. Process Images (Zoom)
     const imgs = Array.from(container.querySelectorAll<HTMLImageElement>("img"));
     const handlers = imgs.map((img) => {
       img.style.cursor = "zoom-in";
       const handler = () => { setFullImageUrl(img.src); setShowImageModal(true); };
       img.addEventListener("click", handler);
       return { img, handler };
+    });
+
+    // 2. Process Links (Clickable & New Tab)
+    const links = Array.from(container.querySelectorAll<HTMLAnchorElement>("a"));
+    links.forEach((link) => {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.style.textDecoration = "underline"; // Ensure it looks like a link
+      link.style.color = "#1299ED"; // Tara Kabataan secondary blue for high visibility
+      link.style.fontWeight = "bold";
+      link.style.cursor = "pointer";
     });
 
     return () => handlers.forEach(({ img, handler }) => img.removeEventListener("click", handler));
@@ -178,7 +191,7 @@ function EventDetails() {
 
               <div className="event-detail-section">
                 <p className="event-info-label">Speakers</p><br />
-                <div className="event-info-value" dangerouslySetInnerHTML={{ __html: (event.event_speakers || "To be announced").replace(/\n/g, "<br>").replace(/  /g, " &nbsp;") }} />
+                <div className="event-info-value" dangerouslySetInnerHTML={{ __html: (event.event_speakers || "To be announced").replace(/\n/g, "<br>").replace(/  /g, "  ") }} />
               </div>
 
               <div className="event-detail-section">
@@ -227,8 +240,8 @@ function EventDetails() {
             <form onSubmit={handleSubmit} className="event-rsvp-form">
               <label>Name<input type="text" name="name" value={formData.name} onChange={handleChange} required className="event-rsvp-form-input" /></label>
               <label>Email<input type="email" name="email" value={formData.email} onChange={handleChange} required className="event-rsvp-form-input" /></label>
-              <label>Contact No.<input type="text" name="contact" value={formData.contact} onChange={handleChange} required className="event-rsvp-form-input" /></label>
-              <label>What to Expect<textarea name="expectations" value={formData.expectations} onChange={handleChange} rows={4} className="event-rsvp-form-textarea" /></label>
+              <label>Contact No. (Optional)<input type="text" name="contact" value={formData.contact} onChange={handleChange} className="event-rsvp-form-input" /></label>
+              <label>What to Expect (Optional)<textarea name="expectations" value={formData.expectations} onChange={handleChange} rows={4} className="event-rsvp-form-textarea" /></label>
               <div className="event-rsvp-form-actions">
                 <button type="button" onClick={() => setShowModal(false)} className="event-rsvp-form-btn event-rsvp-form-btn-cancel">Cancel</button>
                 <button type="submit" disabled={submitting} className="event-rsvp-form-btn event-rsvp-form-btn-submit">{submitting ? "Submitting..." : "Submit"}</button>
