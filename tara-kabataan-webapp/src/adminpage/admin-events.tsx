@@ -13,6 +13,7 @@ import {
   FaUnderline, 
   FaImage, 
   FaListUl, 
+  FaLink,
   FaUndo, 
   FaRedo, 
   FaTimes 
@@ -73,6 +74,19 @@ const validatePasswordSafety = (profilePassword: string, profileEmail: string) =
     }
   }
   return null;
+};
+
+// Helper: Forces all HTML links to open in a new tab safely
+const processHtmlLinks = (htmlString: string) => {
+  if (!htmlString) return "";
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  const links = doc.querySelectorAll('a');
+  links.forEach(link => {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  });
+  return doc.body.innerHTML;
 };
 
 const AdminEvents = () => {
@@ -266,7 +280,6 @@ const AdminEvents = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ADDED: Main Event Image Size Validation
     if (file.size > MAX_FILE_SIZE_BYTES) {
       toast.error(`Image is too large! Please limit uploads to ${MAX_FILE_SIZE_MB}MB.`);
       e.target.value = ''; 
@@ -408,9 +421,9 @@ const AdminEvents = () => {
     }
   }, []);
 
-  const applyFormatting = (command: string) => {
+  const applyFormatting = (command: string, value?: string) => {
     restoreSelection();
-    document.execCommand(command, false);
+    document.execCommand(command, false, value);
   };
 
   // Memoized Data
@@ -434,7 +447,7 @@ const AdminEvents = () => {
   const paginatedParticipants = useMemo(() => participants.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage), [participants, currentPage]);
   const totalPages = Math.ceil(participants.length / itemsPerPage);
 
-  // Form Handlers
+  // --- SAVE EDIT HANDLER ---
   const handleSave = () => {
     if (!editableEvent) return;
     const textContent = textareaRef.current?.textContent?.trim() || "";
@@ -451,13 +464,14 @@ const AdminEvents = () => {
     setEditMissing(newEditMissing);
     if (Object.values(newEditMissing).some(Boolean)) return showTempNotification("Please fill out all required fields marked with *");
 
-    const eventDate = new Date(editableEvent.event_date);
-    const [startHour, startMinute] = editableEvent.event_start_time.split(":").map(Number);
-    eventDate.setHours(startHour, startMinute, 0, 0);
+    // NOTE: PAST DATE VALIDATION HAS BEEN REMOVED FOR EDITING
 
-    if (editableEvent.event_status !== "COMPLETED" && eventDate < new Date()) {
-      return showTempNotification("Cannot set an event date and time in the past!");
+    let finalEditContent = editableEvent.content;
+    if (textareaRef.current) {
+        finalEditContent = textareaRef.current.innerHTML;
     }
+    // Forces any links inside content to open in new tab
+    editableEvent.content = processHtmlLinks(finalEditContent);
 
     if (tempImageUrl !== null) editableEvent.image_url = tempImageUrl;
 
@@ -475,6 +489,7 @@ const AdminEvents = () => {
       .catch(() => alert("An error occurred while updating."));
   };
 
+  // --- ADD NEW EVENT HANDLER ---
   const handleAddNewEventSave = async () => {
     const extractedContent = document.getElementById("add-event-content-editor")?.innerHTML.trim() || "";
     const newMissing = {
@@ -487,15 +502,19 @@ const AdminEvents = () => {
     setMissing(newMissing);
     if (Object.values(newMissing).some(Boolean)) return showTempNotification("Please fill out all required fields marked with *");
 
+    // PAST DATE VALIDATION KEPT FOR ADDING NEW EVENTS
     const selectedDate = new Date(newEvent.event_date);
     selectedDate.setHours(0, 0, 0, 0);
     const today = new Date(); today.setHours(0, 0, 0, 0);
     if (selectedDate < today) return showTempNotification("Event date cannot be in the past!");
 
+    // Forces any links inside content to open in new tab
+    const finalContent = processHtmlLinks(extractedContent);
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/add_new_event.php`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newEvent, content: extractedContent, image_url: newImageUrl || "" }),
+        body: JSON.stringify({ ...newEvent, content: finalContent, image_url: newImageUrl || "" }),
       });
       const data = await res.json();
       if (data.success && data.event) {
@@ -547,10 +566,17 @@ const AdminEvents = () => {
       ))}
       <button className="format-btn bullet" onMouseDown={(e) => { e.preventDefault(); saveSelection(); }} onClick={() => applyFormatting("insertUnorderedList")}><FaListUl /></button>
       
-      {/* FIXED ID CONFLICT: Distinct IDs between Adding vs Editing */}
+      {/* Clickable Link Feature */}
+      <button className="format-btn link" onMouseDown={(e) => { e.preventDefault(); saveSelection(); }} onClick={() => {
+        restoreSelection();
+        const url = prompt("Enter link URL (include http:// or https://):");
+        if (url) {
+          applyFormatting("createLink", url);
+        }
+      }}><FaLink /></button>
+      
       <button className="format-btn image" onMouseDown={(e) => e.preventDefault()} onClick={() => document.getElementById(isAdding ? "add-new-content-image-input" : "edit-content-image-input")?.click()}><FaImage /></button>
       
-      {/* ADDED: Rich Text Image File Size Limit */}
       <input type="file" accept="image/*" id={isAdding ? "add-new-content-image-input" : "edit-content-image-input"} style={{ display: "none" }} onChange={async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
