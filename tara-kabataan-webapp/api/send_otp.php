@@ -81,12 +81,12 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'fajmreyes@gmail.com'; 
+    $mail->Username = 'tarakabataan@gmail.com'; 
     $mail->Password = $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS'); 
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
     $mail->Port = 587;
 
-    $mail->setFrom('fajmreyes@gmail.com', 'Tara Kabataan');
+    $mail->setFrom('tarakabataan@gmail.com', 'Tara Kabataan');
     $mail->addAddress($email);
     $mail->isHTML(true);
     $mail->Subject = 'Your OTP Code';
