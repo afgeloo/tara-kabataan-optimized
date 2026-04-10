@@ -29,7 +29,7 @@ $s3Client = new S3Client([
     ],
 ]);
 
-$bucketName = 'tara-kabataan-webapp';
+$bucketName = 'tara-kabataan-webapp-v2';
 $s3Folder   = 'tara-kabataan-optimized/tara-kabataan-webapp/uploads/partners-images/';
 
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {

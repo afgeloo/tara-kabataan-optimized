@@ -35,7 +35,7 @@ $s3Client = new S3Client([
     ],
 ]);
 
-$bucketName = 'tara-kabataan-webapp';
+$bucketName = 'tara-kabataan-webapp-v2';
 $s3Folder   = 'tara-kabataan-optimized/tara-kabataan-webapp/uploads/blogs-images/';
 
 // 6. UPLOAD LOGIC
