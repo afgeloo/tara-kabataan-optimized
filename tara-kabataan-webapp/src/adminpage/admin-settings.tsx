@@ -542,18 +542,16 @@ const AdminSettings = () => {
 
   const getFullImageUrl = (url: string | null) => {
     if (!url) return "";
-    
-    // 1. Keep local upload previews working
     if (url.startsWith("blob:")) return url;
     
-    // 2. Ignore already absolute URLs
-    if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
+    // --- HOTFIX: Intercept old bucket name ---
+    let finalUrl = url.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
 
-    // 3. Preserve cache-busting queries while cleaning the path
-    const [path, query] = url.split("?");
+    if (/^https?:\/\//i.test(finalUrl) || finalUrl.startsWith("//")) return finalUrl;
+
+    const [path, query] = finalUrl.split("?");
     let cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
-    // 4. Strip redundant S3 folders (The fix for Partner images!)
     if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
       cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
     } else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
@@ -569,9 +567,13 @@ const AdminSettings = () => {
   const getFullImageUrlCouncil = (url: string | null) => {
     if (!url || url.trim() === "") return placeholderImg;
     if (url.startsWith("blob:")) return url;
-    if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
 
-    const [path, query] = url.split("?");
+    // --- HOTFIX: Intercept old bucket name ---
+    let finalUrl = url.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+
+    if (/^https?:\/\//i.test(finalUrl) || finalUrl.startsWith("//")) return finalUrl;
+
+    const [path, query] = finalUrl.split("?");
     let cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
     if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {

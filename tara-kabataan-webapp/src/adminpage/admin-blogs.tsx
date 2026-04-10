@@ -66,9 +66,13 @@ let _adminBlogsCache: Blog[] | null = null;
 // --- ROBUST S3 IMAGE RESOLVER ---
 const getFullUrl = (path = "") => {
   if (!path) return "";
-  if (/^https?:\/\//i.test(path) || path.startsWith("//")) return path;
+  
+  // --- HOTFIX: Intercept old bucket name ---
+  let cleanPath = path.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+  
+  if (/^https?:\/\//i.test(cleanPath) || cleanPath.startsWith("//")) return cleanPath;
 
-  let cleanPath = path.startsWith("/") ? path.substring(1) : path;
+  cleanPath = cleanPath.startsWith("/") ? cleanPath.substring(1) : cleanPath;
   
   // Strip redundant double folders and legacy paths
   cleanPath = cleanPath

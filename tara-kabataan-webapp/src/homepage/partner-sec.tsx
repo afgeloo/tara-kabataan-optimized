@@ -17,9 +17,13 @@ const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan
 // Robust S3 Image Router
 const toLogoUrl = (url: string) => {
   if (!url) return "";
-  if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
+
+  // --- HOTFIX: Intercept old bucket name ---
+  let finalUrl = url.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+
+  if (/^https?:\/\//i.test(finalUrl) || finalUrl.startsWith("//")) return finalUrl;
   
-  let cleanPath = url.startsWith("/") ? url.substring(1) : url;
+  let cleanPath = finalUrl.startsWith("/") ? finalUrl.substring(1) : finalUrl;
 
   // Strip legacy redundant folder prefixes
   if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {

@@ -41,11 +41,15 @@ const DATE_FMT = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "lon
 // --- ROBUST S3 IMAGE RESOLVER (Exported for SingleBlog to reuse) ---
 export const getSafeBlogImageUrl = (url?: string | null) => {
   if (!url) return "";
-  if (url.startsWith("http") || url.startsWith("//")) return url;
+
+  // --- HOTFIX: Intercept old bucket name ---
+  let finalUrl = url.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+
+  if (finalUrl.startsWith("http") || finalUrl.startsWith("//")) return finalUrl;
 
   const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
   
-  let cleanPath = url
+  let cleanPath = finalUrl
     .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
     .replace("blogs-images/blogs-images/", "blogs-images/");
 

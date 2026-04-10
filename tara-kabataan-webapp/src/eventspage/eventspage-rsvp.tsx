@@ -37,9 +37,13 @@ const MONTH_FMT = new Intl.DateTimeFormat(undefined, { month: "long" });
 // --- THE ROBUST S3 IMAGE RESOLVER ---
 export const getSafeImageUrl = (url?: string | null) => {
   if (!url) return "";
-  if (url.startsWith("http") || url.startsWith("//")) return url;
 
-  let cleanPath = url
+  // --- HOTFIX: Intercept old bucket name ---
+  let finalUrl = url.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+
+  if (finalUrl.startsWith("http") || finalUrl.startsWith("//")) return finalUrl;
+
+  let cleanPath = finalUrl
     .replace(/^\/?tara-kabataan-optimized\/tara-kabataan-webapp\/uploads\//, "")
     .replace("events-images/events-images/", "events-images/");
 

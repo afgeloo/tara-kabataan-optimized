@@ -265,8 +265,12 @@ const AdminEvents = () => {
 
   const getFullImageUrl = (url: string | null) => {
     if (!url) return "";
-    if (/^https?:\/\//i.test(url) || url.startsWith("//")) return url;
-    return `${IMAGE_BASE}/${url.startsWith("/") ? url.substring(1) : url}`;
+    
+    // --- HOTFIX: Intercept old bucket name ---
+    let finalUrl = url.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+    
+    if (/^https?:\/\//i.test(finalUrl) || finalUrl.startsWith("//")) return finalUrl;
+    return `${IMAGE_BASE}/${finalUrl.startsWith("/") ? finalUrl.substring(1) : finalUrl}`;
   };
 
   const formatDate = (timestamp: string): string => {
