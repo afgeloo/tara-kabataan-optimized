@@ -30,7 +30,7 @@ type ApiPayload = {
 /* ---------- Constants ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const API_URL = `${API_BASE}/members.php`;
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
 /** * Robust S3 Resolver: 
  * Strips legacy prefixes to prevent the "Double Folder" bug found in old DB records.

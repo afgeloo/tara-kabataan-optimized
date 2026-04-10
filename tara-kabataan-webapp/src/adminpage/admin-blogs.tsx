@@ -38,7 +38,7 @@ type ViewMode = "table" | "grid";
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 // --- S3 BUCKET CONFIGURATION ---
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
 // --- FILE SIZE LIMITS ---
 const MAX_FILE_SIZE_MB = 2;

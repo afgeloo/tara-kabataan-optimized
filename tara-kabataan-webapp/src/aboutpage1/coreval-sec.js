@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// src/src/about/CoreValuesSection.tsx (or wherever this file lives)
 import "./css/coreval.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ribbon from "../assets/aboutpage/coreval-ribbon.png";

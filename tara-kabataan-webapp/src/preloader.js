@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// preloader.tsx
 import { memo } from "react";
 import "./global-css/preloader.css";
 import preloaderImg from "./assets/logos/preloader.png";

@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+// src/adminpage/admin-login.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/admin-login.css";
@@ -362,18 +363,17 @@ const AdminLogin = () => {
                                             const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/verify_otp.php`, {
                                                 method: "POST",
                                                 headers: { "Content-Type": "application/json" },
+                                                credentials: "include",
                                                 body: JSON.stringify({ email, otp, password }),
                                             });
                                             const data = await res.json();
                                             if (data.success) {
-                                                // 1. SAVE THE TOKEN! This matches what AdminPage.tsx is looking for.
-                                                localStorage.setItem("admin_token", data.token);
-                                                // 2. Save any other necessary user data
+                                                // 1. Give RequireAuth.tsx its frontend ticket!
                                                 localStorage.setItem("admin-auth", "true");
+                                                // 2. Save the UI display name/details
                                                 localStorage.setItem("admin-user", JSON.stringify(data.user));
-                                                // 3. Clean up the temporary user data you set during step 1 of login
                                                 localStorage.removeItem("admin-user-temp");
-                                                // 4. Now navigate to admin!
+                                                // 3. Navigate into the dashboard
                                                 navigate("/admin", { replace: true });
                                             }
                                             else {

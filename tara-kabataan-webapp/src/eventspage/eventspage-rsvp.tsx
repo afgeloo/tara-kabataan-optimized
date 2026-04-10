@@ -29,7 +29,7 @@ export interface Event {
 
 /* ---------- stable helpers/constants ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
 const DATE_FMT_FULL = new Intl.DateTimeFormat(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 const MONTH_FMT = new Intl.DateTimeFormat(undefined, { month: "long" });

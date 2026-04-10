@@ -23,7 +23,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 // --- Extracted Constants & Helpers ---
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 const TABS = ["About Us", "Members", "Partnerships"];
 const PARTNERS_PER_PAGE = 8;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB Limit

@@ -12,7 +12,7 @@ type PartnerApi = { partner_image?: string | null };
 type PartnersResponse = { partners?: PartnerApi[] } | PartnerApi[] | unknown;
 
 const BASE = import.meta.env.VITE_API_BASE_URL as string;
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
 // Robust S3 Image Router
 const toLogoUrl = (url: string) => {

@@ -15,7 +15,7 @@ type Blog = {
 };
 
 const API = `${import.meta.env.VITE_API_BASE_URL}/blogs.php`;
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 const MAX_ITEMS = 3;
 
 // BULLETPROOF S3 HELPER

@@ -1,4 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+// gototop.tsx
 import { useEffect, useRef, useState, useCallback, memo } from "react";
 import "./global-css/gototop.css";
 import { IoIosArrowUp } from "react-icons/io";

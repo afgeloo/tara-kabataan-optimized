@@ -1,5 +1,5 @@
 import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-// src/preload-gate.tsx
+// preload-gate.tsx
 import { useEffect, useRef, useState } from "react";
 import Preloader from "./preloader";
 function preloadImage(url) {

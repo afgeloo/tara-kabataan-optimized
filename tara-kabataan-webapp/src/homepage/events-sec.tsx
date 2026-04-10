@@ -22,7 +22,7 @@ interface Slide {
 }
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
-const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
 
 // BULLETPROOF S3 HELPER
 const getSafeImageUrl = (url?: string | null) => {

@@ -2,6 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import AdminSidebar from "./admin-sidebar";
+import Preloader from "../preloader"; // Added your preloader
 import "./css/adminpage.css";
 import "./css/admin-blogs.css";
 import "./css/admin-events.css";
@@ -10,18 +11,10 @@ const AdminPage = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     useEffect(() => {
         const verifySession = async () => {
-            const token = localStorage.getItem("admin_token");
-            if (!token) {
-                setIsAuthenticated(false);
-                return;
-            }
             try {
                 const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/check_session.php`, {
                     method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Session-Token": token, // SEND THE VIP PASS TO PHP!
-                    },
+                    credentials: "include",
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -30,16 +23,21 @@ const AdminPage = () => {
                         return;
                     }
                 }
+                localStorage.removeItem("admin-auth");
+                localStorage.removeItem("admin-user");
                 setIsAuthenticated(false);
             }
             catch (err) {
+                localStorage.removeItem("admin-auth");
+                localStorage.removeItem("admin-user");
                 setIsAuthenticated(false);
             }
         };
         verifySession();
     }, []);
     if (isAuthenticated === null) {
-        return (_jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }, children: "Loading securely..." }));
+        // Replaced raw text with your beautiful preloader
+        return (_jsx("div", { style: { position: "fixed", inset: 0, zIndex: 9999, background: "var(--app-bg, #fff)" }, children: _jsx(Preloader, {}) }));
     }
     if (isAuthenticated === false) {
         return _jsx(Navigate, { to: "/admin-login", replace: true });

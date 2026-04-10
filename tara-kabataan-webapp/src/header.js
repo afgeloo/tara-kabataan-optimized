@@ -23,15 +23,6 @@ const Header = () => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth > 768) {
-                setMenuOpen(false);
-            }
-        };
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
     return (_jsxs("header", { className: "header", children: [_jsx(Link, { to: "/", children: _jsx("img", { src: logo, alt: "Tarakabataan Logo", className: "logo" }) }), _jsxs("div", { className: "burger", onClick: () => setMenuOpen(!menuOpen), children: [_jsx("div", { className: `bar ${menuOpen ? "open" : ""}` }), _jsx("div", { className: `bar ${menuOpen ? "open" : ""}` }), _jsx("div", { className: `bar ${menuOpen ? "open" : ""}` })] }), _jsxs("nav", { className: `nav-links ${menuOpen ? "active" : ""} ${isMobile ? "mobile" : "desktop"}`, children: [navLinks.map(({ path, label }) => (_jsx("li", { children: _jsx(Link, { to: path, className: "nav-button", onClick: () => setMenuOpen(false), children: label }) }, path))), _jsx("a", { href: "https://docs.google.com/forms/d/e/1FAIpQLSewrSWYnmn5lVqOTbSh9751x80e-IhIp_atvMFaDf3M0n6uVg/viewform", target: "_blank", rel: "noopener noreferrer", className: "nav-join", onClick: () => setMenuOpen(false), children: "Join Now" })] })] }));
 };
 export default Header;

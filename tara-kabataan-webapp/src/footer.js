@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// footer.tsx
 import { useEffect, useMemo, useRef, useState, memo } from "react";
 import "./global-css/footer.css";
 import "./global-css/header.css";

@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// src/src/about/BriefBgSection.tsx (or wherever this file lives)
 import "./css/briefbg-sec.css";
 import { memo, useEffect, useState } from "react";
 import BgCarousel from "./bgcarousel";
@@ -19,35 +20,27 @@ const slides = [
     { image: slide4 },
 ];
 const BriefBg = memo(() => {
-    const [background, setBackground] = useState("Loading...");
+    // PERSISTENT CACHE: Pull from disk immediately
+    const [background, setBackground] = useState(() => {
+        const cached = localStorage.getItem("tk_about_bg");
+        return cached ? JSON.parse(cached) : "Loading...";
+    });
     useEffect(() => {
-        const now = Date.now();
-        if (_bgCache && now - _bgCacheAt < BG_TTL) {
-            setBackground(_bgCache);
-            return;
-        }
         const ctrl = new AbortController();
         fetch(`${import.meta.env.VITE_API_BASE_URL}/aboutus.php`, { signal: ctrl.signal })
-            .then((res) => {
-            if (!res.ok)
-                throw new Error(`HTTP ${res.status}`);
-            return res.json();
-        })
+            .then((res) => res.json())
             .then((data) => {
-            const text = (typeof data.background === "string" && data.background.trim()) ||
-                "No background content found.";
-            _bgCache = text;
-            _bgCacheAt = Date.now();
+            const text = data.background?.trim() || "No background content found.";
             setBackground(text);
+            // Save to disk for next visit
+            localStorage.setItem("tk_about_bg", JSON.stringify(text));
         })
             .catch((err) => {
-            if (err?.name !== "AbortError") {
-                console.error("Error fetching background:", err);
-                setBackground("Failed to load background.");
-            }
+            if (err?.name !== "AbortError")
+                console.error(err);
         });
         return () => ctrl.abort();
     }, []);
-    return (_jsxs("div", { className: "briefbg-sec", children: [_jsx("div", { className: "briefbg-carousel-bg", children: _jsx("img", { src: ribbon, alt: "Brief Background Carousel Background", loading: "lazy", decoding: "async" }) }), _jsx("div", { className: "bg-carousel-container", children: _jsx(BgCarousel, { slides: slides, autoSlide: true, autoSlideInterval: 5000 }) }), _jsxs("div", { className: "briefbg-sec-content", children: [_jsx("h1", { className: "briefbg-header", children: "Brief Background" }), _jsx("p", { className: "briefbg-description", children: background })] }), _jsx("hr", { className: "briefbg-line" })] }));
+    return (_jsxs("div", { className: "briefbg-sec", children: [_jsx("div", { className: "briefbg-carousel-bg", children: _jsx("img", { src: ribbon, alt: "ribbon", loading: "lazy" }) }), _jsx("div", { className: "bg-carousel-container", children: _jsx(BgCarousel, { slides: slides, autoSlide: true, autoSlideInterval: 5000 }) }), _jsxs("div", { className: "briefbg-sec-content", children: [_jsx("h1", { className: "briefbg-header", children: "Brief Background" }), _jsx("p", { className: "briefbg-description", children: background })] }), _jsx("hr", { className: "briefbg-line" })] }));
 });
 export default BriefBg;

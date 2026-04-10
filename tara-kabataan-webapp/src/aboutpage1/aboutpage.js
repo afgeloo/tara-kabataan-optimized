@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-// src/components/about/AboutPage.tsx (or wherever this file lives)
+// src/src/about/AboutPage.tsx (or wherever this file lives)
 import React, { lazy, memo, Suspense, useEffect } from "react";
 import Header from "../footer/../header"; // keep Header immediate for fast paint
 import Footer from "../footer";

@@ -12,47 +12,32 @@ import logoLabelImg from "../assets/homepage/tk-logo-label.png";
 import bulbImg from "../assets/homepage/bulb.png";
 import botCloudImg from "../assets/homepage/bot-cloud.png";
 const BASE = import.meta.env.VITE_API_BASE_URL;
-// Memoized so the SVG doesn’t rerender every time
-const Wave = memo(() => (_jsxs("div", { className: "wave-container", children: [_jsx("svg", { width: "100%", height: "auto", version: "1.1", xmlns: "http://www.w3.org/2000/svg", style: { fillRule: "evenodd", clipRule: "evenodd", strokeLinecap: "round", strokeLinejoin: "round" }, children: _jsx("path", { d: "M50,39 C200,10 400,70 600,39 C800,10 1000,70 1200,39 C1400,10 1600,70 1800,39", style: {
-                    fill: "none",
-                    stroke: "#F875AA",
-                    strokeOpacity: 0.5,
-                    strokeWidth: 2,
-                    strokeDasharray: "280 550 160 600 260 350",
-                }, children: _jsx("animate", { attributeName: "stroke-dashoffset", from: "-2200", to: "0", dur: "32s", repeatCount: "indefinite" }) }) }), _jsx("svg", { width: "100%", height: "auto", version: "1.1", xmlns: "http://www.w3.org/2000/svg", style: { fillRule: "evenodd", clipRule: "evenodd", strokeLinecap: "round", strokeLinejoin: "round" }, children: _jsx("path", { d: "M50,39 C200,10 400,70 600,39 C800,10 1000,70 1200,39 C1400,10 1600,70 1800,39", style: {
-                    fill: "none",
-                    stroke: "#0F82CA",
-                    strokeOpacity: 0.5,
-                    strokeWidth: 2,
-                    strokeDasharray: "180 250 160 700 260 650",
-                }, strokeDashoffset: "180", children: _jsx("animate", { attributeName: "stroke-dashoffset", from: "-2020", to: "180", dur: "32s", repeatCount: "indefinite" }) }) })] })));
+const Wave = memo(() => (_jsxs("div", { className: "wave-container", children: [_jsx("svg", { width: "100%", height: "auto", version: "1.1", xmlns: "http://www.w3.org/2000/svg", style: { fillRule: "evenodd", clipRule: "evenodd", strokeLinecap: "round", strokeLinejoin: "round" }, children: _jsx("path", { d: "M50,39 C200,10 400,70 600,39 C800,10 1000,70 1200,39 C1400,10 1600,70 1800,39", style: { fill: "none", stroke: "#F875AA", strokeOpacity: 0.5, strokeWidth: 2, strokeDasharray: "280 550 160 600 260 350" }, children: _jsx("animate", { attributeName: "stroke-dashoffset", from: "-2200", to: "0", dur: "32s", repeatCount: "indefinite" }) }) }), _jsx("svg", { width: "100%", height: "auto", version: "1.1", xmlns: "http://www.w3.org/2000/svg", style: { fillRule: "evenodd", clipRule: "evenodd", strokeLinecap: "round", strokeLinejoin: "round" }, children: _jsx("path", { d: "M50,39 C200,10 400,70 600,39 C800,10 1000,70 1200,39 C1400,10 1600,70 1800,39", style: { fill: "none", stroke: "#0F82CA", strokeOpacity: 0.5, strokeWidth: 2, strokeDasharray: "180 250 160 700 260 650" }, strokeDashoffset: "180", children: _jsx("animate", { attributeName: "stroke-dashoffset", from: "-2020", to: "180", dur: "32s", repeatCount: "indefinite" }) }) })] })));
 function WelcomeSec() {
-    const [overview, setOverview] = useState("Loading...");
-    const prefersReducedMotion = typeof window !== "undefined" &&
-        window.matchMedia &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // Pre-build arrays once (no new arrays every render)
+    // ZERO LATENCY FIX: Grab cached text immediately on load
+    const [overview, setOverview] = useState(() => {
+        const cached = localStorage.getItem("tk_aboutus_overview");
+        return cached ? JSON.parse(cached) : "Loading...";
+    });
+    const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const flowers = useMemo(() => Array.from({ length: 6 }), []);
     const spacer = useMemo(() => ({ width: "50px" }), []);
     useEffect(() => {
         const ctrl = new AbortController();
         (async () => {
             try {
-                const res = await fetch(`${BASE}/aboutus.php`, {
-                    signal: ctrl.signal,
-                });
+                const res = await fetch(`${BASE}/aboutus.php`, { signal: ctrl.signal });
                 if (!res.ok)
                     throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                const text = typeof data?.overview === "string" && data.overview.trim()
-                    ? data.overview
-                    : "No overview content found.";
+                const text = typeof data?.overview === "string" && data.overview.trim() ? data.overview : "No overview content found.";
+                // Update screen and save to cache for next visit!
                 setOverview(text);
+                localStorage.setItem("tk_aboutus_overview", JSON.stringify(text));
             }
             catch (err) {
                 if (err?.name !== "AbortError") {
                     console.error("Error fetching overview:", err);
-                    setOverview("Failed to load overview.");
                 }
             }
         })();

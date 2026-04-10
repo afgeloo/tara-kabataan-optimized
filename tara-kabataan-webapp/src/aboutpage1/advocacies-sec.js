@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-// src/components/AboutAdvocacies.tsx
+// src/src/about/AdvocaciesSection.tsx (or wherever this file lives)
 import { memo, useEffect, useMemo, useState } from "react";
 import "./css/advocacies-sec.css";
 import healthIconDefault from "../assets/eventspage/health-icon.png";
@@ -13,15 +13,38 @@ import kasarianIconHover from "../assets/eventspage/kasarian-hover.png";
 import kulturaIconDefault from "../assets/eventspage/kultura-icon.png";
 import kulturaIconHover from "../assets/eventspage/kultura-hover.png";
 import placeholderImg from "../assets/aboutpage/img-placeholder-guy.png";
+/* ---------- Constants ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const API_URL = `${API_BASE}/members.php`;
-// ---------- tiny cache ----------
-const CACHE_VERSION = 1;
-let _ver = 0;
-let _at = 0;
-let _members = null;
-const TTL = 5 * 60 * 1000;
-// ---------- slides ----------
+const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan-webapp-v2.s3.ap-southeast-2.amazonaws.com/tara-kabataan-optimized/tara-kabataan-webapp/uploads";
+/** * Robust S3 Resolver:
+ * Strips legacy prefixes to prevent the "Double Folder" bug found in old DB records.
+ */
+const resolveImage = (raw) => {
+    if (!raw || !raw.trim())
+        return placeholderImg;
+    if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) {
+        return raw;
+    }
+    const [path, query] = raw.split("?");
+    let cleanPath = path.startsWith("/") ? path.substring(1) : path;
+    // Kill redundant folders causing broken S3 links
+    if (cleanPath.startsWith("tara-kabataan-webapp/uploads/")) {
+        cleanPath = cleanPath.replace("tara-kabataan-webapp/uploads/", "");
+    }
+    else if (cleanPath.startsWith("tara-kabataan-optimized/tara-kabataan-webapp/uploads/")) {
+        cleanPath = cleanPath.replace("tara-kabataan-optimized/tara-kabataan-webapp/uploads/", "");
+    }
+    // Ensure it points to the members-images folder if no folder is present
+    if (!cleanPath.includes("/")) {
+        cleanPath = `members-images/${cleanPath}`;
+    }
+    let full = `${IMAGE_BASE}/${cleanPath}`;
+    if (query)
+        full += `?${query}`;
+    return full;
+};
+// ---------- Advocacy Slides Configuration ----------
 const slides = [
     {
         key: "Kalusugan",
@@ -59,25 +82,7 @@ const slides = [
         title: "Pinapahalagahan ang pagkakapantay-pantay ng kasarian at inklusibong lipunan sa pamamagitan ng pagsusulong ng mga polisiya tulad ng SOGIESC Bill, Divorce Bill, at pagtatanggol sa karapatan ng kababaihan.",
     },
 ];
-// ---------- utils ----------
-const resolveMemberImage = (raw) => {
-    if (!raw || !raw.trim())
-        return placeholderImg;
-    if (raw.startsWith("http"))
-        return raw;
-    const [path, query] = raw.split("?");
-    const hasOpt = path.includes("/tara-kabataan-optimized/");
-    const hasNon = path.includes("/tara-kabataan-optimized/");
-    let normalized;
-    if (hasOpt || hasNon) {
-        normalized = `${API_BASE}${path}`;
-    }
-    else {
-        const clean = path.startsWith("/") ? path.slice(1) : path;
-        normalized = `${API_BASE}/tara-kabataan-optimized/${clean}`;
-    }
-    return query ? `${normalized}?${query}` : normalized;
-};
+// ---------- Helper: Grouping ----------
 const groupByRole = (list) => {
     const m = new Map();
     for (const it of list) {
@@ -90,53 +95,46 @@ const groupByRole = (list) => {
     }
     return m;
 };
-// ---------- component ----------
+// ---------- Component ----------
 const AboutAdvocacies = memo(function AboutAdvocacies() {
-    const [members, setMembers] = useState(_ver === CACHE_VERSION ? _members ?? [] : []);
+    // ZERO LATENCY: Pull from disk immediately
+    const [members, setMembers] = useState(() => {
+        const cached = localStorage.getItem("tk_advocacy_members");
+        return cached ? JSON.parse(cached) : [];
+    });
     useEffect(() => {
-        const now = Date.now();
-        const fresh = _ver === CACHE_VERSION && _members && now - _at < TTL;
-        if (fresh)
-            return;
         const ctrl = new AbortController();
-        // yield once; don't rely on requestIdleCallback
-        setTimeout(() => {
-            fetch(API_URL, { signal: ctrl.signal }) // no credentials
-                .then((res) => {
-                if (!res.ok)
-                    throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            })
-                .then((data) => {
-                const ok = data &&
-                    (data.success === true ||
-                        data.success === 1 ||
-                        data.success === "1" ||
-                        data.success === "true");
-                if (!ok || !Array.isArray(data.members))
-                    return;
-                const resolved = data.members.map((m) => ({
-                    ...m,
-                    role_name: (m.role_name || "").trim(),
-                    member_image: resolveMemberImage(m.member_image),
-                }));
-                _ver = CACHE_VERSION;
-                _members = resolved;
-                _at = Date.now();
-                setMembers(resolved);
-            })
-                .catch((err) => {
-                if (err?.name !== "AbortError") {
-                    console.error("[AboutAdvocacies] fetch members failed:", err);
-                }
-            });
-        }, 0);
+        fetch(API_URL, { signal: ctrl.signal })
+            .then((res) => {
+            if (!res.ok)
+                throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        })
+            .then((data) => {
+            if (!data || !Array.isArray(data.members))
+                return;
+            const resolved = data.members.map((m) => ({
+                ...m,
+                role_name: (m.role_name || "").trim(),
+                member_image: resolveImage(m.member_image),
+            }));
+            setMembers(resolved);
+            // Persist data for zero-latency loading on next visit
+            localStorage.setItem("tk_advocacy_members", JSON.stringify(resolved));
+        })
+            .catch((err) => {
+            if (err?.name !== "AbortError") {
+                console.error("[AboutAdvocacies] fetch members failed:", err);
+            }
+        });
         return () => ctrl.abort();
     }, []);
     const membersByRole = useMemo(() => groupByRole(members), [members]);
     return (_jsxs("section", { className: "advocacies-section", "aria-labelledby": "advocacies-header", children: [_jsx("hr", { className: "advocacies-line" }), _jsx("h1", { id: "advocacies-header", className: "advocacies-header", children: "Advocacies" }), _jsx("div", { className: "advocacies-slider", role: "list", children: slides.map((slide) => {
                     const leads = membersByRole.get(slide.category.toLowerCase()) ?? [];
-                    return (_jsxs("article", { className: `advocacy-card ${slide.category.toLowerCase()}`, role: "listitem", children: [_jsxs("div", { className: "advocacy-icon-container", "aria-hidden": "true", children: [_jsx("img", { src: slide.defaultImage, alt: "", className: "default-icon", loading: "lazy", decoding: "async" }), _jsx("img", { src: slide.hoverImage, alt: "", className: "hover-icon", loading: "lazy", decoding: "async" })] }), _jsx("h2", { className: "advocacy-category", children: slide.category }), _jsx("p", { className: "advocacy-title", children: slide.title }), leads.length > 0 && (_jsx("h3", { className: "advocacy-category", children: leads.length > 1 ? "Leads" : "Lead" })), _jsx("div", { className: "advocacy-leads", children: leads.map((lead) => (_jsxs("div", { className: "advocacy-lead-container", title: lead.member_name, children: [_jsx("img", { className: "lead-photo", src: lead.member_image || placeholderImg, alt: lead.member_name, loading: "lazy", decoding: "async", width: 96, height: 96 }), _jsx("p", { className: "advocacy-lead", children: lead.member_name })] }, lead.member_id))) })] }, slide.key));
+                    return (_jsxs("article", { className: `advocacy-card ${slide.category.toLowerCase()}`, role: "listitem", children: [_jsxs("div", { className: "advocacy-icon-container", "aria-hidden": "true", children: [_jsx("img", { src: slide.defaultImage, alt: "", className: "default-icon", loading: "lazy", decoding: "async" }), _jsx("img", { src: slide.hoverImage, alt: "", className: "hover-icon", loading: "lazy", decoding: "async" })] }), _jsx("h2", { className: "advocacy-category", children: slide.category }), _jsx("p", { className: "advocacy-title", children: slide.title }), leads.length > 0 && (_jsx("h3", { className: "advocacy-category", children: leads.length > 1 ? "Leads" : "Lead" })), _jsx("div", { className: "advocacy-leads", children: leads.map((lead) => (_jsxs("div", { className: "advocacy-lead-container", title: lead.member_name, children: [_jsx("img", { className: "lead-photo", src: lead.member_image || placeholderImg, alt: lead.member_name, loading: "lazy", decoding: "async", width: 96, height: 96, onError: (e) => {
+                                                e.target.src = placeholderImg;
+                                            } }), _jsx("p", { className: "advocacy-lead", children: lead.member_name })] }, lead.member_id))) })] }, slide.key));
                 }) })] }));
 });
 export default AboutAdvocacies;
