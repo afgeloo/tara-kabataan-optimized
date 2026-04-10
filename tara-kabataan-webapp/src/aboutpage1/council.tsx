@@ -23,9 +23,13 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
 /* ---------- Robust S3 Image Resolver ---------- */
 const resolveImage = (raw: string | null): string => {
   if (!raw || !raw.trim()) return placeholderImg;
-  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) return raw;
 
-  const [path, query] = raw.split("?");
+  // --- HOTFIX: Intercept the old bucket name before doing anything else! ---
+  let finalUrl = raw.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+
+  if (/^https?:\/\//i.test(finalUrl) || finalUrl.startsWith("//")) return finalUrl;
+
+  const [path, query] = finalUrl.split("?");
   let cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
   // Strip out redundant folders

@@ -38,11 +38,14 @@ const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE_URL || "https://tara-kabataan
 const resolveImage = (raw: string | null): string => {
   if (!raw || !raw.trim()) return placeholderImg;
   
-  if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) {
-    return raw;
+  // --- HOTFIX: Intercept the old bucket name before doing anything else! ---
+  let finalUrl = raw.replace("tara-kabataan-webapp.s3", "tara-kabataan-webapp-v2.s3");
+  
+  if (/^https?:\/\//i.test(finalUrl) || finalUrl.startsWith("//")) {
+    return finalUrl;
   }
 
-  const [path, query] = raw.split("?");
+  const [path, query] = finalUrl.split("?");
   let cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
   // Kill redundant folders causing broken S3 links

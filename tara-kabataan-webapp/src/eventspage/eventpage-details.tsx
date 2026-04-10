@@ -227,7 +227,14 @@ function EventDetails() {
             </div>
             <div className="event-divider"></div>
             {/* Event content rendered cleanly from the database */}
-            <div className="event-about" ref={aboutRef} dangerouslySetInnerHTML={{ __html: event.event_content }} />
+            {/* Event content rendered cleanly with the S3 hotfix for inline images */}
+            <div 
+              className="event-about" 
+              ref={aboutRef} 
+              dangerouslySetInnerHTML={{ 
+                __html: event.event_content.replace(/tara-kabataan-webapp\.s3/g, "tara-kabataan-webapp-v2.s3") 
+              }} 
+            />
           </div>
         </div>
 

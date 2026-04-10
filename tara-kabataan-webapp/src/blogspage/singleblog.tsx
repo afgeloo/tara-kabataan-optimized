@@ -120,8 +120,16 @@ export default function SingleBlog() {
     }
   }, []);
 
-  const formattedContent = useMemo(() => blog ? blog.content.replace(/\n/g, "<br>").replace(/  /g, " &nbsp;") : "", [blog]);
-  const formattedDate = useMemo(() => blog ? DATE_FMT.format(new Date(blog.created_at)) : "", [blog?.created_at]);
+  const formattedContent = useMemo(() => {
+    if (!blog) return "";
+    // Format line breaks and spaces
+    let html = blog.content.replace(/\n/g, "<br>").replace(/  /g, " &nbsp;");
+    
+    // --- HOTFIX: Intercept old S3 links hiding inside the blog paragraphs! ---
+    html = html.replace(/tara-kabataan-webapp\.s3/g, "tara-kabataan-webapp-v2.s3");
+    
+    return html;
+  }, [blog]);  const formattedDate = useMemo(() => blog ? DATE_FMT.format(new Date(blog.created_at)) : "", [blog?.created_at]);
   const heroUrl = useMemo(() => blog ? getSafeBlogImageUrl(blog.image_url) : "", [blog?.image_url]);
   
   const openHero = useCallback(() => setFullImageUrl(heroUrl), [heroUrl]);
