@@ -756,7 +756,7 @@
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 180px;
   text-align: justify;
   word-break: break-word;
@@ -769,7 +769,7 @@
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 280px;
   text-align: justify;
 }
