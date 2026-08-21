@@ -689,7 +689,7 @@
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 280px;
   text-align: justify;
 }
@@ -1162,7 +1162,7 @@ button:disabled {
   line-height: 1.5;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 280px;
   text-align: justify;
   white-space: pre-wrap;
@@ -1175,7 +1175,7 @@ button:disabled {
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 280px;
   text-align: justify;
   white-space: pre-wrap;
@@ -2331,3 +2331,15 @@ button:disabled {
 }
 
 /* ...existing code... */
+
+/* Text pasted into the blog content editor (Facebook, Word, dark-mode sources)
+   arrives carrying inline styles such as `color: rgb(255, 255, 255)`, which
+   render white on the white editor background. The toolbar has no colour
+   control -- only bold/italic/underline/list/image -- so any inline colour in
+   this content is paste residue, never a deliberate choice.
+   An author `!important` declaration outranks a non-important inline style,
+   which is what makes this reachable from CSS at all. */
+.admin-blogs-modal-desc-content [style*="color"],
+.admin-blogs-new-blog-modal-desc-content [style*="color"] {
+  color: #333 !important;
+}

@@ -756,7 +756,7 @@
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 180px;
   text-align: justify;
   word-break: break-word;
@@ -769,7 +769,7 @@
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 280px;
   text-align: justify;
 }
@@ -1206,7 +1206,7 @@
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 160px;
   text-align: justify;
 }
@@ -1218,7 +1218,7 @@
   padding: 15px;
   resize: none;
   font-family: inherit;
-  color: inherit;
+  color: #333;
   min-height: 280px;
   text-align: justify;
   white-space: pre-wrap;
@@ -1473,4 +1473,12 @@
     height: 24px;
     line-height: 24px;
   }
+}
+
+/* Same paste residue as the blog editor: see the note in admin-blogs.css. */
+.admin-events-inner-content-modal-desc-content [style*="color"],
+.admin-events-inner-content-modal-speakers-content [style*="color"],
+.admin-new-event-inner-content-modal-desc-content [style*="color"],
+.admin-new-event-inner-content-modal-speakers-content [style*="color"] {
+  color: #333 !important;
 }
